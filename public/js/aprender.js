@@ -8,6 +8,7 @@ var F = window.F, $ = F.$, E = F.E;
 function minutos(l) { return Math.max(3, Math.round(l.npasos * 0.6)); }
 /* horas estimadas de un curso a partir de sus lecciones reales */
 function horasCurso(c) { return Math.max(1, Math.round(F.lecciones(c.id).reduce(function (s, l) { return s + minutos(l.leccion || l); }, 0) / 60)); }
+F.horasCurso = horasCurso;
 
 /* curso "activo": el último en el que se avanzó y que no está terminado */
 function cursoActivo() {
@@ -197,7 +198,11 @@ F.vistaCurso = function (prm) {
         '<p class="subtitulo">' + F.esc(c.descripcion) + "</p>" +
         '<div class="curso-resumen"><span><b>' + pct + "%</b>completado</span><span><b>" + hechasN + "/" + todas.length + "</b>lecciones</span><span><b>" + unidadesOk + "/" + c.unidades.length + "</b>unidades</span><span><b>" + F.num(xpCurso) + "</b>XP en el curso</span></div>" +
       "</div>" +
-      (sig ? '<a class="btn btn-primario btn-grande" href="#/leccion/' + c.id + "/" + sig.leccion.id + '">' + F.icono("play") + (hechasN ? "Continuar" : "Empezar") + "</a>" : '<span class="badge ok">' + F.icono("check").replace("<svg", '<svg style="width:12px;height:12px"') + "Curso completado</span>") +
+      (sig ? '<a class="btn btn-primario btn-grande" href="#/leccion/' + c.id + "/" + sig.leccion.id + '">' + F.icono("play") + (hechasN ? "Continuar" : "Empezar") + "</a>" : (function () {
+        var cert = E.perfil && (E.perfil.certificados || []).filter(function (x) { return x.curso === c.id; })[0];
+        return cert ? '<a class="btn btn-primario btn-grande" href="#/certificado/' + cert.codigo + '">' + F.icono("certificado") + "Ver certificado</a>"
+          : !E.perfil ? '<a class="btn btn-primario" href="#/entrar?modo=registro">' + F.icono("certificado") + "Crea una cuenta para tu certificado</a>" : "";
+      })()) + (sig ? "" : '<span class="badge ok">' + F.icono("check").replace("<svg", '<svg style="width:12px;height:12px"') + "Curso completado</span>") +
       "</div>" +
       '<div class="barra-prog" style="--c:' + c.color + ';margin-top:22px;height:8px"><i style="width:' + pct + '%"></i></div>' +
       '<div class="pipeline">' + stages + "</div>" +

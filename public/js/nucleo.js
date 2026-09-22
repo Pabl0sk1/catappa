@@ -96,6 +96,7 @@ var I = {
   ojo: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   ojoNo: '<path d="M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
   monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  certificado: '<circle cx="12" cy="9" r="6"/><path d="m9 14.2-1.5 7.3L12 19l4.5 2.5-1.5-7.3"/><path d="m9.8 9 1.5 1.5 3-3"/>',
   sonido: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
   silencio: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>',
   plano: '<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="8.5" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v3.5h11V8M12 11.5V16"/>'
@@ -364,7 +365,7 @@ F.registrarLeccion = function (cursoId, leccionId, aciertos, preguntas) {
     if (E.modo !== "servidor") return Promise.resolve(encolar());
     return F.api("POST", "/api/progreso", datos).then(function (d) {
       E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache();
-      return { xp: d.xp, nuevas: d.nuevasInsignias || [] };
+      return { xp: d.xp, nuevas: d.nuevasInsignias || [], certificados: d.nuevosCertificados || [] };
     }).catch(function (e) {
       if (e.estado) throw e;          // error del servidor: se muestra
       E.modo = "offline"; return encolar();   // fallo de red: a la cola

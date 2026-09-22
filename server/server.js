@@ -28,6 +28,7 @@ function cargarCatalogo() {
     const unidades = C[id].map(u => u.lecciones.map(l => l.id));
     CATALOGO[id] = { unidades, lecciones: new Set(unidades.flat()), total: unidades.flat().length };
   }
+  for (const m of ctx.CURSOS_META || []) if (CATALOGO[m.id]) CATALOGO[m.id].titulo = m.titulo;
   console.log("[catalogo]", Object.entries(CATALOGO).map(([k, v]) => k + ":" + v.total).join("  "));
 }
 
@@ -42,6 +43,32 @@ function limpiarTexto(s, max) {
   return String(s == null ? "" : s).replace(/\u0000/g, "").trim().slice(0, max);
 }
 const COLORES = ["#179493", "#f5b642", "#7fd1b9", "#7aa2f7", "#f26d6d", "#c49bf2", "#8fd16a", "#f29e6d", "#6dd3f2"];
+
+/* ---------------- certificados ----------------
+   Al completar todas las lecciones de un curso se emite un certificado con un código
+   único que cualquiera puede verificar en /#/certificado/<código>. Se emite una sola vez
+   por curso (conserva el nombre y la fecha de ese momento) y se borra si se reinicia el curso. */
+function nuevoCodigo() {
+  const todos = new Set(Object.values(db.get("certificados")).flatMap(c => Object.values(c).map(x => x.codigo)));
+  let c;
+  do { const h = crypto.randomBytes(6).toString("hex").toUpperCase(); c = "CAT-" + h.slice(0, 4) + "-" + h.slice(4, 8) + "-" + h.slice(8); } while (todos.has(c));
+  return c;
+}
+function emitirCertificados(u) {
+  const certs = db.get("certificados"), p = db.get("progreso")[u.id] || {};
+  const mios = certs[u.id] = certs[u.id] || {};
+  const nuevos = [];
+  for (const [cid, cat] of Object.entries(CATALOGO)) {
+    if (mios[cid] || !cat.total) continue;
+    const hechas = Object.keys((p[cid] && p[cid].lecciones) || {}).filter(l => cat.lecciones.has(l)).length;
+    if (hechas < cat.total) continue;
+    mios[cid] = { codigo: nuevoCodigo(), curso: cid, titulo: cat.titulo || cid, lecciones: cat.total, nombre: u.nombre || u.usuario, fecha: hoy() };
+    nuevos.push(mios[cid]);
+  }
+  if (nuevos.length) db.guardar("certificados");
+  return nuevos;
+}
+const certificadosDe = (uid) => Object.values(db.get("certificados")[uid] || {}).sort((a, b) => a.fecha < b.fecha ? 1 : -1);
 
 /* ---------------- lógica de juego ---------------- */
 function racha(uid) {
@@ -113,7 +140,8 @@ function perfilPublico(u, completo) {
   const out = {
     usuario: u.usuario, nombre: u.nombre, color: u.color, bio: u.bio || "", rol: u.rol || "alumno",
     creado: u.creado, xp: r.xp, racha: r.racha, lecciones: r.hechas,
-    insignias: INSIGNIAS.filter(i => i.ok(r)).map(i => i.id)
+    insignias: INSIGNIAS.filter(i => i.ok(r)).map(i => i.id),
+    certificados: certificadosDe(u.id).map(({ codigo, curso, titulo, fecha, lecciones }) => ({ codigo, curso, titulo, fecha, lecciones }))
   };
   if (completo) {
     out.tema = u.tema || "sistema";   // preferencia privada: solo en el perfil propio
@@ -221,7 +249,10 @@ ruta("POST", "/api/logout", (req, res) => {
   enviar(res, 200, { ok: true });
 }, true);
 
-ruta("GET", "/api/yo", (req, res, b, u) => enviar(res, 200, { perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} }), true);
+ruta("GET", "/api/yo", (req, res, b, u) => {
+  const nuevos = emitirCertificados(u);
+  enviar(res, 200, { perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {}, nuevosCertificados: nuevos });
+}, true);
 
 ruta("POST", "/api/perfil", (req, res, b, u) => {
   if (b.nombre !== undefined) u.nombre = limpiarTexto(b.nombre, 40) || u.usuario;
@@ -248,6 +279,7 @@ function importarProgreso(uid, datos) {
 }
 ruta("POST", "/api/importar", (req, res, b, u) => {
   const n = importarProgreso(u.id, b.progreso || {});
+  emitirCertificados(u);
   enviar(res, 200, { importadas: n, perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
 }, true);
 
@@ -271,9 +303,10 @@ ruta("POST", "/api/progreso", (req, res, b, u) => {
   ac[u.id] = ac[u.id] || {}; ac[u.id][b.cursoId] = ac[u.id][b.cursoId] || {};
   ac[u.id][b.cursoId][hoy()] = (ac[u.id][b.cursoId][hoy()] || 0) + xp;
   db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos");
+  const certificados = emitirCertificados(u);
   const perfil = perfilPublico(u, true);
   const nuevas = perfil.insignias.filter(i => !antes.has(i));
-  enviar(res, 200, { xp, perfil, progreso: prog[u.id], nuevasInsignias: nuevas });
+  enviar(res, 200, { xp, perfil, progreso: prog[u.id], nuevasInsignias: nuevas, nuevosCertificados: certificados });
 }, true);
 
 /* reiniciar un curso: se borran sus lecciones y su XP, y esa XP se descuenta de la actividad
@@ -299,7 +332,9 @@ function reiniciarCurso(uid, cid) {
     delete prog[uid][cid];
   }
   if (ac[uid]) delete ac[uid][cid];
-  db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos");
+  const certs = db.get("certificados");
+  if (certs[uid]) delete certs[uid][cid];
+  db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos"); db.guardar("certificados");
   return !!c;
 }
 ruta("POST", "/api/progreso/reiniciar", (req, res, b, u) => {
@@ -307,6 +342,17 @@ ruta("POST", "/api/progreso/reiniciar", (req, res, b, u) => {
   const habia = reiniciarCurso(u.id, b.cursoId);
   enviar(res, 200, { reiniciado: habia, perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
 }, true);
+
+ruta("GET", "/api/certificados/:codigo", (req, res, b, u, q, prm) => {
+  const codigo = String(prm.codigo || "").toUpperCase();
+  for (const [uid, cs] of Object.entries(db.get("certificados"))) {
+    const c = Object.values(cs).find(x => x.codigo === codigo);
+    if (!c) continue;
+    const dueño = db.get("usuarios").find(x => x.id === uid);
+    return enviar(res, 200, Object.assign({ valido: true, usuario: dueño ? dueño.usuario : null }, c));
+  }
+  error(res, 404, "No existe ningún certificado con ese código.");
+});
 
 ruta("GET", "/api/insignias", (req, res) => enviar(res, 200, INSIGNIAS.map(({ id, nombre, desc }) => ({ id, nombre, desc }))));
 
@@ -323,6 +369,7 @@ ruta("GET", "/api/perfil/:usuario", (req, res, b, u, q, p) => {
   const x = db.get("usuarios").find(y => y.usuario === p.usuario);
   if (!x) return error(res, 404, "No existe ese usuario.");
   const out = perfilPublico(x, true);
+  delete out.tema;   // preferencia privada
   out.posts = db.get("posts").filter(y => y.autor === x.id).slice(-20).reverse().map(y => resumenPost(y));
   enviar(res, 200, out);
 });

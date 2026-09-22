@@ -7,7 +7,7 @@
 
 # Catappa
 
-Plataforma para aprender tecnología desde cero hasta nivel maestro — Linux, Git y GitHub, Docker, Kubernetes, DevOps, Terraform, AWS, Redes, SQL y PostgreSQL, Java, Spring Boot, Python, HTML y CSS, JavaScript, TypeScript, React, Node.js, Seguridad web, Algoritmos y estructuras de datos, Diseño de sistemas, Observabilidad, Ansible, Apache Kafka, Redis, MongoDB y Go — con lecciones
+Plataforma para aprender tecnología desde cero hasta nivel maestro — Linux, Git y GitHub, Docker, Kubernetes, DevOps, Jenkins, Terraform, AWS, Redes, SQL y PostgreSQL, Java, Spring Boot, Python, HTML y CSS, JavaScript, TypeScript, React, Node.js, Seguridad web, Algoritmos y estructuras de datos, Diseño de sistemas, Observabilidad, Ansible, Apache Kafka, Redis, MongoDB y Go — con lecciones
 cortas estilo Duolingo, sonido, cuentas, comunidad de preguntas y respuestas,
 ranking, perfiles e insignias. Se instala como aplicación (PWA) y funciona sin
 conexión. Incluye además un **laboratorio de Docker** para practicar en la
@@ -63,6 +63,7 @@ comunidad ni ranking.
 | Docker | Contenedores | 8 | 45 | 386 |
 | Kubernetes | Contenedores | 12 | 43 | 238 |
 | DevOps | Infraestructura | 7 | 38 | 263 |
+| Jenkins | Infraestructura | 8 | 25 | 96 |
 | Terraform | Infraestructura | 7 | 23 | 93 |
 | AWS | Cloud | 11 | 36 | 130 |
 | Redes | Sistemas | 11 | 44 | 232 |
@@ -84,7 +85,7 @@ comunidad ni ranking.
 | Redis | Datos | 4 | 10 | 34 |
 | MongoDB | Datos | 4 | 10 | 34 |
 | Go | Lenguajes | 6 | 16 | 52 |
-| **Total** | | **227** | **817** | **3996** |
+| **Total** | | **235** | **842** | **4092** |
 
 Cada curso sube por niveles — **Fundamentos, Intermedio, Avanzado, Experto y
 Maestro** — y termina con casos reales y un simulacro de entrevista. En la
@@ -132,6 +133,12 @@ respuesta y terminal simulada con salida real.
   actividad en la racha y el ranking, unidades plegadas y, en Docker, el progreso
   del curso antiguo guardado en el navegador).
 - **Contraseñas con ojo** para mostrarlas u ocultarlas en todos los campos.
+- **Certificados**: al completar todas las lecciones de un curso se emite un
+  certificado con el nombre, el curso, la fecha y un código único
+  (`CAT-XXXX-XXXX-XXXX`). Se ve en `#/certificado/<código>`, donde cualquiera
+  puede verificarlo sin cuenta, y se descarga como imagen PNG o como PDF. Aparece
+  al terminar la última lección, en la página del curso y en el perfil; quien ya
+  había completado cursos lo recibe al entrar. Reiniciar el curso lo retira.
 - **Búsqueda global** con `Ctrl + K` (lecciones, unidades y conceptos clave).
 - Diseño adaptado a móvil, con barra de navegación inferior.
 
@@ -250,7 +257,8 @@ todos los cursos.
 | GET/POST | `/api/comunidad` | listar (filtros `curso`, `leccion`, `q`, `orden`) y publicar |
 | GET/DELETE | `/api/comunidad/:id` | hilo |
 | POST | `/api/comunidad/:id/respuestas`, `/voto`, `/aceptar` | participar |
-| POST | `/api/progreso/reiniciar` | reiniciar un curso (`{ cursoId }`) |
+| POST | `/api/progreso/reiniciar` | reiniciar un curso (`{ cursoId }`); retira su certificado |
+| GET | `/api/certificados/:codigo` | verificar un certificado (público) |
 | GET | `/api/estado` | salud (lo usa el healthcheck) |
 
 ---

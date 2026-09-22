@@ -73,6 +73,7 @@ function pintarPerfil(p) {
       "</div>" +
       '<section class="seccion">' + heatmap(p.actividad || {}) + "</section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Progreso por curso</h2></div>' + bloqueCursos(p.cursos || {}) + "</section>" +
+      '<section class="seccion"><div class="seccion-cab"><h2>Certificados</h2><span class="mono">' + (p.certificados || []).length + "</span></div>" + F.bloqueCertificados(p.certificados, mio) + "</section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Insignias</h2><span class="mono">' + p.insignias.length + " conseguidas</span></div>" + bloqueInsignias(p.insignias) + "</section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Publicaciones</h2><span class="mono">' + (p.posts || []).length + "</span></div>" +
         ((p.posts || []).length ? '<div class="panel" style="padding:0 18px"><div class="posts">' + p.posts.map(F.filaPost).join("") + "</div></div>" : '<div class="panel vacio">Todavía no ha publicado nada.</div>') + "</section>" +

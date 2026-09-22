@@ -456,7 +456,7 @@ function fin() {
 
 function pintarFin(r, pct, seg, cursoId, l, falladas) {
   F.sonido.tocar("fin");
-  if (r.nuevas && r.nuevas.length) F.sonido.tocar("insignia");
+  if ((r.nuevas && r.nuevas.length) || (r.certificados && r.certificados.length)) F.sonido.tocar("insignia");
   var sig = F.siguiente(cursoId);
   var medalla = '<div class="fin-cata"><img src="' + F.MARCA.mascota + '" width="139" height="154" alt="Cata celebra que has terminado la lección"><svg class="fin-medalla" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="48" fill="var(--ok-soft)"/><circle cx="52" cy="52" r="48" fill="none" stroke="var(--ok)" stroke-width="3" stroke-dasharray="6 5"/>' +
     (pct >= 90 ? '<path d="m52 26 7.6 15.4 17 2.5-12.3 12 2.9 16.9L52 64.8l-15.2 8 2.9-16.9-12.3-12 17-2.5z" fill="var(--accent-fill)"/>' : '<path d="m34 53 12 12 24-26" fill="none" stroke="var(--ok)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>') + "</svg></div>";
@@ -464,6 +464,15 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
     var ins = F.INSIGNIAS.find(function (x) { return x.id === id; }) || { nombre: id, desc: "" };
     return '<div class="insignia-nueva">' + F.medalla(id, 40) + "<div><b>Nueva insignia: " + F.esc(ins.nombre) + "</b><span>" + F.esc(ins.desc) + "</span></div></div>";
   }).join("");
+  var cert = (r.certificados || []).filter(function (x) { return x.curso === cursoId; })[0];
+  var cursoHecho = F.porcentaje(cursoId) === 100;
+  var bloqueCert = cert
+    ? '<div class="fin-certificado">' + F.icono("certificado") + "<div><b>¡Has completado " + F.esc(cert.titulo) + "!</b><span>Tu certificado está listo, con un código que cualquiera puede verificar.</span></div>" +
+      '<button class="btn btn-primario" id="fin-cert">Ver mi certificado</button></div>'
+    : cursoHecho && !E.perfil
+      ? '<div class="fin-certificado">' + F.icono("certificado") + "<div><b>¡Has completado el curso!</b><span>Crea una cuenta y tu progreso se guardará con tu certificado.</span></div>" +
+        '<a class="btn btn-primario" href="#/entrar?modo=registro" id="fin-cert-registro">Crear cuenta</a></div>'
+      : "";
   var claves = (l.claves || []).map(function (c) { return "<li>" + c + "</li>"; }).join("");
   var fall = falladas.map(function (p) { return "<li>" + F.esc(String(p.p || p.h || "").replace(/<[^>]+>/g, "").slice(0, 120)) + "</li>"; }).join("");
   var c = $("#lec-in");
@@ -477,7 +486,7 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
         '<div class="fin-caja xp"><small>XP</small><b>+' + (r.xp || 0) + "</b></div>" +
         '<div class="fin-caja ac"><small>A la primera</small><b>' + pct + "%</b></div>" +
         '<div class="fin-caja tm"><small>Tiempo</small><b>' + Math.floor(seg / 60) + ":" + ("0" + (seg % 60)).slice(-2) + "</b></div>" +
-      "</div>" + nuevas +
+      "</div>" + bloqueCert + nuevas +
       '<div class="fin-resumen panel panel-pad">' +
         (claves ? "<h3>Lo que acabas de aprender</h3><ul>" + claves + "</ul>" : "") +
         (fall ? '<h3>Repasa esto</h3><ul class="falladas">' + fall + "</ul>" : "") +
@@ -490,13 +499,16 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
         "</div>" +
       "</div>" +
     "</div>";
+  var sc = $("#lec-scroll"); if (sc) sc.scrollTop = 0;   // el resumen empieza arriba, con Cata a la vista
   var cerrarE = function (ruta) { cerrarPantalla(); F.ir(ruta); };
   var bs = $("#fin-sig"); if (bs) bs.addEventListener("click", function () { F.abrirLeccion(cursoId, sig.leccion.id); history.replaceState(null, "", "#/leccion/" + cursoId + "/" + sig.leccion.id); });
   var bc = $("#fin-curso"); if (bc) bc.addEventListener("click", function () { cerrarE("/curso/" + cursoId); });
   $("#fin-volver").addEventListener("click", function () { cerrarE("/curso/" + cursoId); });
   $("#fin-comentar").addEventListener("click", function () { cerrarE("/comunidad?curso=" + cursoId + "&leccion=" + l.id); });
+  var bcert = $("#fin-cert"); if (bcert) bcert.addEventListener("click", function () { cerrarE("/certificado/" + cert.codigo); });
+  var breg = $("#fin-cert-registro"); if (breg) breg.addEventListener("click", function () { cerrarPantalla(); });
   S = null;
-  (bs || bc).focus();
+  (bs || bc).focus({ preventScroll: true });   // sin desplazar: el resumen se ve desde arriba
   F.pintarStats();
 }
 

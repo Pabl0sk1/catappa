@@ -18,6 +18,7 @@ F.ruta("/comunidad/:id", pagina(F.vistaPost), { seccion: "comunidad", migas: mig
 F.ruta("/ranking", pagina(F.vistaRanking), { seccion: "ranking", migas: miga("~/<b>ranking</b>") });
 F.ruta("/perfil", pagina(F.vistaPerfil), { seccion: "perfil", migas: miga("~/<b>perfil</b>") });
 F.ruta("/perfil/:usuario", pagina(F.vistaPerfil), { seccion: "perfil", migas: function (p) { return "~/perfil/<b>" + F.esc(p.usuario) + "</b>"; } });
+F.ruta("/certificado/:codigo", pagina(F.vistaCertificado), { seccion: "perfil", migas: function (p) { return "~/certificado/<b>" + F.esc(p.codigo) + "</b>"; } });
 F.ruta("/ajustes", pagina(F.vistaAjustes), { seccion: "ajustes", migas: miga("~/<b>ajustes</b>") });
 F.ruta("/entrar", pagina(F.vistaEntrar), { sinLayout: true });
 
@@ -66,7 +67,12 @@ function arrancar() {
       if (cache && cache.perfil) { E.perfil = cache.perfil; E.progreso = cache.progreso || {}; E.modo = "offline"; F.tema.sincronizar(); }
       return;
     }
-    return F.api("GET", "/api/yo").then(function (d) { E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache(); F.tema.sincronizar(); return F.sincronizarCola(); })
+    return F.api("GET", "/api/yo").then(function (d) {
+      E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache(); F.tema.sincronizar();
+      var nuevos = d.nuevosCertificados || [];
+      if (nuevos.length) setTimeout(function () { F.toast(nuevos.length === 1 ? "Tienes un certificado nuevo: " + nuevos[0].titulo + ". Míralo en tu perfil." : "Tienes " + nuevos.length + " certificados nuevos. Míralos en tu perfil.", "★"); }, 900);
+      return F.sincronizarCola();
+    })
       .catch(function (e) {
         if (!e.estado) return;   // fallo de red puntual: se mantiene el token
         E.token = null; try { localStorage.removeItem("catappa-token"); } catch (x) {}

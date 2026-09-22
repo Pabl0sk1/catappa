@@ -43,6 +43,13 @@ window.CURSOS_META = [
     temas: ["ci", "cd", "pipeline", "sre", "observabilidad"]
   },
   {
+    id: "jenkins", titulo: "Jenkins", categoria: "Infraestructura",
+    lema: "Integración y entrega continuas, del primer job al pipeline de producción",
+    descripcion: "CI/CD, arquitectura de Jenkins, jobs y disparadores, pipelines declarativos con Jenkinsfile, pipeline completo para Java y Spring Boot con Docker, agentes y paralelismo, Kubernetes, multibranch, shared libraries, JCasC, seguridad y operación.",
+    nivel: "Desde cero · hasta maestro", horas: 8, color: "#d24939", glifo: "pipeline", logo: "logos/jenkins.svg",
+    temas: ["ci", "cd", "jenkinsfile", "pipeline", "groovy", "integracion continua", "entrega continua"]
+  },
+  {
     id: "terraform", titulo: "Terraform", categoria: "Infraestructura",
     lema: "Infraestructura como código a nivel profesional",
     descripcion: "HCL, providers, recursos, estado, variables, módulos, workspaces, backends remotos, importación, pruebas, políticas y patrones para equipos grandes.",
@@ -193,8 +200,8 @@ window.CURSOS_META = [
 
 /* rutas de carrera: cursos en el orden recomendado */
 window.CURSOS_RUTAS = [
-  { id: "devops", titulo: "Ingeniería DevOps", descripcion: "Del sistema operativo a operar plataformas en la nube.", cursos: ["linux", "redes", "git", "docker", "kubernetes", "devops", "terraform", "ansible", "aws", "observabilidad"] },
-  { id: "backend-java", titulo: "Backend con Java", descripcion: "Construir, persistir y desplegar APIs profesionales.", cursos: ["git", "java", "sql", "spring", "docker", "seguridad"] },
+  { id: "devops", titulo: "Ingeniería DevOps", descripcion: "Del sistema operativo a operar plataformas en la nube.", cursos: ["linux", "redes", "git", "docker", "kubernetes", "devops", "jenkins", "terraform", "ansible", "aws", "observabilidad"] },
+  { id: "backend-java", titulo: "Backend con Java", descripcion: "Construir, persistir y desplegar APIs profesionales.", cursos: ["git", "java", "sql", "spring", "docker", "jenkins", "seguridad"] },
   { id: "fullstack-js", titulo: "Full stack JavaScript", descripcion: "De la web en el navegador al servidor con Node.", cursos: ["git", "htmlcss", "javascript", "typescript", "react", "nodejs", "sql", "docker"] },
   { id: "python", titulo: "Python y automatización", descripcion: "Scripting, datos y automatización de sistemas.", cursos: ["linux", "git", "python", "sql", "docker"] },
   { id: "entrevistas", titulo: "Preparar entrevistas técnicas", descripcion: "Lo que se pregunta en una entrevista de backend.", cursos: ["java", "spring", "sql", "algoritmos", "diseno", "docker", "redes"] }
