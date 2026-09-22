@@ -109,12 +109,20 @@ F.icono = function (n, cls) {
 };
 
 /* ---------------- tema ---------------- */
+/* el tema se elige solo dentro de la app (no sigue al sistema operativo); este es el predeterminado */
+F.TEMA_PREDETERMINADO = "claro";
 F.tema = {
-  actual: function () { try { return localStorage.getItem("catappa-tema") || "sistema"; } catch (e) { return "sistema"; } },
+  actual: function () {
+    var t = null;
+    try { t = localStorage.getItem("catappa-tema"); } catch (e) {}
+    return t === "claro" || t === "oscuro" ? t : F.TEMA_PREDETERMINADO;
+  },
   aplicar: function (t) {
+    if (t !== "claro" && t !== "oscuro") t = F.TEMA_PREDETERMINADO;
     try { localStorage.setItem("catappa-tema", t); } catch (e) {}
-    var oscuro = t === "oscuro" || (t === "sistema" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
-    document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", t === "oscuro" ? "dark" : "light");
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", t === "oscuro" ? "#0b1821" : "#f4f7f8");
   },
   alternar: function () {
     var oscuro = document.documentElement.getAttribute("data-theme") === "dark";
@@ -122,11 +130,6 @@ F.tema = {
     F.pintarBotonTema();
   }
 };
-if (window.matchMedia) {
-  var mq = matchMedia("(prefers-color-scheme: dark)");
-  var cambio = function () { if (F.tema.actual() === "sistema") F.tema.aplicar("sistema"); };
-  if (mq.addEventListener) mq.addEventListener("change", cambio);
-}
 
 /* ---------------- catálogo de cursos ----------------
    La estructura (unidades, lecciones, nº de pasos) viene del índice ligero

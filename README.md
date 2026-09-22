@@ -122,7 +122,7 @@ respuesta y terminal simulada con salida real.
 - **Perfil** con mapa de actividad anual, progreso por curso, insignias y
   publicaciones.
 - **XP, racha diaria y objetivo diario** (50 XP).
-- **Tema claro y oscuro** (o el del sistema), recordado entre visitas.
+- **Tema claro y oscuro**, que se elige solo dentro de la app (no sigue al del sistema operativo). El predeterminado es el claro (`F.TEMA_PREDETERMINADO` en `public/js/nucleo.js`) y la elección se recuerda entre visitas.
 - **Búsqueda global** con `Ctrl + K` (lecciones, unidades y conceptos clave).
 - Diseño adaptado a móvil, con barra de navegación inferior.
 
