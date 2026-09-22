@@ -63,7 +63,7 @@ comunidad ni ranking.
 | Docker | Contenedores | 8 | 45 | 386 |
 | Kubernetes | Contenedores | 12 | 43 | 238 |
 | DevOps | Infraestructura | 7 | 38 | 263 |
-| Jenkins | Infraestructura | 8 | 25 | 96 |
+| Jenkins | Infraestructura | 11 | 47 | 294 |
 | Terraform | Infraestructura | 7 | 23 | 93 |
 | AWS | Cloud | 11 | 36 | 130 |
 | Redes | Sistemas | 11 | 44 | 232 |
@@ -85,7 +85,7 @@ comunidad ni ranking.
 | Redis | Datos | 4 | 10 | 34 |
 | MongoDB | Datos | 4 | 10 | 34 |
 | Go | Lenguajes | 6 | 16 | 52 |
-| **Total** | | **235** | **842** | **4092** |
+| **Total** | | **238** | **864** | **4290** |
 
 Cada curso sube por niveles — **Fundamentos, Intermedio, Avanzado, Experto y
 Maestro** — y termina con casos reales y un simulacro de entrevista. En la

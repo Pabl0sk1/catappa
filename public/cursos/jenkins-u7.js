@@ -1,83 +1,233 @@
 window.CURSOS = window.CURSOS || {};
 (CURSOS.jenkins = CURSOS.jenkins || []).push({
-titulo: "Seguridad y operación",
-resumen: "Credenciales y secretos, endurecer el controlador, permisos, copias de seguridad, monitorización, actualizaciones y diagnóstico de pipelines rotos",
-nivel: "Experto",
-color: "#b84a35",
+titulo: "El pipeline de una API Spring Boot",
+resumen: "Maven en Jenkins, publicar pruebas y artefactos, credenciales, imagen Docker y despliegue por entornos hasta producción",
+nivel: "Intermedio",
+color: "#e5734c",
 lecciones: [
 
+/* =============== U7 L1 =============== */
 {
-id:"jk7l1",
-titulo:"Credenciales y secretos",
-claves:["Tipos de credencial: usuario y contraseña, texto secreto, clave SSH, fichero, certificado","Alcance: global o de una carpeta; mejor por carpeta, con el mínimo acceso","Jenkins enmascara los secretos en la consola, pero no los protege si los escribes en ficheros o los transformas"],
+id:"jn7l1",
+titulo:"Recordatorio: qué hace Maven",
+claves:["Maven compila, pasa las pruebas y empaqueta un proyecto Java con un solo comando","./mvnw es el wrapper: usa la versión de Maven fijada en el repositorio","-B (batch) evita preguntas interactivas; en CI siempre se usa"],
 pasos:[
- {t:"info", eti:"Secretos", h:"Usar credenciales bien",
-  c:`<div class="termbox">withCredentials([
-  string(credentialsId: 'token-sonar', variable: 'SONAR_TOKEN'),
-  sshUserPrivateKey(credentialsId: 'deploy-ssh', keyFileVariable: 'CLAVE_SSH', usernameVariable: 'USU'),
-  file(credentialsId: 'kubeconfig-prod', variable: 'KUBECONFIG')
-]) {
-  sh 'ssh -i "$CLAVE_SSH" "$USU"@servidor ./desplegar.sh'
-  sh 'kubectl apply -f k8s/'
+ {t:"info", eti:"Antes del pipeline", h:"Maven en dos minutos",
+  c:`<p>Antes de escribir el pipeline conviene tener claro qué comandos va a ejecutar. En un proyecto Java con <b>Maven</b>:</p>
+     <ul><li><code>./mvnw compile</code>: compila el código.</li>
+     <li><code>./mvnw test</code>: compila y <b>pasa las pruebas</b>.</li>
+     <li><code>./mvnw package</code>: compila, prueba y crea el <b>.jar</b> en la carpeta <code>target/</code>.</li>
+     <li><code>./mvnw verify</code>: todo lo anterior más las verificaciones extra (por ejemplo, pruebas de integración).</li></ul>
+     <p><code>./mvnw</code> es el <b>Maven wrapper</b>: un script incluido en el repositorio que descarga y usa <b>la versión exacta</b> de Maven que el proyecto necesita. Por eso en CI se usa <code>./mvnw</code> y no <code>mvn</code>: así no depende de lo que haya instalado el agente.</p>`},
+ {t:"par", p:"Empareja cada comando con lo que hace",
+  pares:[["./mvnw compile","Compila el código"],["./mvnw test","Compila y pasa las pruebas"],["./mvnw package","Compila, prueba y crea el .jar"],["./mvnw verify","Añade las verificaciones e integraciones"]],
+  why:"Cada uno incluye lo anterior: package ya pasa las pruebas."},
+ {t:"opcion", p:"¿Por qué en Jenkins se usa <code>./mvnw</code> en vez de <code>mvn</code>?",
+  ops:["Porque es más corto","Porque usa la versión de Maven fijada en el repositorio, sin depender de lo instalado en el agente","Porque mvn no existe en Linux","Porque compila más rápido"],
+  ok:1, why:"Es la misma idea de reproducibilidad que persigue Docker."},
+ {t:"info", eti:"Modo batch", h:"La opción -B",
+  c:`<p>En CI siempre verás <code>./mvnw -B</code>. La <b>B</b> es de <i>batch</i>: sin preguntas interactivas y con una salida más limpia. Un build automático no puede quedarse esperando a que alguien conteste algo por teclado.</p>`},
+ {t:"vf", p:"La opción -B de Maven sirve para saltarse las pruebas.",
+  ok:false, why:"-B es el modo batch. Saltarse las pruebas sería -DskipTests (y solo se hace en etapas donde ya se probaron)."},
+ {t:"info", eti:"Informes", h:"Dónde deja Maven los resultados",
+  c:`<p>Cuando Maven pasa las pruebas, escribe un informe en XML por cada clase de prueba en <code>target/surefire-reports/</code>. Esos ficheros son los que Jenkins lee para mostrar cuántas pruebas pasaron y cuáles fallaron. Lo usarás en la siguiente lección.</p>`},
+ {t:"opcion", p:"¿Dónde deja Maven los informes de las pruebas?",
+  ops:["En Jenkins directamente","En ficheros XML dentro de target/surefire-reports/","En el repositorio","En la consola solamente"],
+  ok:1, why:"Jenkins los recoge de ahí con el paso junit."}
+]},
+
+/* =============== U7 L2 =============== */
+{
+id:"jn7l2",
+titulo:"Compilar y probar en el pipeline",
+claves:["Con agent docker no hace falta instalar Java ni Maven en el agente","junit publica los informes y marca el build como UNSTABLE si hay pruebas fallidas","Publicar las pruebas siempre (post always), fallen o no"],
+pasos:[
+ {t:"info", eti:"El agente", h:"Un contenedor con Maven",
+  c:`<p>Para compilar Java, el agente necesita Java y Maven. En vez de instalarlos, se le pide a Jenkins que ejecute la etapa <b>dentro de un contenedor</b>:</p>
+     <div class="termbox">pipeline {
+    agent { docker { image 'maven:3.9-eclipse-temurin-21' } }
+    stages {
+        stage('Compilar y probar') {
+            steps { sh './mvnw -B verify' }
+        }
+    }
 }</div>
-     <p>Mejor aún que guardar claves de larga duración: credenciales <b>temporales</b> (por ejemplo, OIDC contra AWS o un gestor como Vault) que caducan solas.</p>`},
+     <p>Jenkins arranca ese contenedor, monta dentro el workspace, ejecuta los pasos y lo borra al terminar. Requisito: que el agente tenga Docker (el plugin Docker Pipeline).</p>`},
+ {t:"opcion", p:"¿Qué ventaja tiene <code>agent { docker { image 'maven:3.9-eclipse-temurin-21' } }</code>?",
+  ops:["Que el build va más rápido siempre","Que no hace falta instalar Java ni Maven en el agente, y cada proyecto usa exactamente la versión que quiere","Que no necesita repositorio","Que evita las pruebas"],
+  ok:1, why:"Es la forma más limpia de tener herramientas distintas por proyecto."},
+ {t:"info", eti:"Publicar pruebas", h:"El paso junit",
+  c:`<p>Que las pruebas se ejecuten no basta: queremos <b>verlas en Jenkins</b>. El paso <code>junit</code> lee los informes XML y los muestra en el build: cuántas pruebas hay, cuáles fallaron y la tendencia respecto a builds anteriores.</p>
+     <div class="termbox">stage('Compilar y probar') {
+    steps { sh './mvnw -B verify' }
+    post {
+        always { junit 'target/surefire-reports/*.xml' }
+    }
+}</div>
+     <p>Va en <b>post always</b> porque, si una prueba falla, el paso <code>sh</code> devuelve error y sin el <code>post</code> nunca llegaríamos a publicar el informe.</p>`},
+ {t:"opcion", p:"Una prueba falla. ¿En qué estado queda el build si publicas los informes con <code>junit</code>?",
+  ops:["SUCCESS","UNSTABLE (amarillo): terminó, pero hay pruebas fallidas","ABORTED","No cambia"],
+  ok:1, why:"Ahora tiene sentido el estado UNSTABLE que viste en la unidad 4."},
+ {t:"par", p:"Empareja cada elemento con su papel",
+  pares:[["./mvnw -B verify","Ejecuta las pruebas"],["target/surefire-reports/*.xml","Los informes que genera Maven"],["junit","El paso que publica esos informes en Jenkins"],["post always","Que se publiquen fallen o no las pruebas"]],
+  why:"Esta combinación aparece en casi todos los pipelines de Java."},
+ {t:"vf", p:"Si no usas el paso junit, Jenkins no puede mostrar qué pruebas fallaron; solo lo verás en el texto de la consola.",
+  ok:true, why:"junit es lo que convierte el texto en informes navegables con historial."}
+]},
+
+/* =============== U7 L3 =============== */
+{
+id:"jn7l3",
+titulo:"Guardar el artefacto",
+claves:["archiveArtifacts guarda ficheros del build para descargarlos después desde Jenkins","Se usa para el .jar, informes o cualquier resultado que quieras conservar","No es un sustituto de un repositorio de artefactos como Nexus o un registro de imágenes"],
+pasos:[
+ {t:"info", eti:"Conservar", h:"El paso archiveArtifacts",
+  c:`<p>Cuando Maven termina, el <code>.jar</code> queda en <code>target/</code> dentro del workspace del agente… que se puede limpiar o reutilizar en el siguiente build. Para conservarlo, se <b>archiva</b>:</p>
+     <div class="termbox">stage('Empaquetar') {
+    steps {
+        sh './mvnw -B -DskipTests package'
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+    }
+}</div>
+     <p>A partir de ahí, en la página del build aparece el <code>.jar</code> para descargarlo. Con <code>fingerprint: true</code>, Jenkins guarda además una huella del fichero, lo que permite saber en qué otros builds se usó ese mismo artefacto.</p>`},
+ {t:"opcion", p:"¿Para qué sirve <code>archiveArtifacts</code>?",
+  ops:["Para subir el fichero a GitHub","Para guardar ficheros del build en Jenkins y poder descargarlos después","Para borrar el workspace","Para publicar las pruebas"],
+  ok:1, why:"Es útil para el .jar, informes de cobertura o capturas de pruebas de interfaz."},
+ {t:"info", eti:"Ojo con el espacio", h:"Archivar con cabeza",
+  c:`<p>Los artefactos archivados ocupan espacio en JENKINS_HOME. Si cada build guarda un <code>.jar</code> de 60 MB y haces 50 builds al día, el disco se llena en poco tiempo. Por eso:</p>
+     <ul><li>Archiva solo lo necesario.</li>
+     <li>Usa <code>buildDiscarder</code> para conservar solo los últimos builds.</li>
+     <li>Para artefactos que van a producción, mejor un <b>registro de imágenes</b> (como ghcr.io) o un repositorio como <b>Nexus</b>.</li></ul>`},
+ {t:"vf", p:"Archivar artefactos en Jenkins es la forma recomendada de guardar todas las versiones que van a producción.",
+  ok:false, why:"Para eso están los registros de imágenes o repositorios de artefactos; Jenkins guarda lo reciente para consultarlo."},
+ {t:"opcion", p:"¿Qué opción combina bien con archiveArtifacts para que el disco no se llene?",
+  ops:["timestamps()","buildDiscarder(logRotator(numToKeepStr: '20'))","retry(3)","disableConcurrentBuilds()"],
+  ok:1, why:"Conserva solo los últimos builds y borra los artefactos antiguos con ellos."}
+]},
+
+/* =============== U7 L4 =============== */
+{
+id:"jn7l4",
+titulo:"Credenciales: contraseñas sin escribirlas",
+claves:["Las credenciales se guardan cifradas en Jenkins y se usan por su identificador (credentialsId)","withCredentials las inyecta como variables solo durante esos pasos","Jenkins enmascara los secretos en la consola, pero no los protege si los imprimes transformados"],
+pasos:[
+ {t:"info", eti:"El problema", h:"Nunca escribas una contraseña en el Jenkinsfile",
+  c:`<p>Para subir una imagen a un registro o desplegar en un servidor hacen falta contraseñas o tokens. Escribirlos en el Jenkinsfile sería un desastre: el Jenkinsfile está en el repositorio, lo ve todo el equipo y queda en el historial de Git para siempre.</p>
+     <p>Jenkins tiene un <b>almacén de credenciales</b>: las guarda cifradas y tú solo usas su <b>identificador</b>.</p>`},
+ {t:"info", eti:"Crear una", h:"Dónde se guardan",
+  c:`<p>Se crean en <b>Administrar Jenkins → Credenciales</b> (Manage Jenkins → Credentials). Al crear una eliges el tipo:</p>
+     <ul><li><b>Usuario y contraseña</b>: para registros de imágenes, repositorios privados…</li>
+     <li><b>Texto secreto</b> (Secret text): un token de API.</li>
+     <li><b>Clave SSH</b>: para conectarse a servidores.</li>
+     <li><b>Fichero secreto</b>: por ejemplo un <code>kubeconfig</code>.</li></ul>
+     <p>Y le pones un <b>ID</b>, por ejemplo <code>ghcr</code>. Ese ID es lo único que aparece en el Jenkinsfile.</p>`},
  {t:"par", p:"Empareja cada tipo de credencial con su uso",
-  pares:[["usernamePassword","Registro de contenedores o repositorio de artefactos"],["string","Token de una API"],["sshUserPrivateKey","Conectar por SSH a un servidor"],["file","Un kubeconfig o un fichero de configuración entero"],["certificate","Certificado de cliente para TLS mutuo"]],
-  why:"credentialsId es solo un nombre: el secreto nunca aparece en el Jenkinsfile."},
- {t:"opcion", p:"Un desarrollador hace <code>sh 'echo $TOKEN | base64'</code> dentro de withCredentials. ¿Qué pasa?",
-  ops:["Jenkins lo enmascara igualmente","El token codificado en base64 aparece en claro en la consola: el enmascarado solo reconoce el valor exacto","El build falla","base64 cifra el token"],
-  ok:1, why:"El enmascarado es una ayuda, no una barrera: nunca imprimas ni transformes secretos."},
- {t:"vf", p:"Dar alcance global a todas las credenciales es lo más seguro porque así se administran en un solo sitio.",
-  ok:false, why:"Con alcance global, cualquier job puede usarlas; mejor por carpeta y con mínimo privilegio."}
+  pares:[["Usuario y contraseña","Entrar en un registro de imágenes"],["Texto secreto","Un token de una API"],["Clave SSH","Conectarse a un servidor por SSH"],["Fichero secreto","Un kubeconfig completo"]],
+  why:"En el pipeline solo se usa el ID; el valor nunca aparece."},
+ {t:"info", eti:"Usarla", h:"El bloque withCredentials",
+  c:`<div class="termbox">withCredentials([usernamePassword(credentialsId: 'ghcr',
+                                 usernameVariable: 'USU',
+                                 passwordVariable: 'CLAVE')]) {
+    sh 'echo "$CLAVE" | docker login ghcr.io -u "$USU" --password-stdin'
+}</div>
+     <p>Dentro de ese bloque existen las variables <code>USU</code> y <code>CLAVE</code>; fuera, no. Fíjate en dos detalles importantes:</p>
+     <ul><li><b>Comillas simples</b> en el <code>sh</code>: así el secreto lo lee la shell y Groovy no lo toca.</li>
+     <li><code>--password-stdin</code>: la contraseña entra por la entrada estándar en vez de escribirse en el comando, donde sería visible en la lista de procesos.</li></ul>`},
+ {t:"opcion", p:"¿Qué está mal en <code>sh \"docker login -u pablo -p \${CLAVE}\"</code>?",
+  ops:["Nada","Que Groovy interpola el secreto (puede acabar registrado) y -p lo deja visible; lo correcto es comillas simples y --password-stdin","Que falta sudo","Que docker login no acepta usuario"],
+  ok:1, why:"Jenkins incluso avisa de la interpolación de secretos en comillas dobles."},
+ {t:"info", eti:"Enmascarado", h:"Hasta dónde protege Jenkins",
+  c:`<p>Jenkins sustituye los secretos por <code>****</code> si aparecen en la consola. Pero solo reconoce el <b>valor exacto</b>: si lo transformas (por ejemplo, lo codificas en base64) y lo imprimes, saldrá en claro. Regla: <b>nunca imprimas secretos</b>, ni siquiera «para depurar».</p>`},
+ {t:"vf", p:"Si haces <code>echo $TOKEN | base64</code>, Jenkins seguirá enmascarando el valor.",
+  ok:false, why:"El enmascarado compara con el valor exacto; el token codificado aparecería tal cual en la consola."}
 ]},
 
+/* =============== U7 L5 =============== */
 {
-id:"jk7l2",
-titulo:"Endurecer Jenkins",
-claves:["Autenticación obligatoria y autorización por roles o matriz (plugins Matrix Authorization o Role-based)","Nada de builds en el controlador, agentes con permisos mínimos y script approval para Groovy no revisado","Jenkins actualizado (LTS) y detrás de HTTPS; nunca expuesto con acceso anónimo"],
+id:"jn7l5",
+titulo:"Construir y subir la imagen Docker",
+claves:["El registro es el almacén de imágenes (Docker Hub, ghcr.io, ECR…)","La imagen se etiqueta con el commit o el número de build, no solo con latest","Secuencia: build, login con credenciales, push y logout"],
 pasos:[
- {t:"par", p:"Empareja cada medida con el riesgo que reduce",
-  pares:[["0 executors en el controlador","Que un build lea JENKINS_HOME y las credenciales"],["Autorización por roles","Que cualquiera configure jobs o vea secretos"],["Script approval","Groovy arbitrario ejecutándose con permisos del controlador"],["Actualizar a la última LTS","Vulnerabilidades conocidas de Jenkins y sus plugins"],["HTTPS delante (proxy inverso)","Credenciales y cookies viajando en claro"],["Revisar PRs de forks antes de construirlos","Código malicioso ejecutándose en tus agentes"]],
-  why:"Jenkins ejecuta código por definición: su seguridad importa tanto como la de producción."},
- {t:"opcion", p:"Un Jenkins con acceso anónimo de administrador expuesto a internet. ¿Qué puede hacer un atacante?",
-  ops:["Solo ver los builds","Ejecutar código arbitrario en el controlador (Script Console), robar todas las credenciales y usar tus agentes","Nada si hay firewall en los agentes","Solo cambiar el tema"],
-  ok:1, why:"La Script Console ejecuta Groovy con todos los permisos: es literalmente acceso root al CI y a lo que despliega."},
- {t:"vf", p:"Los plugins desactualizados son una de las fuentes más habituales de vulnerabilidades en Jenkins.",
-  ok:true, why:"Revisa los avisos de seguridad (Manage Jenkins los muestra) y actualiza con frecuencia."}
+ {t:"info", eti:"Recuerda Docker", h:"Registro y etiquetas",
+  c:`<p>Del curso de Docker: un <b>registro</b> es donde se guardan las imágenes (Docker Hub, GitHub Container Registry, Amazon ECR). Una imagen se identifica así:</p>
+     <div class="diag">ghcr.io/pablo/api-tareas:a1b2c3d
+└──┬───┘ └─┬──┘ └────┬────┘ └──┬──┘
+registro  usuario   nombre   etiqueta</div>
+     <p>La <b>etiqueta</b> (tag) es la versión. Si siempre usas <code>latest</code>, nunca sabrás qué código lleva la imagen que está en producción. Por eso se etiqueta con algo único: el <b>identificador del commit</b> o el número de build.</p>`},
+ {t:"opcion", p:"¿Por qué no basta con etiquetar las imágenes como <code>latest</code>?",
+  ops:["Porque ocupa más","Porque latest cambia con cada build: no sabrías qué código está realmente en producción ni podrías volver a una versión anterior","Porque Docker no lo permite","Porque es más lento"],
+  ok:1, why:"Etiquetar con el commit permite decir «producción tiene el commit a1b2c3d»."},
+ {t:"info", eti:"La etapa", h:"Construir, entrar, subir",
+  c:`<div class="termbox">stage('Imagen') {
+    environment {
+        IMAGEN = "ghcr.io/pablo/api-tareas:\${GIT_COMMIT.take(7)}"
+    }
+    steps {
+        sh 'docker build -t $IMAGEN .'
+        withCredentials([usernamePassword(credentialsId: 'ghcr', usernameVariable: 'USU', passwordVariable: 'CLAVE')]) {
+            sh 'echo "$CLAVE" | docker login ghcr.io -u "$USU" --password-stdin'
+            sh 'docker push $IMAGEN'
+        }
+    }
+    post {
+        always { sh 'docker logout ghcr.io || true' }
+    }
+}</div>
+     <p><code>GIT_COMMIT.take(7)</code> coge los 7 primeros caracteres del identificador del commit (a1b2c3d), que es como se suele nombrar en Git.</p>`},
+ {t:"orden", p:"Ordena los pasos de la etapa de imagen",
+  items:["Construir la imagen con docker build","Entrar en el registro con docker login usando la credencial","Subir la imagen con docker push","Salir del registro con docker logout"],
+  why:"El logout va en post always para que se ejecute aunque el push falle."},
+ {t:"opcion", p:"¿Por qué el <code>docker logout</code> está en <code>post { always { … } }</code>?",
+  ops:["Por costumbre","Para que la sesión se cierre en el agente aunque el push falle","Porque logout debe ir antes del push","Para acelerar el build"],
+  ok:1, why:"Si el build falla justo después del login, el agente se quedaría con la sesión abierta."},
+ {t:"vf", p:"<code>docker logout ghcr.io || true</code> evita que el propio logout haga fallar el build si no había sesión.",
+  ok:true, why:"«|| true» significa «si el comando falla, sigue igualmente»."}
 ]},
 
+/* =============== U7 L6 =============== */
 {
-id:"jk7l3",
-titulo:"Operar Jenkins",
-claves:["Copia de seguridad de JENKINS_HOME (o reconstrucción con JCasC y restauración de jobs y credenciales)","Monitorizar la cola, los executors libres, la duración de los builds y el disco (plugin Prometheus)","Rotar builds antiguos, actualizar en una ventana planificada y probar primero en otro entorno"],
+id:"jn7l6",
+titulo:"Desplegar por entornos hasta producción",
+claves:["Build once, deploy many: la misma imagen probada pasa de staging a producción","Pruebas de humo después de desplegar, para comprobar que la versión arranca y responde","Producción: solo desde main y con aprobación"],
 pasos:[
- {t:"info", eti:"En producción", h:"Mantener Jenkins sano",
-  c:`<div class="diag">COPIAS          JENKINS_HOME: config.xml, jobs/, credentials.xml, secrets/  (¡secrets/ y credentials.xml juntos!)
-MÉTRICAS        /prometheus: cola, executors ocupados, duración y resultado de builds
-DISCO           buildDiscarder en cada job, limpiar workspaces, artefactos grandes al registro
-ACTUALIZAR      LTS cada pocas semanas · probar en un Jenkins de pruebas · plugins al día
-ALTA DISP.      un controlador; se recupera rápido con JCasC + copia de los datos</div>`},
- {t:"par", p:"Empareja cada síntoma con su causa probable",
-  pares:[["La cola crece y los builds esperan","Faltan executors o agentes"],["El disco del controlador se llena","Builds y artefactos antiguos sin rotar"],["Tras una actualización fallan pipelines","Un plugin incompatible con la nueva versión"],["El controlador va lento con mucha memoria","Builds ejecutándose en él o demasiados jobs cargados"],["Credenciales restauradas que no se descifran","Se copió credentials.xml sin la carpeta secrets/"]],
-  why:"El último es un clásico al restaurar copias de Jenkins."},
- {t:"opcion", p:"¿Qué se debe incluir en la copia de seguridad para poder restaurar las credenciales?",
-  ops:["Solo credentials.xml","credentials.xml y la carpeta secrets/ (la clave que las cifra)","Solo la carpeta jobs/","Los workspaces"],
-  ok:1, why:"Sin la clave maestra de secrets/, las credenciales cifradas son inservibles."}
-]},
-
-{
-id:"jk7l4",
-titulo:"Diagnosticar pipelines rotos",
-claves:["Leer la consola desde el final y localizar el primer error real","Reproducir el paso fuera de Jenkins (mismo contenedor, mismos comandos)","Replay permite probar un cambio del Jenkinsfile sin hacer commit"],
-pasos:[
- {t:"par", p:"Empareja cada error con su causa habitual",
-  pares:[["sh: 1: ./mvnw: Permission denied","El wrapper no tiene permiso de ejecución en Git"],["No such DSL method 'withCredentials'","Falta el plugin Credentials Binding"],["Scripts not permitted to use method...","Groovy bloqueado por el sandbox: requiere script approval"],["docker: permission denied while trying to connect","El usuario del agente no puede usar Docker"],["Cannot connect to the Docker daemon","El agente no tiene Docker o el socket no está disponible"],["java.io.NotSerializableException","Un objeto no serializable guardado en una variable del pipeline"]],
-  why:"Estos errores aparecen tarde o temprano en cualquier Jenkins."},
- {t:"orden", p:"Ordena cómo diagnosticar un build que falla",
-  items:["Leer la consola y encontrar el primer error real","Comprobar qué cambió: commit, plugin, agente o imagen","Reproducir el paso en el mismo contenedor fuera de Jenkins","Probar la corrección con Replay o en una rama","Aplicar el arreglo y dejar una prueba o aviso para que no se repita"],
-  why:"El primer error suele ser la causa; los siguientes, consecuencias."},
- {t:"escribe", p:"El build falla con <code>./mvnw: Permission denied</code>. Escribe el comando de Git que marca el fichero como ejecutable en el repositorio",
-  sol:["git update-index --chmod=+x mvnw"], ph:"git update-index …", pista:"git update-index --chmod=+x y el fichero.", why:"Desde Windows el permiso de ejecución no se guarda solo; update-index lo registra en Git."}
+ {t:"info", eti:"La idea", h:"Construir una vez, desplegar muchas",
+  c:`<div class="diag">commit ─▶ compilar ─▶ probar ─▶ imagen :a1b2c3d ─▶ STAGING ─▶ humo ─▶ [aprobación] ─▶ PRODUCCIÓN
+                                      │                                                    │
+                                      └───────── la MISMA imagen, sin reconstruir ──────────┘</div>
+     <p>Si para producción volvieras a construir la imagen, ya <b>no sería la misma</b> que probaste: podrían haber cambiado dependencias o la imagen base. Lo que cambia entre entornos es la <b>configuración</b> (variables de entorno, contraseñas), no el artefacto.</p>`},
+ {t:"opcion", p:"¿Por qué no se reconstruye la imagen para producción?",
+  ops:["Para ahorrar tiempo de build","Para desplegar exactamente el mismo artefacto que pasó las pruebas en staging","Porque Docker no deja","Porque producción usa otra rama"],
+  ok:1, why:"Es la regla «build once, deploy many»: se construye una vez y se promociona."},
+ {t:"info", eti:"Las etapas", h:"Staging, humo y producción",
+  c:`<div class="termbox">stage('Staging') {
+    when { branch 'main' }
+    steps { sh './desplegar.sh staging $IMAGEN' }
+}
+stage('Pruebas de humo') {
+    when { branch 'main' }
+    steps { sh 'curl -fsS https://staging.empresa.com/actuator/health' }
+}
+stage('Producción') {
+    when { branch 'main' }
+    steps {
+        timeout(time: 1, unit: 'HOURS') {
+            input message: '¿Desplegar a producción?', ok: 'Desplegar'
+        }
+        sh './desplegar.sh produccion $IMAGEN'
+    }
+}</div>
+     <p>Las <b>pruebas de humo</b> (smoke tests) son comprobaciones mínimas: que la aplicación arranca y responde. En Spring Boot, <code>/actuator/health</code> es el clásico. La opción <code>-f</code> de curl hace que devuelva error si la respuesta no es correcta, y así el pipeline se detiene.</p>`},
+ {t:"par", p:"Empareja cada etapa con su propósito",
+  pares:[["Staging","Desplegar en una copia parecida a producción"],["Pruebas de humo","Comprobar que la versión desplegada arranca y responde"],["input de aprobación","Que una persona decida el paso a producción"],["when branch 'main'","Que esto solo ocurra en la rama principal"]],
+  why:"Es el esqueleto de la entrega continua que se pide en las entrevistas."},
+ {t:"orden", p:"Ordena el pipeline completo de la API",
+  items:["Descargar el código","Compilar y pasar las pruebas","Publicar los informes de pruebas","Construir la imagen y etiquetarla con el commit","Subirla al registro","Desplegar en staging","Pruebas de humo","Aprobación manual","Desplegar la misma imagen en producción"],
+  why:"Si te preguntan «diséñame un pipeline», este es el guion."},
+ {t:"opcion", p:"Las pruebas de humo en staging fallan. ¿Qué debería ocurrir?",
+  ops:["Seguir con producción","El pipeline se detiene ahí y no llega a producción","Reintentar el despliegue diez veces","Ignorarlo si las pruebas unitarias pasaron"],
+  ok:1, why:"Detectar en staging que la versión no arranca es justo el objetivo de esa etapa."},
+ {t:"vf", p:"Entre staging y producción suele cambiar la configuración (variables, contraseñas), pero no el artefacto.",
+  ok:true, why:"Misma imagen, distinta configuración: así lo que pruebas es lo que despliegas."}
 ]}
 
 ]});

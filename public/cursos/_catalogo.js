@@ -44,8 +44,8 @@ window.CURSOS_META = [
   },
   {
     id: "jenkins", titulo: "Jenkins", categoria: "Infraestructura",
-    lema: "Integración y entrega continuas, del primer job al pipeline de producción",
-    descripcion: "CI/CD, arquitectura de Jenkins, jobs y disparadores, pipelines declarativos con Jenkinsfile, pipeline completo para Java y Spring Boot con Docker, agentes y paralelismo, Kubernetes, multibranch, shared libraries, JCasC, seguridad y operación.",
+    lema: "De qué es la integración continua al pipeline de producción",
+    descripcion: "Desde qué es un repositorio y qué significa integrar código: CI y CD explicadas paso a paso, instalar Jenkins con Docker, tu primer job, pipelines en un Jenkinsfile, el pipeline completo de una API Spring Boot, agentes y paralelismo, multibranch, librerías compartidas, seguridad, operación y simulacro de entrevista.",
     nivel: "Desde cero · hasta maestro", horas: 8, color: "#d24939", glifo: "pipeline", logo: "logos/jenkins.svg",
     temas: ["ci", "cd", "jenkinsfile", "pipeline", "groovy", "integracion continua", "entrega continua"]
   },

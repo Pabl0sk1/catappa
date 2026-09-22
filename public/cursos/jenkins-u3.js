@@ -1,129 +1,122 @@
 window.CURSOS = window.CURSOS || {};
 (CURSOS.jenkins = CURSOS.jenkins || []).push({
-titulo: "Pipelines declarativos",
-resumen: "Pipeline as code con Jenkinsfile: estructura, post, environment, options, when, parámetros, aprobaciones manuales y la diferencia con scripted",
-nivel: "Intermedio",
-color: "#df6545",
+titulo: "Instalar Jenkins y conocer su interfaz",
+resumen: "Levantar Jenkins con Docker entendiendo cada parte del comando, el asistente inicial y un recorrido por la interfaz",
+nivel: "Fundamentos",
+color: "#d9573f",
 lecciones: [
 
+/* =============== U3 L1 =============== */
 {
-id:"jk3l1",
-titulo:"El Jenkinsfile",
-claves:["Pipeline as code: el pipeline vive en el repositorio, en un fichero Jenkinsfile, y se revisa como el código","Estructura: pipeline → agent → stages → stage → steps","Cada stage aparece como una columna en la vista del pipeline"],
+id:"jn3l1",
+titulo:"Levantar Jenkins con Docker",
+claves:["Imagen oficial: jenkins/jenkins:lts-jdk17 (LTS = versión estable de soporte largo)","Puerto 8080: la web; puerto 50000: conexión de los agentes","Volumen en /var/jenkins_home para no perder nada"],
 pasos:[
- {t:"info", eti:"Pipeline as code", h:"Estructura mínima",
-  c:`<div class="termbox">pipeline {
-  agent any                      // en qué agente se ejecuta
-  stages {
-    stage('Compilar') {
-      steps { sh './mvnw -B -DskipTests package' }
-    }
-    stage('Probar') {
-      steps { sh './mvnw -B test' }
-    }
-    stage('Empaquetar') {
-      steps { sh 'docker build -t api-tareas:$BUILD_NUMBER .' }
-    }
-  }
-}</div>
-     <p>El <b>Jenkinsfile</b> se guarda en la raíz del repositorio. Así el pipeline tiene historial, se revisa en los Pull Requests y cada rama puede tener el suyo.</p>`},
- {t:"orden", p:"Ordena los bloques de un pipeline declarativo, del más externo al más interno",
-  items:["pipeline","stages","stage('Probar')","steps","sh './mvnw test'"],
-  why:"agent va dentro de pipeline, al mismo nivel que stages (o dentro de un stage concreto)."},
- {t:"hueco", p:"Completa el pipeline",
-  tpl:"pipeline { ___ any  stages { stage('Probar') { ___ { sh './mvnw test' } } } }", banco:["agent","steps","node","script"], sol:["agent","steps"],
-  why:"node y script pertenecen a la sintaxis scripted o a bloques especiales."},
- {t:"opcion", p:"¿Cuál es la principal ventaja de tener el pipeline en un Jenkinsfile en lugar de configurarlo en la interfaz?",
-  ops:["Es más rápido de ejecutar","Queda versionado con el código: tiene historial, se revisa en PRs y cada rama puede cambiarlo","No necesita agentes","Jenkins deja de necesitar plugins"],
-  ok:1, why:"Es el mismo principio que la infraestructura como código."}
+ {t:"info", eti:"Elegir la imagen", h:"jenkins/jenkins:lts-jdk17",
+  c:`<p>La forma más sencilla de probar Jenkins es con Docker, que ya conoces. La imagen oficial es <code>jenkins/jenkins</code>, y la etiqueta importa:</p>
+     <ul><li><b>lts</b> significa <i>Long Term Support</i>: la versión <b>estable</b>, que recibe correcciones durante más tiempo. Es la que se usa en empresas.</li>
+     <li><b>jdk17</b> indica la versión de Java con la que funciona Jenkins por dentro.</li></ul>
+     <p>Evita <code>latest</code>: cambia cada semana y puede traer cambios inesperados.</p>`},
+ {t:"opcion", p:"¿Qué significa «lts» en la etiqueta <code>jenkins/jenkins:lts-jdk17</code>?",
+  ops:["Que es la versión más nueva","Long Term Support: la versión estable, con soporte más largo","Que es más ligera","Que solo funciona en Linux"],
+  ok:1, why:"En producción se usan versiones LTS: cambian menos y se corrigen durante más tiempo."},
+ {t:"info", eti:"El comando", h:"Parte por parte",
+  c:`<div class="termbox">docker run -d --name jenkins \\
+  -p 8080:8080 \\
+  -p 50000:50000 \\
+  -v jenkins_home:/var/jenkins_home \\
+  jenkins/jenkins:lts-jdk17</div>
+     <ul><li><code>-d</code>: en segundo plano, para que no ocupe tu terminal.</li>
+     <li><code>--name jenkins</code>: le pone nombre al contenedor.</li>
+     <li><code>-p 8080:8080</code>: la <b>interfaz web</b>; la abrirás en <code>http://localhost:8080</code>.</li>
+     <li><code>-p 50000:50000</code>: el puerto por el que se <b>conectan los agentes</b>.</li>
+     <li><code>-v jenkins_home:/var/jenkins_home</code>: el <b>volumen</b> con todo el estado (JENKINS_HOME).</li></ul>
+     <p>La barra invertida al final de cada línea solo sirve para partir un comando largo en varias líneas.</p>`},
+ {t:"par", p:"Empareja cada parte del comando con su función",
+  pares:[["-d","Ejecutar en segundo plano"],["-p 8080:8080","Publicar la interfaz web"],["-p 50000:50000","Puerto para que se conecten los agentes"],["-v jenkins_home:/var/jenkins_home","Guardar el estado de Jenkins en un volumen"],["--name jenkins","Dar un nombre al contenedor"]],
+  why:"Todo lo aprendiste en el curso de Docker; aquí solo se aplica a Jenkins."},
+ {t:"hueco", p:"Completa el comando para que Jenkins no pierda sus datos",
+  tpl:"docker run -d -p 8080:8080 -v ___:/var/jenkins_home jenkins/jenkins:___", banco:["jenkins_home","lts-jdk17","latest","/tmp"], sol:["jenkins_home","lts-jdk17"],
+  why:"Volumen con nombre para los datos e imagen LTS con la versión de Java fijada."},
+ {t:"term", p:"Arranca Jenkins en segundo plano con el nombre <code>jenkins</code>, los puertos 8080 y 50000, el volumen <code>jenkins_home</code> y la imagen <code>jenkins/jenkins:lts-jdk17</code>",
+  prompt:"pablo@portatil:~$", re:"^docker run (?=.*-d)(?=.*--name jenkins)(?=.*-p 8080:8080)(?=.*-p 50000:50000)(?=.*-v jenkins_home:/var/jenkins_home).*jenkins/jenkins:lts-jdk17$",
+  sol:["docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts-jdk17"],
+  pista:"docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts-jdk17",
+  salida:`Unable to find image 'jenkins/jenkins:lts-jdk17' locally
+lts-jdk17: Pulling from jenkins/jenkins
+Status: Downloaded newer image for jenkins/jenkins:lts-jdk17
+8d2f1c7a9b3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a`, why:"La primera vez descarga la imagen (unos 500 MB). Después, arrancar tarda unos segundos."},
+ {t:"vf", p:"Si más adelante borras este contenedor y creas otro con el mismo volumen jenkins_home, Jenkins conserva sus jobs y su configuración.",
+  ok:true, why:"Todo el estado está en el volumen, no en el contenedor."}
 ]},
 
+/* =============== U3 L2 =============== */
 {
-id:"jk3l2",
-titulo:"post, environment y options",
-claves:["post se ejecuta al final según el resultado: always, success, failure, unstable, changed, cleanup","environment define variables para todo el pipeline o para un stage","options: timeout, retry, buildDiscarder, timestamps, disableConcurrentBuilds"],
+id:"jn3l2",
+titulo:"El asistente inicial",
+claves:["La primera vez Jenkins pide una contraseña de desbloqueo guardada en secrets/initialAdminPassword","Después instala plugins (los sugeridos son un buen comienzo) y crea tu usuario administrador","Por último se confirma la URL con la que se accede a Jenkins"],
 pasos:[
- {t:"info", eti:"Más allá de los pasos", h:"Un pipeline profesional",
-  c:`<div class="termbox">pipeline {
-  agent any
-  options {
-    timeout(time: 30, unit: 'MINUTES')          // aborta si se cuelga
-    buildDiscarder(logRotator(numToKeepStr: '20')) // guarda solo los 20 últimos
-    timestamps()
-    disableConcurrentBuilds()
-  }
-  environment {
-    REGISTRO = 'ghcr.io/pablo'
-    IMAGEN   = "\${REGISTRO}/api-tareas:\${BUILD_NUMBER}"
-  }
-  stages { /* ... */ }
-  post {
-    always  { junit 'target/surefire-reports/*.xml' }
-    failure { echo "Falló el build \${BUILD_NUMBER}: \${BUILD_URL}" }
-    cleanup { cleanWs() }
-  }
-}</div>`},
- {t:"par", p:"Empareja cada condición de post con cuándo se ejecuta",
-  pares:[["always","Siempre, sea cual sea el resultado"],["success","Solo si todo fue bien"],["failure","Solo si el build falló"],["unstable","Si hay pruebas fallidas"],["changed","Si el resultado es distinto al del build anterior"],["cleanup","Al final de todo, después del resto de bloques post"]],
-  why:"changed es útil para avisar solo cuando algo se rompe o se arregla."},
- {t:"par", p:"Empareja cada opción con su efecto",
-  pares:[["timeout","Aborta el build si tarda demasiado"],["retry(3)","Reintenta un paso que falla de forma intermitente"],["buildDiscarder","Borra builds antiguos para no llenar el disco"],["disableConcurrentBuilds","Impide dos builds del mismo job a la vez"],["timestamps","Añade la hora a cada línea de la consola"]],
-  why:"Sin buildDiscarder, JENKINS_HOME crece hasta llenar el disco: un clásico."},
- {t:"opcion", p:"Quieres publicar los resultados de las pruebas aunque el build falle. ¿Dónde pones <code>junit</code>?",
-  ops:["En post { success { } }","En post { always { } }","En el primer stage","En environment"],
-  ok:1, why:"Si solo se publica en success, justo cuando fallan las pruebas no verás cuáles."}
+ {t:"info", eti:"Primer arranque", h:"Desbloquear Jenkins",
+  c:`<p>Al abrir <code>http://localhost:8080</code> por primera vez, Jenkins muestra la pantalla <b>«Unlock Jenkins»</b> (desbloquear Jenkins). Pide una contraseña que él mismo generó al arrancar, para asegurarse de que quien lo configura tiene acceso al servidor.</p>
+     <p>Esa contraseña está en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> dentro del contenedor, y también aparece en su registro (<code>docker logs jenkins</code>).</p>`},
+ {t:"term", p:"Muestra la contraseña inicial leyendo ese fichero dentro del contenedor <code>jenkins</code>",
+  prompt:"pablo@portatil:~$", sol:["docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword","docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword"],
+  pista:"docker exec jenkins cat y la ruta del fichero.",
+  salida:`3f9c1a7e5b2d4c8e9a0b1c2d3e4f5a6b`, why:"docker exec ejecuta un comando dentro del contenedor; cat muestra el contenido del fichero."},
+ {t:"info", eti:"Siguientes pantallas", h:"Plugins, usuario y URL",
+  c:`<ol><li><b>Customize Jenkins</b>: elige <b>«Install suggested plugins»</b> (instalar los plugins sugeridos). Incluye Git, Pipeline y Credentials, que usarás en el curso.</li>
+     <li><b>Create First Admin User</b>: crea tu usuario administrador (usuario, contraseña, nombre y correo). A partir de ahora entrarás con él.</li>
+     <li><b>Instance Configuration</b>: confirma la URL de Jenkins, por ejemplo <code>http://localhost:8080/</code>. Se usa en los enlaces que envía Jenkins.</li>
+     <li><b>Jenkins is ready!</b>: listo.</li></ol>`},
+ {t:"orden", p:"Ordena el asistente inicial de Jenkins",
+  items:["Pegar la contraseña de initialAdminPassword","Instalar los plugins sugeridos","Crear el usuario administrador","Confirmar la URL de Jenkins","Empezar a usar Jenkins"],
+  why:"Solo se hace una vez; queda guardado en JENKINS_HOME."},
+ {t:"opcion", p:"¿Por qué Jenkins pide una contraseña que está en un fichero del propio servidor?",
+  ops:["Para molestar","Para comprobar que quien lo configura tiene acceso al servidor, y no cualquiera que llegue a la página","Porque no tiene usuarios","Para cifrar los plugins"],
+  ok:1, why:"Si no, el primero que abriera la página podría quedarse con el control de Jenkins."},
+ {t:"vf", p:"Los plugins sugeridos incluyen lo necesario para empezar con Git y pipelines.",
+  ok:true, why:"Es la opción recomendada para empezar; más adelante puedes añadir o quitar plugins."}
 ]},
 
+/* =============== U3 L3 =============== */
 {
-id:"jk3l3",
-titulo:"Condiciones, parámetros y aprobaciones",
-claves:["when decide si un stage se ejecuta: branch, environment, expression, changeRequest, anyOf/allOf","input pausa el pipeline hasta que una persona aprueba (con submitter para limitar quién)","No dejes un input ocupando un executor: úsalo fuera de un agente o con timeout"],
+id:"jn3l3",
+titulo:"Un recorrido por la interfaz",
+claves:["El panel principal (Dashboard) lista los jobs con su último resultado","Nueva tarea (New Item) crea jobs; Administrar Jenkins (Manage Jenkins) configura el sistema","A la izquierda se ven la cola de builds y el estado de los executors"],
 pasos:[
- {t:"info", eti:"Control del flujo", h:"when e input",
-  c:`<div class="termbox">stage('Desplegar a producción') {
-  when {
-    branch 'main'                         // solo en la rama main
-    not { changeRequest() }               // y no en Pull Requests
-  }
-  steps {
-    timeout(time: 1, unit: 'HOURS') {
-      input message: '¿Desplegar a producción?', ok: 'Desplegar', submitter: 'lideres'
-    }
-    sh './desplegar.sh produccion'
-  }
-}</div>`},
- {t:"par", p:"Empareja cada condición when con cuándo se cumple",
-  pares:[["branch 'main'","El build es de la rama main"],["changeRequest()","El build es de un Pull Request"],["expression { params.SALTAR_TESTS == false }","Una expresión Groovy devuelve verdadero"],["environment name: 'ENTORNO', value: 'prod'","Una variable tiene un valor concreto"],["anyOf { branch 'main'; branch 'release' }","Se cumple alguna de las condiciones"]],
-  why:"when evita tener pipelines distintos por rama."},
- {t:"opcion", p:"El stage de despliegue tiene un <code>input</code> y nadie lo aprueba durante el fin de semana. ¿Qué problema puede causar y cómo se evita?",
-  ops:["Ninguno","Mantiene ocupado un executor todo ese tiempo; se evita con timeout y pidiendo la aprobación sin agente asignado","Borra el workspace","Hace que Jenkins se reinicie"],
-  ok:1, why:"Un input dentro de un agente bloquea un executor esperando a una persona."},
- {t:"vf", p:"Con <code>submitter: 'lideres'</code>, solo los usuarios o grupos indicados pueden aprobar el input.",
-  ok:true, why:"Sin submitter, cualquiera con permiso sobre el job podría aprobar un paso a producción."}
-]},
-
-{
-id:"jk3l4",
-titulo:"Declarativo frente a scripted",
-claves:["Declarativo: estructura fija, más legible y validada; es lo recomendado","Scripted: Groovy libre con node { }; más flexible pero más fácil de complicar","Dentro del declarativo, script { } permite un poco de Groovy cuando hace falta"],
-pasos:[
- {t:"info", eti:"Dos sintaxis", h:"Lo mismo, escrito de dos formas",
-  c:`<div class="termbox">// DECLARATIVO                          // SCRIPTED
-pipeline {                               node('linux') {
-  agent { label 'linux' }                  stage('Probar') {
-  stages {                                   checkout scm
-    stage('Probar') {                        sh './mvnw test'
-      steps { sh './mvnw test' }           }
-    }                                    }
-  }
-}</div>
-     <p>El declarativo valida la estructura antes de ejecutar y da errores claros. El scripted es Groovy puro: todo es posible, incluido complicarlo mucho. Para lógica puntual dentro del declarativo existe <code>script { }</code>.</p>`},
- {t:"par", p:"Empareja cada característica con la sintaxis",
-  pares:[["Empieza con pipeline { }","Declarativo"],["Empieza con node { }","Scripted"],["Bloque para meter Groovy dentro del declarativo","script { }"],["Lo recomendado para pipelines nuevos","Declarativo con script solo cuando haga falta"]],
-  why:"Si un Jenkinsfile necesita mucho script { }, esa lógica suele ir mejor en una shared library."},
- {t:"opcion", p:"Tu equipo empieza un pipeline nuevo. ¿Qué sintaxis eliges?",
-  ops:["Scripted, porque es más potente","Declarativo: más legible, validado y fácil de mantener por todo el equipo","Da igual","Jobs freestyle"],
-  ok:1, why:"Es la recomendación de la documentación de Jenkins."}
+ {t:"info", eti:"Orientarse", h:"La pantalla principal",
+  c:`<div class="diag">┌─────────────────────────────────────────────────────────────┐
+│ Jenkins                                        pablo ▾      │
+├──────────────────────┬──────────────────────────────────────┤
+│ + Nueva tarea        │  Panel de control (Dashboard)        │
+│   Personas           │  ┌────┬──────────────┬─────────────┐ │
+│   Historial          │  │ ✔  │ api-tareas   │ hace 2 h #48│ │
+│ ⚙ Administrar Jenkins│  │ ✘  │ web-tienda   │ hace 5 m #12│ │
+│                      │  └────┴──────────────┴─────────────┘ │
+│ Cola de builds (1)   │                                      │
+│ Estado de executors  │                                      │
+│   1 En espera        │                                      │
+│   2 api-tareas #49   │                                      │
+└──────────────────────┴──────────────────────────────────────┘</div>
+     <p>Jenkins muestra la interfaz en el idioma de tu navegador; aquí verás los nombres en español y entre paréntesis en inglés, porque en internet los encontrarás de las dos formas.</p>`},
+ {t:"par", p:"Empareja cada parte de la interfaz con su función",
+  pares:[["Nueva tarea (New Item)","Crear un job nuevo"],["Panel de control (Dashboard)","Ver todos los jobs y su último resultado"],["Administrar Jenkins (Manage Jenkins)","Configurar el sistema, plugins, credenciales y agentes"],["Cola de builds (Build Queue)","Builds esperando un executor libre"],["Estado de executors (Build Executor Status)","Qué está ejecutando cada executor ahora mismo"]],
+  why:"Con estas cinco zonas te mueves por todo Jenkins."},
+ {t:"opcion", p:"Quieres instalar un plugin. ¿Dónde entras?",
+  ops:["Nueva tarea","Administrar Jenkins → Plugins","Historial de builds","Personas"],
+  ok:1, why:"Todo lo que afecta al sistema entero está en Administrar Jenkins."},
+ {t:"info", eti:"Colores", h:"Cómo leer el estado de un job",
+  c:`<p>En el panel, cada job muestra el resultado de su <b>último build</b>:</p>
+     <ul><li><b>Verde</b> (✔): el último build terminó bien.</li>
+     <li><b>Rojo</b> (✘): el último build falló.</li>
+     <li><b>Amarillo</b>: el build terminó pero hay pruebas que fallaron (lo verás en detalle más adelante).</li>
+     <li><b>Gris</b>: nunca se ha ejecutado o se canceló.</li></ul>
+     <p>También hay un icono del tiempo (sol, nubes, tormenta) que resume <b>los últimos builds</b>: sol si casi todos fueron bien, tormenta si casi todos fallaron.</p>`},
+ {t:"opcion", p:"Un job aparece en rojo en el panel. ¿Qué significa?",
+  ops:["Que está desactivado","Que su último build falló","Que nunca se ha ejecutado","Que está en la cola"],
+  ok:1, why:"El color refleja el último build; el icono del tiempo, la tendencia reciente."},
+ {t:"vf", p:"La cola de builds con muchos elementos esperando indica que faltan executors o agentes.",
+  ok:true, why:"Es la primera señal de que Jenkins necesita más capacidad."}
 ]}
 
 ]});
