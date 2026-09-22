@@ -1,0 +1,9 @@
+data/
+node_modules/
+*.log
+.git/
+.env
+README.md
+compose.yml
+Dockerfile
+laboratorio/

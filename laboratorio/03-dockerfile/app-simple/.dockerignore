@@ -1,0 +1,16 @@
+# Todo lo que NO debe entrar en el contexto de build.
+# Reduce el tamaño del contexto, acelera el build y evita filtrar secretos.
+
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+.vscode/
+*.log
+.env
+.env.*
+README.md
+Dockerfile*
+docker-compose*.yml
+compose*.yml

@@ -1,0 +1,318 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/marca/catappa-logo-oscuro.png">
+    <img src="public/marca/catappa-logo.png" alt="Catappa — aprende lenguajes de programación" width="260">
+  </picture>
+</p>
+
+# Catappa
+
+Plataforma para aprender tecnología desde cero hasta nivel maestro — Linux, Git y GitHub, Docker, Kubernetes, DevOps, Terraform, AWS, Redes, SQL y PostgreSQL, Java, Spring Boot, Python, HTML y CSS, JavaScript, TypeScript, React, Node.js, Seguridad web, Algoritmos y estructuras de datos, Diseño de sistemas, Observabilidad, Ansible, Apache Kafka, Redis, MongoDB y Go — con lecciones
+cortas estilo Duolingo, sonido, cuentas, comunidad de preguntas y respuestas,
+ranking, perfiles e insignias. Se instala como aplicación (PWA) y funciona sin
+conexión. Incluye además un **laboratorio de Docker** para practicar en la
+terminal de verdad con aplicaciones Spring Boot.
+
+El nombre juega con **`cat` + app** (el comando de Linux) y con la
+*Terminalia catappa*, el almendro tropical cuya hoja lleva **Cata**, la mascota.
+
+---
+
+## Arrancar
+
+```powershell
+docker compose up -d --build
+```
+
+Abre **http://localhost:8090**.
+
+```powershell
+docker compose ps          # debe decir (healthy)
+docker compose logs -f     # ver qué pasa
+docker compose down        # parar (los datos se conservan)
+```
+
+Los usuarios, el progreso y la comunidad viven en el volumen `catappa_catappa-datos`.
+`docker compose down -v` los borraría: no lo uses salvo que quieras empezar de cero.
+
+### Instalarla como aplicación
+
+Es una **PWA**: en Chrome o Edge aparece el botón **Instalar la app** (barra
+lateral o **Ajustes → App**) y se abre en su propia ventana, con icono. El
+contenido de los cursos se guarda para usarlo **sin conexión**; las lecciones
+que completes sin red se sincronizan solas al volver.
+
+En el móvil, dentro de la misma red, la instalación y el modo sin conexión
+requieren HTTPS (los navegadores solo permiten service workers en `localhost`
+o en HTTPS).
+
+### Sin Docker
+
+Abrir `public/index.html` directamente también funciona en **modo sin conexión**:
+todos los cursos y el progreso (guardado en el navegador), pero sin cuentas,
+comunidad ni ranking.
+
+---
+
+## Cursos
+
+| Curso | Categoría | Unidades | Lecciones | Pasos |
+|---|---|---|---|---|
+| Linux | Sistemas | 12 | 58 | 374 |
+| Git y GitHub | Control de versiones | 7 | 38 | 279 |
+| Docker | Contenedores | 8 | 45 | 386 |
+| Kubernetes | Contenedores | 12 | 43 | 238 |
+| DevOps | Infraestructura | 7 | 38 | 263 |
+| Terraform | Infraestructura | 7 | 23 | 93 |
+| AWS | Cloud | 11 | 36 | 130 |
+| Redes | Sistemas | 11 | 44 | 232 |
+| SQL y PostgreSQL | Datos | 13 | 47 | 237 |
+| Java | Lenguajes | 15 | 57 | 278 |
+| Spring Boot | Backend | 13 | 50 | 222 |
+| Python | Lenguajes | 11 | 39 | 146 |
+| HTML y CSS | Frontend | 7 | 20 | 72 |
+| JavaScript | Lenguajes | 12 | 43 | 192 |
+| TypeScript | Lenguajes | 9 | 30 | 115 |
+| React | Frontend | 10 | 34 | 126 |
+| Node.js | Backend | 8 | 24 | 89 |
+| Seguridad web | Seguridad | 7 | 25 | 92 |
+| Algoritmos y estructuras de datos | Ingeniería | 10 | 26 | 97 |
+| Diseño de sistemas | Ingeniería | 8 | 18 | 63 |
+| Observabilidad | Infraestructura | 6 | 16 | 57 |
+| Ansible | Infraestructura | 5 | 14 | 50 |
+| Apache Kafka | Datos | 4 | 13 | 45 |
+| Redis | Datos | 4 | 10 | 34 |
+| MongoDB | Datos | 4 | 10 | 34 |
+| Go | Lenguajes | 6 | 16 | 52 |
+| **Total** | | **227** | **817** | **3996** |
+
+Cada curso sube por niveles — **Fundamentos, Intermedio, Avanzado, Experto y
+Maestro** — y termina con casos reales y un simulacro de entrevista. En la
+portada hay **rutas de carrera** (DevOps, Backend con Java, Full stack
+JavaScript, Python y automatización, Preparar entrevistas técnicas) que ordenan
+los cursos recomendados. Cada curso muestra el **logo oficial** de su
+tecnología; los que tratan una materia y no una herramienta (Redes, Algoritmos,
+Diseño de sistemas) llevan un icono propio.
+
+Cada lección alterna explicación y ejercicio. Tipos de ejercicio: opción
+múltiple, verdadero/falso, completar con fichas, ordenar, emparejar, escribir la
+respuesta y terminal simulada con salida real.
+
+- **Intentos ilimitados, sin vidas.** Si fallas, la pregunta vuelve al final de
+  la lección.
+- **Corrección siempre visible** en todos los tipos de ejercicio: acierto en
+  verde o error en rojo, la explicación, **tu respuesta** y la **respuesta
+  correcta**. Durante medio segundo no se puede continuar, para que un doble
+  clic no se la salte. En «emparejar», cada pareja errónea cuenta: con algún
+  error, el ejercicio se marca como fallado y vuelve al final.
+- **Sonido**: al acertar, fallar, emparejar, terminar la lección y ganar una
+  insignia. Se sintetiza en el navegador (sin ficheros, funciona sin conexión).
+  Se silencia desde el altavoz de la lección o en **Ajustes → Sonido**, donde
+  también se ajusta el volumen.
+- Las lecciones de cada curso se desbloquean en orden. Todos los cursos están
+  abiertos desde el principio.
+
+### Plataforma
+
+- **Cuentas** con usuario y contraseña (hash scrypt, sin correo).
+- **Modo invitado**: aprendes sin cuenta; al registrarte se importa todo.
+- **Comunidad**: preguntas, debates y recursos por curso y por lección; respuestas,
+  votos, respuesta aceptada, búsqueda y filtros. Admite bloques de código.
+- **Ranking** semanal y global.
+- **Perfil** con mapa de actividad anual, progreso por curso, insignias y
+  publicaciones.
+- **XP, racha diaria y objetivo diario** (50 XP).
+- **Tema claro y oscuro** (o el del sistema), recordado entre visitas.
+- **Búsqueda global** con `Ctrl + K` (lecciones, unidades y conceptos clave).
+- Diseño adaptado a móvil, con barra de navegación inferior.
+
+### Tu progreso anterior
+
+El progreso del curso anterior de Docker (guardado en el navegador en
+`localhost:8090`) se detecta y se importa automáticamente al entrar o al crear
+la cuenta. Si estudiaste en otro navegador, en **Ajustes → Progreso anterior**
+hay un botón para marcar Docker hasta la **Unidad 2 · Lección 4**.
+
+---
+
+## Laboratorio de Docker
+
+En `laboratorio/` está la práctica en la **terminal de verdad**: aplicaciones
+Spring Boot listas para construir y levantar (no hace falta tener Java ni Maven:
+se compilan dentro de Docker). Complementa el curso de Docker de la plataforma.
+
+Cada módulo tiene un `README.md` con teoría mínima, práctica guiada, ejercicios
+sin solución a la vista y preguntas de entrevista. Regla de oro: **no leas dos
+módulos seguidos sin ejecutar nada.**
+
+| # | Módulo | Qué aprendes | Tiempo |
+|---|--------|--------------|--------|
+| 00 | [Fundamentos](laboratorio/00-fundamentos/README.md) | Qué es un contenedor de verdad, VM vs contenedor, namespaces y cgroups, imagen vs contenedor, capas | 45 min |
+| 01 | [Comandos básicos](laboratorio/01-comandos/README.md) | `run`, `ps`, `exec`, `logs`, `stop`, `rm`, `images`, `pull`, flags que importan | 60 min |
+| 02 | [Linux esencial](laboratorio/02-linux/README.md) | El Linux que necesitas *dentro* del contenedor: filesystem, procesos, PID 1, usuarios, permisos, señales | 45 min |
+| 03 | [Dockerfile](laboratorio/03-dockerfile/README.md) | Todas las instrucciones, caché de capas, multi-stage, imagen Spring Boot de 900 MB → 200 MB | 2 h |
+| 04 | [YAML](laboratorio/04-yaml/README.md) | Sintaxis completa del YAML, los 5 errores que todo el mundo comete | 30 min |
+| 05 | [Docker Compose](laboratorio/05-compose/README.md) | `compose.yml` entero, API + Postgres + Adminer, `depends_on`, healthchecks, `.env`, perfiles | 2 h |
+| 06 | [Redes y volúmenes](laboratorio/06-redes-volumenes/README.md) | Bridge vs host vs none, DNS interno, named volumes vs bind mounts, backup de datos | 1 h |
+| 07 | [Servidor y despliegue](laboratorio/07-servidor/README.md) | Nginx como reverse proxy, desplegar en un VPS por SSH, `docker context`, systemd, registry, CI/CD con GitHub Actions | 1,5 h |
+| 08 | [Entrevista](laboratorio/08-entrevista/README.md) | 60 preguntas con respuesta, 8 escenarios de depuración, simulacro final | 1,5 h |
+
+Extra: [`laboratorio/cheatsheet.md`](laboratorio/cheatsheet.md) — una página con
+todo, para repasar antes de una entrevista.
+
+**Si solo tienes 4 horas:** módulos 03 (Dockerfile), 05 (Compose) y 08
+(preguntas), en ese orden, más el simulacro final del curso de Docker de la
+plataforma.
+
+Antes del módulo 05, crea el fichero de variables a partir de la plantilla (el
+`.env` real no se sube al repositorio, como explica el propio módulo):
+
+```powershell
+copy laboratorio\05-compose\.env.example laboratorio\05-compose\.env
+# y rellena, por ejemplo: POSTGRES_DB=tareas, POSTGRES_USER=tareas_user, POSTGRES_PASSWORD=tareas_pass
+```
+
+Comprobación previa:
+
+```powershell
+docker --version
+docker compose version
+docker run hello-world    # debe imprimir "Hello from Docker!"
+```
+
+Para limpiar lo del laboratorio, usa `docker compose down` dentro de cada
+módulo y borra por nombre (`docker rm -f NOMBRE`, `docker rmi app-simple:v1`).
+
+> ⚠️ Si tienes contenedores o volúmenes de otros proyectos, **no ejecutes
+> `docker system prune -a --volumes` ni `docker volume prune`**: borrarían sus
+> datos. Limpia siempre por nombre o con `docker compose down` en cada proyecto.
+
+---
+
+## Arquitectura
+
+```
+.
+├── Dockerfile            node:22-alpine, usuario sin root, healthcheck
+├── compose.yml           puerto 8090 -> 3000, volumen catappa-datos
+├── herramientas/
+│   └── indice.js         genera el índice ligero de cursos y la versión del service worker
+├── server/
+│   ├── server.js         API REST + servidor de ficheros (Node sin dependencias)
+│   ├── db.js             almacén JSON con escritura atómica
+│   └── semilla.js        comunidad inicial (se crea una sola vez)
+├── public/
+│   ├── index.html
+│   ├── manifest.webmanifest, sw.js, iconos/     PWA
+│   ├── css/app.css       sistema de diseño (claro y oscuro)
+│   ├── js/               núcleo, sonido, motor de lecciones, vistas
+│   ├── marca/            logo de Catappa y Cata, la mascota (PNG sin fondo y SVG)
+│   ├── iconos/, favicon.ico   favicon e iconos de la app (fondo blanco redondeado)
+│   ├── logos/            logos oficiales de cada tecnología (SVG)
+│   └── cursos/
+│       ├── _catalogo.js  fichas de los cursos y rutas de carrera
+│       ├── _indice.js    índice generado (títulos, lecciones, número de pasos)
+│       └── <curso>-uN.js contenido de cada unidad
+└── laboratorio/          práctica de Docker en la terminal (módulos 00 a 08)
+```
+
+La portada solo descarga el índice (unos 270 KB); el contenido de cada curso se
+carga al abrirlo. El servidor no tiene dependencias de npm y lee el mismo
+contenido que el navegador para validar el progreso (no se puede marcar una
+lección que no existe ni inflar la XP). El `.dockerignore` deja fuera
+`laboratorio/`: la imagen solo lleva `server`, `herramientas` y `public`.
+
+**Stack actual:** Node.js sin framework, datos en ficheros JSON y JavaScript sin
+framework en el navegador. Está prevista una migración a **Node.js +
+PostgreSQL** en el backend y **React + TypeScript** en el frontend, conservando
+todos los cursos.
+
+### API
+
+| Método | Ruta | |
+|---|---|---|
+| POST | `/api/registro`, `/api/login`, `/api/logout` | cuentas |
+| GET | `/api/yo` | perfil y progreso de la sesión |
+| POST | `/api/progreso` | registrar una lección terminada |
+| POST | `/api/importar` | importar progreso previo |
+| POST | `/api/perfil` | editar nombre, bio y color |
+| GET | `/api/perfil/:usuario` | perfil público |
+| GET | `/api/ranking?rango=semana\|global` | ranking |
+| GET/POST | `/api/comunidad` | listar (filtros `curso`, `leccion`, `q`, `orden`) y publicar |
+| GET/DELETE | `/api/comunidad/:id` | hilo |
+| POST | `/api/comunidad/:id/respuestas`, `/voto`, `/aceptar` | participar |
+| GET | `/api/estado` | salud (lo usa el healthcheck) |
+
+---
+
+## Añadir o cambiar lecciones
+
+Todo el contenido está en `public/cursos/<curso>-uN.js`, en formato legible.
+Cada unidad declara su `nivel` (Fundamentos, Intermedio, Avanzado, Experto o
+Maestro) y cada paso es un objeto con su tipo:
+
+```js
+{t:"info",    h:"Título", c:"<p>explicación en HTML</p>"}
+{t:"opcion",  p:"Pregunta", ops:["a","b","c"], ok:1, why:"por qué"}
+{t:"vf",      p:"Afirmación", ok:false, why:"..."}
+{t:"hueco",   p:"...", tpl:"docker ___ -d nginx", banco:["run","exec"], sol:["run"]}
+{t:"escribe", p:"...", sol:["docker ps"], pista:"..."}
+{t:"term",    p:"...", sol:["docker ps"], salida:"CONTAINER ID ..."}
+{t:"orden",   p:"...", items:["primero","segundo","tercero"]}
+{t:"par",     p:"...", pares:[["-d","segundo plano"],["-p","puertos"]]}
+```
+
+Los textos de `c`, `p`, `why`, `pista`, `ops` y `claves` se pintan como HTML:
+escribe `&lt;` y `&gt;` para mostrar `<` y `>`. Los de `pares`, `items`, `tpl`,
+`sol` y `salida` son texto plano. En `par`, los textos de la derecha deben ser
+distintos entre sí. El `why` se muestra tanto al acertar como al fallar (si
+empieza por «Exacto:» o «Correcto.», al fallar se omite esa palabra).
+
+Para un curso nuevo: añade su ficha en `cursos/_catalogo.js` (con `logo:
+"logos/<curso>.svg"` si la tecnología tiene logo, o solo `glifo` si no), sus
+ficheros de unidades y, si tiene logo, el SVG en `public/logos/` y en la lista
+`FICHEROS` de `public/sw.js`. Después, regenera el índice y reconstruye:
+
+```powershell
+node herramientas/indice.js
+docker compose up -d --build
+```
+
+(El `Dockerfile` también ejecuta `herramientas/indice.js` al construir la imagen.)
+
+---
+
+## Marca
+
+**Cata**, la mascota, es una gata geométrica con una hoja de catappa. Está
+redibujada en vector (`public/marca/cata.svg`) a partir del logo original, así
+que todos los PNG se generan nítidos a cualquier tamaño.
+
+| Fichero | Uso |
+|---|---|
+| `public/marca/catappa-logo.png` · `-oscuro.png` | logo completo con nombre y lema, sin fondo (texto navy o claro) |
+| `public/marca/catappa-horizontal.png` · `-oscuro.png` | mascota y nombre en línea, para cabeceras |
+| `public/marca/cata.png` (1024 px), `cata-256.png`, `cata-96.png` | Cata sin fondo, en la interfaz |
+| `public/marca/cata.svg` | vector de la mascota |
+| `public/iconos/icono.svg`, `favicon-32.png`, `favicon-16.png`, `public/favicon.ico` | favicon con fondo blanco redondeado |
+| `public/iconos/icono-192.png`, `icono-512.png`, `icono-maskable-512.png`, `apple-touch-icon.png` | iconos de la app instalada |
+
+**Paleta** (sale del logo):
+
+| Color | Hex | Uso |
+|---|---|---|
+| Navy | `#072D44` | contornos y texto |
+| Turquesa | `#179493` | acento y botones |
+| Verde hoja | `#70B37D` | detalles de la hoja |
+| Verde hoja oscuro | `#247A6A` | detalles de la hoja |
+| Fondo claro | `#F4F7F8` | tema claro |
+| Navy profundo | `#0B1821` | tema oscuro |
+
+**Tipografía:** Montserrat SemiBold para el nombre y Geist para la interfaz. El
+nombre y el logo se configuran en `public/js/nucleo.js` → `F.MARCA`.
+
+## Créditos
+
+Los logos de `public/logos/` proceden de [Devicon](https://devicon.dev) (licencia
+MIT) y, el de OWASP, de [Simple Icons](https://simpleicons.org) (CC0). Son marcas
+de sus respectivos propietarios y se usan solo para identificar cada tecnología.

@@ -1,0 +1,29 @@
+# =========================================================================
+#  Catappa
+#    docker compose up -d --build     ->  http://localhost:8090
+#    docker compose logs -f
+#    docker compose down              (los datos se conservan en el volumen)
+#
+#  El puerto 8090 es el mismo que usaba el curso anterior: así el navegador
+#  conserva el progreso antiguo y la plataforma lo puede importar.
+# =========================================================================
+name: catappa
+
+services:
+  web:
+    build: .
+    image: catappa:1.0.0
+    container_name: catappa
+    ports:
+      - "8090:3000"
+    volumes:
+      - catappa-datos:/data          # usuarios, progreso y comunidad
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  catappa-datos:

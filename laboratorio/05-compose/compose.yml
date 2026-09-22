@@ -1,0 +1,85 @@
+# =========================================================================
+#  Stack completo: API Spring Boot + Postgres + Adminer
+#  Arrancar:  docker compose up -d --build
+#  Parar:     docker compose down          (añade -v para borrar los datos)
+#
+#  Nota: en Compose v2+ la clave "version:" ya NO se usa (está obsoleta).
+#  El fichero se puede llamar compose.yml (moderno) o docker-compose.yml.
+# =========================================================================
+
+name: practica-docker          # nombre del proyecto: prefija contenedores y redes
+
+services:
+
+  # ---------------------------- BASE DE DATOS ----------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: tareas-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # Volumen con nombre: los datos SOBREVIVEN a "docker compose down"
+      - pgdata:/var/lib/postgresql/data
+      # Bind mount de solo lectura: postgres ejecuta este .sql la primera vez
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
+    restart: unless-stopped
+    # OJO: NO publicamos el 5432 al host. La API llega a la base de datos por
+    # la red interna. Exponer la BD a internet es un fallo clásico de seguridad.
+    # Descomenta solo si quieres conectarte con DBeaver desde Windows:
+    # ports:
+    #   - "5432:5432"
+
+  # -------------------------------- API ---------------------------------
+  api:
+    build:
+      context: ./app-tareas      # carpeta con el Dockerfile y el código
+      dockerfile: Dockerfile
+    image: app-tareas:1.0.0      # nombre con el que se etiqueta la imagen
+    container_name: tareas-api
+    depends_on:
+      db:
+        condition: service_healthy   # espera a que el healthcheck de db pase
+    environment:
+      # "db" es el NOMBRE DEL SERVICIO. Compose lo resuelve por DNS interno.
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0"
+    ports:
+      - "${API_PORT:-8080}:8080"    # host:contenedor, con valor por defecto
+    networks:
+      - backend
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M              # cgroups: techo de RAM
+
+  # ------------------- CLIENTE WEB PARA LA BASE DE DATOS -----------------
+  adminer:
+    image: adminer:latest
+    container_name: tareas-adminer
+    depends_on:
+      - db
+    ports:
+      - "8081:8080"
+    networks:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:                          # volumen gestionado por Docker
+
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,113 @@
+# =========================================================================
+#  CI/CD con GitHub Actions: construye la imagen, la publica en el registry
+#  y la despliega por SSH en el servidor.
+#  Ubicación real en un repo: .github/workflows/docker.yml
+#  (aquí está como material de estudio: sabe explicar cada bloque)
+# =========================================================================
+
+name: Build y despliegue Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/app-tareas
+
+jobs:
+
+  # ---------- 1. Tests: se ejecutan dentro de un contenedor ----------
+  test:
+    runs-on: ubuntu-latest
+    services:                       # GitHub levanta contenedores de apoyo
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: maven
+      - name: Ejecutar tests
+        working-directory: ./05-compose/app-tareas
+        run: mvn -B test
+
+  # ---------- 2. Build de la imagen y push al registry ----------
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write               # necesario para publicar en ghcr.io
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login en el registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha                  # tag inmutable con el commit
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Build y push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./05-compose/app-tareas
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha        # cache de capas entre ejecuciones
+          cache-to: type=gha,mode=max
+
+      # Escaneo de vulnerabilidades: punto extra en la entrevista
+      - name: Escanear la imagen con Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: "0"              # ponlo a 1 para bloquear el pipeline
+
+  # ---------- 3. Despliegue en el servidor por SSH ----------
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desplegar por SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /opt/mi-app
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f

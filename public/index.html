@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catappa — aprende programación, DevOps y cloud</title>
+<meta name="description" content="26 cursos interactivos paso a paso, de cero a nivel maestro: Linux, Docker, Kubernetes, AWS, Terraform, Ansible, Java, Spring Boot, Go, SQL, Redis, MongoDB, Kafka, Python, JavaScript, React, observabilidad, algoritmos, diseño de sistemas y más. Con comunidad.">
+<!-- web app -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f4f7f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1821" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Catappa">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="iconos/icono.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="iconos/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="iconos/favicon-16.png">
+<link rel="shortcut icon" href="favicon.ico">
+<script>
+  /* la app se llamaba Forja: sus datos locales (sesión, tema, sonido, progreso) pasan a claves catappa-* */
+  (function () {
+    try {
+      var viejas = [];
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf("forja-") === 0) viejas.push(k); }
+      viejas.forEach(function (k) {
+        var n = "catappa-" + k.slice(6);
+        if (localStorage.getItem(n) === null) localStorage.setItem(n, localStorage.getItem(k));
+        localStorage.removeItem(k);
+      });
+    } catch (e) {}
+  })();
+  /* tema antes de pintar: evita el parpadeo */
+  (function () {
+    var t = "sistema";
+    try { t = localStorage.getItem("catappa-tema") || "sistema"; } catch (e) {}
+    var oscuro = t === "oscuro" || (t === "sistema" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Montserrat:wght@600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="raiz"></div>
+<div class="toast-zona" id="toasts" aria-live="polite"></div>
+
+<!-- catálogo e índice ligero: el contenido de cada curso se descarga al abrirlo -->
+<script src="cursos/_catalogo.js"></script>
+<script src="cursos/_indice.js"></script>
+
+<!-- aplicación -->
+<script src="js/nucleo.js"></script>
+<script src="js/sonido.js"></script>
+<script src="js/leccion.js"></script>
+<script src="js/aprender.js"></script>
+<script src="js/comunidad.js"></script>
+<script src="js/perfil.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
