@@ -123,8 +123,8 @@ respuesta y terminal simulada con salida real.
   publicaciones.
 - **XP, racha diaria y objetivo diario** (50 XP).
 - **Tema Sistema, Claro u Oscuro.** Por defecto sigue al del sistema operativo.
-  Solo con la sesión iniciada se puede cambiar (en **Ajustes → Apariencia** o con
-  el botón de la barra superior) y la elección se guarda en la cuenta; sin sesión
+  Solo con la sesión iniciada se puede cambiar (en **Ajustes → Apariencia** o en
+  el menú del botón de tema de la barra superior, con las mismas tres opciones) y la elección se guarda en la cuenta; sin sesión
   (portada, invitados) siempre se usa el del sistema. El predeterminado está en
   `F.TEMA_PREDETERMINADO` (`public/js/nucleo.js`).
 - **Reiniciar un curso**: desde la página del curso o en **Ajustes → Reiniciar un

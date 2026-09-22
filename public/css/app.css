@@ -700,3 +700,15 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 .fila-reinicio span b { color: var(--ink); }
 .btn-peligro-lleno { background: var(--bad); border-color: var(--bad); color: #fff; }
 .btn-peligro-lleno:hover { background: var(--bad-press); border-color: var(--bad-press); }
+
+/* ---------------- menú de tema (barra superior) ---------------- */
+.tema-envoltorio { position: relative; display: inline-flex; }
+.menu-tema { position: absolute; top: calc(100% + 6px); right: 0; z-index: 60; min-width: 250px; padding: 6px; display: grid; gap: 2px;
+  background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: var(--shadow); }
+.menu-tema button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 7px; text-align: left; font-size: 14px; color: var(--ink-2); }
+.menu-tema button:hover, .menu-tema button:focus-visible { background: var(--bg-hover); color: var(--ink); outline: none; }
+.menu-tema button[aria-checked="true"] { color: var(--ink); font-weight: 600; }
+.menu-tema button svg { width: 16px; height: 16px; flex: none; }
+.menu-tema button span { flex: 1; white-space: nowrap; }
+.menu-tema small { color: var(--ink-3); font-weight: 400; font-size: 12px; }
+.menu-tema .marca-check { color: var(--accent); }

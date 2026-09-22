@@ -95,6 +95,7 @@ var I = {
   documento: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/>',
   ojo: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   ojoNo: '<path d="M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
   sonido: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
   silencio: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>',
   plano: '<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="8.5" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v3.5h11V8M12 11.5V16"/>'
@@ -627,14 +628,14 @@ F.layout = function (seccion, migas) {
               '<button class="buscador" id="abrir-paleta" aria-label="Buscar">' + F.icono("buscar") + "<span>Buscar lección…</span><kbd>Ctrl K</kbd></button>" +
               '<span class="chip racha" title="Días seguidos aprendiendo">' + F.icono("fuego") + '<span id="st-racha">0</span></span>' +
               '<span class="chip xp" title="Puntos de experiencia">' + F.icono("rayo") + '<span id="st-xp">0</span></span>' +
-              '<button class="boton-icono" id="boton-tema" aria-label="Cambiar tema"></button>' +
+              '<span class="tema-envoltorio"><button class="boton-icono" id="boton-tema" aria-label="Tema" aria-haspopup="menu" aria-expanded="false"></button></span>' +
             "</div>" +
           "</header>" +
           '<main class="contenido" id="vista"></main>' +
         "</div>" +
         '<nav class="tabbar" id="tabbar"></nav>' +
       "</div>";
-    F.$("#boton-tema").addEventListener("click", F.tema.alternar);
+    F.$("#boton-tema").addEventListener("click", F.menuTema);
     F.$("#abrir-paleta").addEventListener("click", F.paleta);
   }
   var nav = NAV.map(function (n) {
@@ -686,12 +687,53 @@ F.pintarStats = function () {
   if (r) r.textContent = F.racha();
   if (x) x.textContent = F.num(E.perfil ? E.perfil.xp : F.xpTotal());
 };
+var OPCIONES_TEMA = [
+  { t: "sistema", texto: "Sistema", icono: "monitor", nota: "predeterminado" },
+  { t: "claro", texto: "Claro", icono: "sol" },
+  { t: "oscuro", texto: "Oscuro", icono: "luna" }
+];
 F.pintarBotonTema = function () {
   var b = F.$("#boton-tema"); if (!b) return;
   b.hidden = !F.tema.puedeCambiar();   // sin sesión el tema no se puede cambiar
-  var oscuro = document.documentElement.getAttribute("data-theme") === "dark";
-  b.innerHTML = F.icono(oscuro ? "sol" : "luna");
-  b.title = oscuro ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+  var op = OPCIONES_TEMA.find(function (o) { return o.t === F.tema.actual(); }) || OPCIONES_TEMA[0];
+  b.innerHTML = F.icono(op.icono);
+  b.title = "Tema: " + op.texto + (op.nota ? " (" + op.nota + ")" : "");
+};
+/* menú del botón de tema: las tres opciones, con la actual marcada */
+F.menuTema = function () {
+  var b = F.$("#boton-tema"), abierto = F.$("#menu-tema");
+  if (abierto) { abierto.cerrar(); return; }
+  if (!F.tema.puedeCambiar()) return;
+  var m = document.createElement("div");
+  m.id = "menu-tema"; m.className = "menu-tema"; m.setAttribute("role", "menu"); m.setAttribute("aria-label", "Tema");
+  m.innerHTML = OPCIONES_TEMA.map(function (o) {
+    var sel = o.t === F.tema.actual();
+    return '<button role="menuitemradio" aria-checked="' + sel + '" data-t="' + o.t + '">' + F.icono(o.icono) + "<span>" + o.texto + (o.nota ? " <small>(" + o.nota + ")</small>" : "") + "</span>" + (sel ? F.icono("check", "marca-check") : "") + "</button>";
+  }).join("");
+  b.parentNode.appendChild(m);
+  b.setAttribute("aria-expanded", "true");
+  var botones = F.$$("button", m);
+  var cerrar = m.cerrar = function (volverFoco) {
+    m.remove(); b.setAttribute("aria-expanded", "false");
+    document.removeEventListener("click", fuera, true); document.removeEventListener("keydown", teclas, true);
+    if (volverFoco) b.focus();
+  };
+  var fuera = function (e) { if (!m.contains(e.target) && e.target !== b && !b.contains(e.target)) cerrar(); };
+  var teclas = function (e) {
+    var i = botones.indexOf(document.activeElement);
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); cerrar(true); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); botones[(i + 1) % botones.length].focus(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); botones[(i - 1 + botones.length) % botones.length].focus(); }
+  };
+  botones.forEach(function (x) {
+    x.addEventListener("click", function () {
+      F.tema.aplicar(x.dataset.t); cerrar(true);
+      var seg = F.$$("#seg-tema button");   // si Ajustes está abierto, que refleje el cambio
+      seg.forEach(function (s) { s.setAttribute("aria-pressed", String(s.dataset.t === x.dataset.t)); });
+    });
+  });
+  setTimeout(function () { document.addEventListener("click", fuera, true); document.addEventListener("keydown", teclas, true); }, 0);
+  (botones.find(function (x) { return x.getAttribute("aria-checked") === "true"; }) || botones[0]).focus();
 };
 /* ojo para ver u ocultar la contraseña: se añade solo a todos los campos de contraseña,
    también a los que aparezcan después (formularios, modales) */
