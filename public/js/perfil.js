@@ -157,8 +157,12 @@ F.vistaAjustes = function () {
   F.pintar(
     '<div class="ancho-texto">' +
       '<div class="eyebrow"><b>~/ajustes</b></div><h1 class="titulo-pag">Ajustes</h1>' +
-      '<section class="seccion"><div class="seccion-cab"><h2>Apariencia</h2></div><div class="panel panel-pad" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><span>Tema de la interfaz</span>' +
-        '<div class="segmentado" id="seg-tema"><button data-t="claro" aria-pressed="' + (tema === "claro") + '">' + F.icono("sol").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"') + ' Claro' + (F.TEMA_PREDETERMINADO === "claro" ? " (predeterminado)" : "") + '</button><button data-t="oscuro" aria-pressed="' + (tema === "oscuro") + '">' + F.icono("luna").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"') + ' Oscuro' + (F.TEMA_PREDETERMINADO === "oscuro" ? " (predeterminado)" : "") + '</button></div></div></section>' +
+      '<section class="seccion"><div class="seccion-cab"><h2>Apariencia</h2></div><div class="panel panel-pad" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">' +
+      (F.tema.puedeCambiar() ? '<span>Tema de la interfaz<small style="display:block;color:var(--ink-3);font-size:13px">Se guarda en tu cuenta.</small></span>' +
+        '<div class="segmentado" id="seg-tema"><button data-t="sistema" aria-pressed="' + (tema === "sistema") + '">Sistema (predeterminado)</button><button data-t="claro" aria-pressed="' + (tema === "claro") + '">' + F.icono("sol").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"') + ' Claro</button><button data-t="oscuro" aria-pressed="' + (tema === "oscuro") + '">' + F.icono("luna").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"') + " Oscuro</button></div></div></section>"
+      : '<span>El tema sigue al de tu sistema. <b>Inicia sesión</b> para elegir claro u oscuro.</span>' + (E.modo === "servidor" ? '<a class="btn" href="#/entrar">Iniciar sesión</a>' : "") + "</div></section>") +
+      "" +
+        "" +
       '<section class="seccion"><div class="seccion-cab"><h2>Sonido</h2></div><div class="panel panel-pad" style="display:grid;gap:14px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><span>Sonidos al acertar, fallar y terminar lecciones</span>' +
           '<div class="segmentado" id="seg-sonido"><button data-s="1" aria-pressed="' + F.sonido.activo() + '">' + F.icono("sonido").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"') + ' Activado</button><button data-s="0" aria-pressed="' + !F.sonido.activo() + '">' + F.icono("silencio").replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px"') + ' Silencio</button></div></div>' +
@@ -176,6 +180,15 @@ F.vistaAjustes = function () {
           : E.modo === "servidor" ? "<span>Estás como invitado. Tu progreso vive solo en este navegador.</span><a class=\"btn btn-primario\" href=\"#/entrar?modo=registro\">Crear cuenta</a>"
           : "<span>Modo sin conexión: sin cuentas ni comunidad. Arranca el servidor con <code>docker compose up -d</code>.</span>") +
       "</div></section>" +
+      (function () {
+        var empezados = F.cursos().filter(function (c) { return F.contarHechas(c.id) > 0; });
+        return '<section class="seccion"><div class="seccion-cab"><h2>Reiniciar un curso</h2></div><div class="panel panel-pad" style="display:grid;gap:12px">' +
+          '<p style="color:var(--ink-2)">Deja un curso como si nunca lo hubieras empezado: se borran sus lecciones completadas, su XP y su actividad.</p>' +
+          (empezados.length ? '<div class="lista-reinicio">' + empezados.map(function (c) {
+            return '<div class="fila-reinicio">' + F.logoCurso(c, "mini") + "<span><b>" + F.esc(c.titulo) + "</b> · " + F.contarHechas(c.id) + " de " + F.lecciones(c.id).length + ' lecciones</span><button class="btn btn-suave btn-peligro" data-reiniciar="' + c.id + '">Reiniciar</button></div>';
+          }).join("") + "</div>" : '<p style="color:var(--ink-3)">Todavía no has empezado ningún curso.</p>') +
+          "</div></section>";
+      })() +
       '<section class="seccion"><div class="seccion-cab"><h2>Progreso anterior</h2></div><div class="panel panel-pad" style="display:grid;gap:14px">' +
         "<p style=\"color:var(--ink-2)\">" + (antiguo.length ? "Este navegador tiene " + antiguo.length + " lecciones completadas del curso antiguo de Docker. Se importan automáticamente, pero puedes repetirlo aquí." : "No se ha encontrado progreso del curso antiguo en este navegador.") + " Si lo hiciste en otro navegador, puedes marcar directamente hasta donde llegaste: <b>Docker › Unidad 2 › Lección 4</b>.</p>" +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' + (antiguo.length ? '<button class="btn" id="imp-antiguo">Importar ' + antiguo.length + " lecciones del curso antiguo</button>" : "") + '<button class="btn" id="imp-declarado">Marcar Docker hasta la Unidad 2 · Lección 4</button></div>' +
@@ -202,9 +215,10 @@ F.vistaAjustes = function () {
     F.sonido.tocar(pruebas[nPrueba++ % pruebas.length]);
   });
   $$("#seg-tema button").forEach(function (b) {
-    b.addEventListener("click", function () { F.tema.aplicar(b.dataset.t); F.pintarBotonTema(); $$("#seg-tema button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
+    b.addEventListener("click", function () { if (F.tema.aplicar(b.dataset.t)) $$("#seg-tema button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
   });
   var bs = $("#salir"); if (bs) bs.addEventListener("click", function () { F.cerrarSesion(); });
+  $$("[data-reiniciar]").forEach(function (b) { b.addEventListener("click", function () { F.confirmarReinicio(b.dataset.reiniciar); }); });
   var importar = function (ids) {
     if (E.perfil) {
       F.api("POST", "/api/importar", { progreso: { docker: ids } }).then(function (d) {
@@ -268,7 +282,7 @@ F.vistaEntrar = function (prm) {
         "<span>" + F.icono("fuego").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>Rachas, XP e insignias</b> sin límite de intentos</span></div>" +
       "</div>" +
       '<div class="acceso-form"><div class="caja">' +
-        '<button class="boton-icono" id="acc-tema" style="justify-self:end" aria-label="Cambiar tema"></button>' +
+
         "<div><h2>" + (modo === "registro" ? "Crea tu cuenta" : "Entra en tu cuenta") + '</h2><p style="color:var(--ink-2);margin-top:4px">' + (modo === "registro" ? "Gratis, sin correo: solo un usuario y una contraseña." : "Continúa donde lo dejaste.") + "</p></div>" +
         (E.modo !== "servidor" ? '<div class="aviso-local">Estás abriendo la plataforma sin servidor: las cuentas no están disponibles. Puedes seguir como invitado.</div>' : "") +
         '<form id="form-acc" style="display:grid;gap:14px">' +
@@ -284,9 +298,6 @@ F.vistaEntrar = function (prm) {
         '<a class="btn" href="#/" id="invitado">Seguir como invitado</a>' +
       "</div></div>" +
     "</div>";
-  var bt = $("#acc-tema");
-  var pintaT = function () { bt.innerHTML = F.icono(document.documentElement.getAttribute("data-theme") === "dark" ? "sol" : "luna"); };
-  pintaT(); bt.addEventListener("click", function () { F.tema.alternar(); pintaT(); });
   $("#cambiar-modo").addEventListener("click", function () { F.ir("/entrar?modo=" + (modo === "registro" ? "login" : "registro")); });
   $("#invitado").addEventListener("click", function () { F.guardarLocal("catappa-visto-acceso", true); });
   animarDemo();

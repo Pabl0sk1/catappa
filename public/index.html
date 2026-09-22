@@ -30,15 +30,15 @@
       });
     } catch (e) {}
   })();
-  /* tema antes de pintar (evita el parpadeo). El tema lo elige la persona dentro de la app;
-     no se sigue el del sistema operativo. Predeterminado: claro (igual que F.TEMA_PREDETERMINADO). */
+  /* tema antes de pintar (evita el parpadeo). Predeterminado: el del sistema operativo.
+     Solo con la sesión iniciada se puede elegir claro u oscuro (se guarda en la cuenta). */
   (function () {
-    var t = null;
-    try { t = localStorage.getItem("catappa-tema"); } catch (e) {}
-    if (t !== "claro" && t !== "oscuro") t = "claro";
-    document.documentElement.setAttribute("data-theme", t === "oscuro" ? "dark" : "light");
+    var t = "sistema";
+    try { if (localStorage.getItem("catappa-token")) t = localStorage.getItem("catappa-tema") || "sistema"; } catch (e) {}
+    var oscuro = t === "oscuro" || (t !== "claro" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", t === "oscuro" ? "#0b1821" : "#f4f7f8");
+    if (m) m.setAttribute("content", oscuro ? "#0b1821" : "#f4f7f8");
   })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">

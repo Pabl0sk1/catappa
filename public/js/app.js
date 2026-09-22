@@ -63,13 +63,14 @@ function arrancar() {
     if (!hay) {
       // sin conexión pero con sesión guardada: se sigue con la última copia conocida
       var cache = F.leerLocal("catappa-sesion-cache", null);
-      if (cache && cache.perfil) { E.perfil = cache.perfil; E.progreso = cache.progreso || {}; E.modo = "offline"; }
+      if (cache && cache.perfil) { E.perfil = cache.perfil; E.progreso = cache.progreso || {}; E.modo = "offline"; F.tema.sincronizar(); }
       return;
     }
-    return F.api("GET", "/api/yo").then(function (d) { E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache(); return F.sincronizarCola(); })
+    return F.api("GET", "/api/yo").then(function (d) { E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache(); F.tema.sincronizar(); return F.sincronizarCola(); })
       .catch(function (e) {
         if (!e.estado) return;   // fallo de red puntual: se mantiene el token
         E.token = null; try { localStorage.removeItem("catappa-token"); } catch (x) {}
+        F.tema.sincronizar();
         E.progreso = F.leerLocal("catappa-progreso-local", { progreso: {} }).progreso || {};
       });
   }).then(function () {

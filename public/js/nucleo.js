@@ -93,6 +93,8 @@ var I = {
   engranaje: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>',
   velocidad: '<path d="M3 9h6M2 12h6M3 15h6"/><circle cx="15" cy="12" r="5"/><path d="M15 9.5V12l1.5 1.5"/>',
   documento: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/>',
+  ojo: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  ojoNo: '<path d="M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
   sonido: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
   silencio: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>',
   plano: '<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="8.5" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v3.5h11V8M12 11.5V16"/>'
@@ -109,27 +111,50 @@ F.icono = function (n, cls) {
 };
 
 /* ---------------- tema ---------------- */
-/* el tema se elige solo dentro de la app (no sigue al sistema operativo); este es el predeterminado */
-F.TEMA_PREDETERMINADO = "claro";
+/* tema: "sistema" (sigue al sistema operativo; es el predeterminado), "claro" u "oscuro".
+   Solo se puede elegir con la sesión iniciada, y la elección se guarda en la cuenta:
+   sin sesión (portada, invitados) siempre se usa el del sistema. */
+F.TEMA_PREDETERMINADO = "sistema";
+var TEMAS = ["sistema", "claro", "oscuro"];
 F.tema = {
+  puedeCambiar: function () { return !!E.perfil; },
   actual: function () {
-    var t = null;
-    try { t = localStorage.getItem("catappa-tema"); } catch (e) {}
-    return t === "claro" || t === "oscuro" ? t : F.TEMA_PREDETERMINADO;
+    var t = E.perfil && E.perfil.tema;
+    return E.perfil && TEMAS.indexOf(t) >= 0 ? t : F.TEMA_PREDETERMINADO;
   },
-  aplicar: function (t) {
-    if (t !== "claro" && t !== "oscuro") t = F.TEMA_PREDETERMINADO;
-    try { localStorage.setItem("catappa-tema", t); } catch (e) {}
-    document.documentElement.setAttribute("data-theme", t === "oscuro" ? "dark" : "light");
+  /* solo pinta: no guarda nada */
+  pintar: function (t) {
+    var oscuro = t === "oscuro" || (t !== "claro" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute("content", t === "oscuro" ? "#0b1821" : "#f4f7f8");
+    if (m) m.setAttribute("content", oscuro ? "#0b1821" : "#f4f7f8");
+    // copia para pintar sin parpadeo en la próxima visita (solo se usa si hay sesión)
+    try { if (E.perfil) localStorage.setItem("catappa-tema", t); else localStorage.removeItem("catappa-tema"); } catch (e) {}
+  },
+  /* elegir un tema: solo con la sesión iniciada; se guarda en la cuenta */
+  aplicar: function (t) {
+    if (!F.tema.puedeCambiar() || TEMAS.indexOf(t) < 0) return false;
+    E.perfil.tema = t;
+    F.tema.pintar(t);
+    F.guardarSesionCache();
+    if (E.modo === "servidor") F.api("POST", "/api/perfil", { tema: t }).then(function (d) { E.perfil = d.perfil; F.guardarSesionCache(); }).catch(function () {});
+    F.pintarBotonTema();
+    return true;
   },
   alternar: function () {
+    if (!F.tema.puedeCambiar()) return;
     var oscuro = document.documentElement.getAttribute("data-theme") === "dark";
     F.tema.aplicar(oscuro ? "claro" : "oscuro");
-    F.pintarBotonTema();
-  }
+  },
+  /* tras iniciar o cerrar sesión, o al cargar el perfil */
+  sincronizar: function () { F.tema.pintar(F.tema.actual()); F.pintarBotonTema(); }
 };
+
+if (window.matchMedia) {
+  var mqTema = matchMedia("(prefers-color-scheme: dark)");
+  var cambioSistema = function () { if (F.tema.actual() === "sistema") F.tema.sincronizar(); };
+  if (mqTema.addEventListener) mqTema.addEventListener("change", cambioSistema);
+}
 
 /* ---------------- catálogo de cursos ----------------
    La estructura (unidades, lecciones, nº de pasos) viene del índice ligero
@@ -271,12 +296,14 @@ F.aplicarSesion = function (d) {
   E.perfil = d.perfil || E.perfil;
   E.progreso = d.progreso || E.progreso || {};
   F.guardarSesionCache();
+  F.tema.sincronizar();
 };
 F.cerrarSesion = function (silencioso) {
   if (E.token && !silencioso) F.api("POST", "/api/logout").catch(function () {});
   E.token = null; E.perfil = null;
   try { localStorage.removeItem("catappa-token"); localStorage.removeItem("catappa-sesion-cache"); localStorage.removeItem("catappa-cola"); } catch (e) {}
   E.progreso = progresoLocal().progreso || {};
+  F.tema.sincronizar();
   if (!silencioso) F.toast("Sesión cerrada");
   location.hash = "#/entrar";
 };
@@ -352,9 +379,66 @@ F.registrarLeccion = function (cursoId, leccionId, aciertos, preguntas) {
   c.lecciones[leccionId] = { fecha: F.hoy(), perfecta: perfecta || !!(c.lecciones[leccionId] && c.lecciones[leccionId].perfecta) };
   c.xp += xp;
   p.actividad[F.hoy()] = (p.actividad[F.hoy()] || 0) + xp;
+  p.actividadCursos = p.actividadCursos || {};
+  p.actividadCursos[cursoId] = p.actividadCursos[cursoId] || {};
+  p.actividadCursos[cursoId][F.hoy()] = (p.actividadCursos[cursoId][F.hoy()] || 0) + xp;
   guardarProgresoLocal(p);
   E.progreso = p.progreso;
   return Promise.resolve({ xp: xp, nuevas: [] });
+};
+
+/* reiniciar un curso: vuelve a 0, como si nunca se hubiera empezado ni abierto.
+   Se borran sus lecciones, su XP (y la actividad que sumó), las unidades plegadas,
+   lo pendiente de sincronizar y, para Docker, el progreso del curso antiguo guardado
+   en el navegador (si no, se volvería a importar al entrar). */
+F.reiniciarCurso = function (cursoId) {
+  try { localStorage.removeItem("catappa-plegadas-" + cursoId); } catch (e) {}
+  F.guardarLocal("catappa-cola", F.colaPendiente().filter(function (x) { return x.cursoId !== cursoId; }));
+  if (cursoId === "docker") {
+    try { localStorage.removeItem("ruta-docker-v1"); } catch (e) {}
+    F.guardarLocal("catappa-migrado-local", true);
+  }
+  // copia local (invitado, o caché de la sesión)
+  var p = progresoLocal(), c = p.progreso[cursoId];
+  var restar = function (dia, xp) { if (!p.actividad[dia] || xp <= 0) return; p.actividad[dia] = Math.max(0, p.actividad[dia] - xp); if (!p.actividad[dia]) delete p.actividad[dia]; };
+  var porDia = (p.actividadCursos || {})[cursoId] || {}, anotada = 0;
+  Object.keys(porDia).forEach(function (d) { restar(d, porDia[d]); anotada += porDia[d]; });
+  if (c) {
+    var propias = Object.keys(c.lecciones || {}).map(function (k) { return c.lecciones[k]; }).filter(function (l) { return !l.importada; });
+    var importadas = Object.keys(c.lecciones || {}).length - propias.length;
+    var pendiente = Math.max(0, (c.xp || 0) - anotada - importadas * 20);
+    if (pendiente && propias.length) propias.forEach(function (l) { restar(l.fecha, Math.round(pendiente / propias.length)); });
+    delete p.progreso[cursoId];
+  }
+  if (p.actividadCursos) delete p.actividadCursos[cursoId];
+  guardarProgresoLocal(p);
+  if (E.perfil) {
+    if (E.modo !== "servidor") return Promise.reject(new Error("Necesitas conexión con el servidor para reiniciar un curso de tu cuenta"));
+    return F.api("POST", "/api/progreso/reiniciar", { cursoId: cursoId }).then(function (d) {
+      E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache(); F.pintarStats();
+      return d;
+    });
+  }
+  E.progreso = p.progreso;
+  F.pintarStats();
+  return Promise.resolve({ reiniciado: !!c });
+};
+
+/* confirmación antes de reiniciar (se usa desde la página del curso y desde Ajustes) */
+F.confirmarReinicio = function (cursoId, despues) {
+  var c = F.curso(cursoId); if (!c) return;
+  var hechas = F.contarHechas(cursoId);
+  var m = F.modal("Reiniciar " + c.titulo,
+    "<p>Vas a dejar <b>" + F.esc(c.titulo) + "</b> como si nunca lo hubieras empezado: se borran tus <b>" + hechas + " lecciones completadas</b>, la XP que ganaste en el curso y su actividad en tu racha y en el ranking.</p>" +
+    '<p style="margin-top:10px;color:var(--ink-2)">Las insignias se recalculan con lo que te quede. Esta acción no se puede deshacer.</p>',
+    '<button class="btn" data-cerrar>Cancelar</button><button class="btn btn-peligro-lleno" id="confirmar-reinicio">Sí, reiniciar ' + F.esc(c.titulo) + "</button>");
+  F.$("#confirmar-reinicio", m.el).addEventListener("click", function () {
+    var b = this; b.disabled = true; b.textContent = "Reiniciando…";
+    F.reiniciarCurso(cursoId).then(function () {
+      m.cerrar(); F.toast(c.titulo + " se ha reiniciado: empiezas de cero");
+      if (despues) despues(); else F.navegar();
+    }).catch(function (e) { b.disabled = false; b.textContent = "Sí, reiniciar " + c.titulo; F.toast(e.message, "!"); });
+  });
 };
 
 /* ---------------- progreso del curso antiguo (Ruta Docker) ---------------- */
@@ -604,10 +688,40 @@ F.pintarStats = function () {
 };
 F.pintarBotonTema = function () {
   var b = F.$("#boton-tema"); if (!b) return;
+  b.hidden = !F.tema.puedeCambiar();   // sin sesión el tema no se puede cambiar
   var oscuro = document.documentElement.getAttribute("data-theme") === "dark";
   b.innerHTML = F.icono(oscuro ? "sol" : "luna");
   b.title = oscuro ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
 };
+/* ojo para ver u ocultar la contraseña: se añade solo a todos los campos de contraseña,
+   también a los que aparezcan después (formularios, modales) */
+F.mejorarClaves = function (raiz) {
+  F.$$('input[type="password"]:not([data-ojo])', raiz || document).forEach(function (i) {
+    i.setAttribute("data-ojo", "1");
+    var env = document.createElement("span"); env.className = "clave-env";
+    i.parentNode.insertBefore(env, i); env.appendChild(i);
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "clave-ojo"; b.setAttribute("aria-pressed", "false");
+    var pinta = function () {
+      var visible = i.type === "text";
+      b.innerHTML = F.icono(visible ? "ojoNo" : "ojo");
+      b.setAttribute("aria-label", visible ? "Ocultar contraseña" : "Mostrar contraseña");
+      b.title = visible ? "Ocultar contraseña" : "Mostrar contraseña";
+      b.setAttribute("aria-pressed", String(visible));
+    };
+    b.addEventListener("click", function () {
+      var pos = i.selectionStart;
+      i.type = i.type === "password" ? "text" : "password";
+      pinta(); i.focus();
+      try { if (pos != null) i.setSelectionRange(pos, pos); } catch (e) {}
+    });
+    pinta(); env.appendChild(b);
+  });
+};
+if (window.MutationObserver) {
+  new MutationObserver(function () { F.mejorarClaves(); }).observe(document.documentElement, { childList: true, subtree: true });
+}
+
 F.pintar = function (html) { var v = F.$("#vista"); if (v) v.innerHTML = html; return v; };
 
 /* ---------------- paleta de comandos (Ctrl+K) ---------------- */

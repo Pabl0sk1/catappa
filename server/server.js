@@ -116,6 +116,7 @@ function perfilPublico(u, completo) {
     insignias: INSIGNIAS.filter(i => i.ok(r)).map(i => i.id)
   };
   if (completo) {
+    out.tema = u.tema || "sistema";   // preferencia privada: solo en el perfil propio
     const p = db.get("progreso")[u.id] || {};
     out.cursos = {};
     for (const [cid, cat] of Object.entries(CATALOGO)) {
@@ -226,6 +227,7 @@ ruta("POST", "/api/perfil", (req, res, b, u) => {
   if (b.nombre !== undefined) u.nombre = limpiarTexto(b.nombre, 40) || u.usuario;
   if (b.bio !== undefined) u.bio = limpiarTexto(b.bio, 240);
   if (b.color && /^#[0-9a-fA-F]{6}$/.test(b.color)) u.color = b.color;
+  if (b.tema !== undefined && ["sistema", "claro", "oscuro"].includes(b.tema)) u.tema = b.tema;
   db.guardar("usuarios");
   enviar(res, 200, { perfil: perfilPublico(u, true) });
 }, true);
@@ -265,10 +267,45 @@ ruta("POST", "/api/progreso", (req, res, b, u) => {
   const act = db.get("actividad");
   act[u.id] = act[u.id] || {};
   act[u.id][hoy()] = (act[u.id][hoy()] || 0) + xp;
-  db.guardar("progreso"); db.guardar("actividad");
+  const ac = db.get("actividadCursos");
+  ac[u.id] = ac[u.id] || {}; ac[u.id][b.cursoId] = ac[u.id][b.cursoId] || {};
+  ac[u.id][b.cursoId][hoy()] = (ac[u.id][b.cursoId][hoy()] || 0) + xp;
+  db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos");
   const perfil = perfilPublico(u, true);
   const nuevas = perfil.insignias.filter(i => !antes.has(i));
   enviar(res, 200, { xp, perfil, progreso: prog[u.id], nuevasInsignias: nuevas });
+}, true);
+
+/* reiniciar un curso: se borran sus lecciones y su XP, y esa XP se descuenta de la actividad
+   (mapa, racha, ranking semanal), como si nunca se hubiera empezado */
+function reiniciarCurso(uid, cid) {
+  const prog = db.get("progreso"), act = db.get("actividad"), ac = db.get("actividadCursos");
+  const c = (prog[uid] || {})[cid];
+  const dias = act[uid] || {};
+  const restar = (dia, xp) => { if (!dias[dia] || xp <= 0) return; dias[dia] = Math.max(0, dias[dia] - xp); if (!dias[dia]) delete dias[dia]; };
+  const porDia = (ac[uid] || {})[cid] || {};
+  let anotada = 0;
+  for (const [dia, xp] of Object.entries(porDia)) { restar(dia, xp); anotada += xp; }
+  if (c) {
+    // progreso anterior al registro por curso: se descuenta en el día de cada lección
+    // (lo importado del curso antiguo no contó como actividad, así que no se descuenta)
+    const propias = Object.values(c.lecciones || {}).filter(l => !l.importada);
+    const importadas = Object.keys(c.lecciones || {}).length - propias.length;
+    const pendiente = Math.max(0, (c.xp || 0) - anotada - importadas * 20);
+    if (pendiente && propias.length) {
+      const cada = Math.round(pendiente / propias.length);
+      for (const l of propias) restar(l.fecha, cada);
+    }
+    delete prog[uid][cid];
+  }
+  if (ac[uid]) delete ac[uid][cid];
+  db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos");
+  return !!c;
+}
+ruta("POST", "/api/progreso/reiniciar", (req, res, b, u) => {
+  if (!CATALOGO[b.cursoId]) return error(res, 400, "Curso desconocido.");
+  const habia = reiniciarCurso(u.id, b.cursoId);
+  enviar(res, 200, { reiniciado: habia, perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
 }, true);
 
 ruta("GET", "/api/insignias", (req, res) => enviar(res, 200, INSIGNIAS.map(({ id, nombre, desc }) => ({ id, nombre, desc }))));

@@ -122,7 +122,16 @@ respuesta y terminal simulada con salida real.
 - **Perfil** con mapa de actividad anual, progreso por curso, insignias y
   publicaciones.
 - **XP, racha diaria y objetivo diario** (50 XP).
-- **Tema claro y oscuro**, que se elige solo dentro de la app (no sigue al del sistema operativo). El predeterminado es el claro (`F.TEMA_PREDETERMINADO` en `public/js/nucleo.js`) y la elección se recuerda entre visitas.
+- **Tema Sistema, Claro u Oscuro.** Por defecto sigue al del sistema operativo.
+  Solo con la sesión iniciada se puede cambiar (en **Ajustes → Apariencia** o con
+  el botón de la barra superior) y la elección se guarda en la cuenta; sin sesión
+  (portada, invitados) siempre se usa el del sistema. El predeterminado está en
+  `F.TEMA_PREDETERMINADO` (`public/js/nucleo.js`).
+- **Reiniciar un curso**: desde la página del curso o en **Ajustes → Reiniciar un
+  curso**, lo deja como si nunca se hubiera empezado ni abierto (lecciones, XP,
+  actividad en la racha y el ranking, unidades plegadas y, en Docker, el progreso
+  del curso antiguo guardado en el navegador).
+- **Contraseñas con ojo** para mostrarlas u ocultarlas en todos los campos.
 - **Búsqueda global** con `Ctrl + K` (lecciones, unidades y conceptos clave).
 - Diseño adaptado a móvil, con barra de navegación inferior.
 
@@ -235,12 +244,13 @@ todos los cursos.
 | GET | `/api/yo` | perfil y progreso de la sesión |
 | POST | `/api/progreso` | registrar una lección terminada |
 | POST | `/api/importar` | importar progreso previo |
-| POST | `/api/perfil` | editar nombre, bio y color |
+| POST | `/api/perfil` | editar nombre, bio, color y tema (`sistema`, `claro` u `oscuro`) |
 | GET | `/api/perfil/:usuario` | perfil público |
 | GET | `/api/ranking?rango=semana\|global` | ranking |
 | GET/POST | `/api/comunidad` | listar (filtros `curso`, `leccion`, `q`, `orden`) y publicar |
 | GET/DELETE | `/api/comunidad/:id` | hilo |
 | POST | `/api/comunidad/:id/respuestas`, `/voto`, `/aceptar` | participar |
+| POST | `/api/progreso/reiniciar` | reiniciar un curso (`{ cursoId }`) |
 | GET | `/api/estado` | salud (lo usa el healthcheck) |
 
 ---
@@ -316,3 +326,10 @@ nombre y el logo se configuran en `public/js/nucleo.js` → `F.MARCA`.
 Los logos de `public/logos/` proceden de [Devicon](https://devicon.dev) (licencia
 MIT) y, el de OWASP, de [Simple Icons](https://simpleicons.org) (CC0). Son marcas
 de sus respectivos propietarios y se usan solo para identificar cada tecnología.
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Pablo M. Ocampos. Los logos de las tecnologías de
+`public/logos/` son marcas de sus propietarios y tienen su propia licencia (ver
+Créditos); la licencia MIT cubre el código, los cursos y la marca Catappa de este
+repositorio.

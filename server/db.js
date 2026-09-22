@@ -12,6 +12,7 @@ const ESQUEMA = {
   usuarios: [],      // {id, usuario, nombre, hash, salt, color, bio, creado, rol}
   progreso: {},      // {usuarioId: {cursoId: {lecciones:{}, xp, aciertos, intentos}}}
   actividad: {},     // {usuarioId: {"2026-09-21": xpDelDia}}
+  actividadCursos: {}, // {usuarioId: {cursoId: {"2026-09-21": xpDelDia}}}: permite reiniciar un curso sin dejar rastro
   posts: [],         // {id, autor, cursoId, leccionId, tipo, titulo, cuerpo, creado, votos:[], respuestas:[]}
   sesiones: {},      // {token: {uid, creado}}
   meta: { creado: null, version: 1 }

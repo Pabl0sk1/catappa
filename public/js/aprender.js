@@ -201,8 +201,12 @@ F.vistaCurso = function (prm) {
       "</div>" +
       '<div class="barra-prog" style="--c:' + c.color + ';margin-top:22px;height:8px"><i style="width:' + pct + '%"></i></div>' +
       '<div class="pipeline">' + stages + "</div>" +
+      (hechasN ? '<section class="zona-reinicio"><div><b>Reiniciar el curso</b><span>Empieza ' + F.esc(c.titulo) + " desde cero, como si nunca lo hubieras abierto.</span></div>" +
+        '<button class="btn btn-suave btn-peligro" id="reiniciar-curso">' + F.icono("papelera") + "Reiniciar progreso</button></section>" : "") +
     "</div>";
   F.pintar(html);
+  var br = $("#reiniciar-curso");
+  if (br) br.addEventListener("click", function () { F.confirmarReinicio(c.id, function () { F.navegar(); window.scrollTo(0, 0); }); });
 
   // plegar y desplegar etapas (se recuerda por curso)
   F.$$(".stage-cab").forEach(function (cab) {

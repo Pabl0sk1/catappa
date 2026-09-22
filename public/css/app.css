@@ -680,3 +680,23 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 .nav a .glifo-mini svg { width: 13px; height: 13px; }
+
+/* ---------------- contraseñas con ojo ---------------- */
+.clave-env { position: relative; display: block; }
+.clave-env > input { width: 100%; padding-right: 46px; }
+.clave-ojo { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; display: grid; place-items: center; border-radius: 7px; color: var(--ink-3); }
+.clave-ojo:hover { color: var(--ink); background: var(--bg-hover); }
+.clave-ojo svg { width: 18px; height: 18px; }
+.clave-ojo[aria-pressed="true"] { color: var(--accent); }
+input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propio ojo: se usa solo el nuestro */
+
+/* ---------------- reiniciar un curso ---------------- */
+.zona-reinicio { margin-top: 34px; padding: 16px 18px; border: 1px dashed color-mix(in srgb, var(--bad) 45%, var(--line)); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.zona-reinicio div { display: grid; gap: 2px; }
+.zona-reinicio span { color: var(--ink-2); font-size: 14px; }
+.lista-reinicio { display: grid; gap: 8px; }
+.fila-reinicio { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; }
+.fila-reinicio span { flex: 1; min-width: 0; font-size: 14px; color: var(--ink-2); }
+.fila-reinicio span b { color: var(--ink); }
+.btn-peligro-lleno { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn-peligro-lleno:hover { background: var(--bad-press); border-color: var(--bad-press); }
