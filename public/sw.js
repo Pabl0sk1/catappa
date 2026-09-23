@@ -6,7 +6,7 @@
    La línea VERSION la reescribe herramientas/indice.js en cada build: si
    cambia cualquier fichero, cambia la versión y el navegador ofrece actualizar.
    ===================================================================== */
-var VERSION = "catappa-17433240da";
+var VERSION = "catappa-ca5f0befcc";
 var CARCASA = "carcasa-" + VERSION;
 var CONTENIDO = "contenido-" + VERSION;
 var FUENTES = "fuentes-v1";
@@ -14,8 +14,10 @@ var FUENTES = "fuentes-v1";
 var FICHEROS = [
   "./", "index.html", "manifest.webmanifest",
   "css/app.css",
-  "js/nucleo.js", "js/cata.js", "js/codigo.js", "js/proyectos.js", "js/sonido.js", "js/leccion.js", "js/aprender.js", "js/comunidad.js", "js/perfil.js", "js/certificado.js", "js/app.js",
-  "cursos/_catalogo.js", "cursos/_indice.js", "cursos/_proyectos.js",
+  "js/nucleo.js", "js/cata.js", "js/codigo.js", "js/stacks.js",
+  "js/proyectos.js", "js/sonido.js", "js/leccion.js", "js/aprender.js", "js/comunidad.js", "js/perfil.js", "js/certificado.js", "js/app.js",
+  "cursos/_catalogo.js", "cursos/_indice.js", "cursos/_stacks.js",
+  "cursos/_proyectos.js",
   "iconos/icono-192.png", "iconos/icono-512.png", "iconos/icono.svg", "iconos/favicon-32.png", "iconos/favicon-16.png", "favicon.ico",
   "marca/cata-96.png", "marca/cata-256.png",
   "logos/ansible.svg", "logos/aws.svg", "logos/devops.svg", "logos/docker.svg", "logos/git.svg", "logos/go.svg", "logos/htmlcss.svg", "logos/java.svg", "logos/jenkins.svg", "logos/javascript.svg", "logos/kafka.svg", "logos/kubernetes.svg", "logos/linux.svg", "logos/mongodb.svg", "logos/nodejs.svg", "logos/observabilidad.svg", "logos/python.svg", "logos/react.svg", "logos/redis.svg", "logos/seguridad.svg", "logos/spring.svg", "logos/sql.svg", "logos/terraform.svg", "logos/typescript.svg"

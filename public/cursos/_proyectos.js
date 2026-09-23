@@ -1916,15 +1916,16 @@ docker: [
     misiones: [
       {
         id: "m1", tipo: "salida", titulo: "Escribe el Dockerfile multi-stage",
-        guia: "<p>Coge una aplicación tuya (o el ejemplo del curso) y escribe un <code>Dockerfile</code> con <b>dos etapas</b>:</p><ul>" +
-          "<li>una etapa de construcción, con el compilador y las dependencias, nombrada con <code>AS build</code></li>" +
-          "<li>una etapa final, ligera, que solo copia el resultado con <code>COPY --from=build</code></li></ul>" +
-          "<p>Reglas de la casa: nada de <code>:latest</code>, y la etapa final debe terminar con un <code>USER</code> sin privilegios.</p>" +
-          "<p>Pega aquí tu Dockerfile entero.</p>",
+        guia: "<p>Vas a empaquetar una aplicación de <b>{{stack:nombre}}</b>. Escribe un <code>Dockerfile</code> con <b>dos etapas</b>:</p><ul>" +
+          "<li>una de construcción, con el compilador y las dependencias, nombrada con <code>AS build</code></li>" +
+          "<li>una final, ligera, que solo copia el resultado con <code>COPY --from=build</code></li></ul>" +
+          "<p>Para tu stack, la etapa de construcción parte de <code>{{stack:baseBuild}}</code> y la final de <code>{{stack:base}}</code>. Copia primero <code>{{stack:deps}}</code>, instala, y solo después el código.</p>" +
+          "<p>Reglas de la casa: nada de <code>:latest</code>, y la etapa final termina con un <code>USER</code> sin privilegios.</p>" +
+          "<p><i>{{stack:nota}}</i></p><p>Pega aquí tu Dockerfile entero.</p>",
         comando: "cat Dockerfile",
         patrones: ["FROM .* AS ", "COPY --from=", "^ *USER "],
         prohibidos: [":latest"],
-        pista: "FROM node:22-alpine AS build … / FROM node:22-alpine / COPY --from=build /app/dist ./dist / USER node",
+        pista: "Una referencia válida para {{stack:nombre}}:\n\n{{stack:dockerfile}}",
         exito: "Dos etapas, copia entre ellas, versiones fijadas y sin root. Eso es un Dockerfile de los buenos."
       },
       {
@@ -1937,11 +1938,11 @@ docker: [
       },
       {
         id: "m3", tipo: "salida", titulo: "Demuestra que la caché funciona",
-        guia: "<p>Cambia una línea de tu código (no de las dependencias) y vuelve a construir. Si ordenaste bien las capas, la instalación de dependencias debe salir de la caché.</p>" +
+        guia: "<p>Cambia una línea de tu código (no de <code>{{stack:deps}}</code>) y vuelve a construir. Si ordenaste bien las capas, la instalación de dependencias debe salir de la caché.</p>" +
           "<p>Pega la salida de la segunda construcción: tiene que aparecer <code>CACHED</code>.</p>",
         comando: "docker build -t api:multi .",
         patrones: ["CACHED"],
-        pista: "Copia primero el fichero de dependencias (package.json, pom.xml, requirements.txt), instala, y solo después copia el resto del código.",
+        pista: "Copia primero {{stack:deps}}, ejecuta «{{stack:instalar}}», y solo después copia el resto del código.",
         exito: "Caché aprovechada: las construcciones siguientes te van a costar segundos, no minutos."
       },
       {

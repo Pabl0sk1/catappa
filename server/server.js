@@ -168,6 +168,7 @@ function perfilPublico(u, completo) {
   };
   if (completo) {
     out.tema = u.tema || "sistema";       // preferencia privada: solo en el perfil propio
+    out.stacks = u.stacks || {};          // lenguaje elegido en los cursos de infraestructura
     out.examenes = db.get("examenes")[u.id] || {};
     out.proyectos = db.get("proyectos")[u.id] || {};
     const p = db.get("progreso")[u.id] || {};
@@ -284,6 +285,12 @@ ruta("POST", "/api/perfil", (req, res, b, u) => {
   if (b.bio !== undefined) u.bio = limpiarTexto(b.bio, 240);
   if (b.color && /^#[0-9a-fA-F]{6}$/.test(b.color)) u.color = b.color;
   if (b.tema !== undefined && ["sistema", "claro", "oscuro"].includes(b.tema)) u.tema = b.tema;
+  if (b.stacks && typeof b.stacks === "object") {
+    u.stacks = u.stacks || {};
+    for (const [curso, id] of Object.entries(b.stacks)) {
+      if (/^[a-z0-9-]{1,32}$/.test(String(curso)) && /^[a-z0-9-]{1,32}$/.test(String(id))) u.stacks[curso] = String(id);
+    }
+  }
   db.guardar("usuarios");
   enviar(res, 200, { perfil: perfilPublico(u, true) });
 }, true);

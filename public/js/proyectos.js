@@ -152,12 +152,19 @@ F.vistaProyecto = function (prm) {
         '<span class="mis-estado">' + (ok ? "hecha" : abierta ? "en curso" : "") + "</span>" +
       "</div>" +
       '<div class="mis-cuerpo">' +
-        '<div class="mis-guia">' + (m.guia || "") + "</div>" +
-        (m.pista ? '<details class="mis-pista"><summary>Ver pista</summary><p>' + m.pista + "</p></details>" : "") +
+        '<div class="mis-guia">' + F.aplicarStack(m.guia || "", cursoId) + "</div>" +
+        (m.pista ? '<details class="mis-pista"><summary>Ver pista</summary>' + pista(m) + "</details>" : "") +
         herramienta(m) +
         '<div class="mis-acciones">' + boton(m) + "</div>" +
         '<div class="mis-fb" id="fb-' + F.esc(m.id) + '"></div>' +
       "</div></section>";
+  }
+
+  /* la pista puede traer un fichero entero (por ejemplo el Dockerfile del stack):
+     si tiene saltos de línea se enseña como bloque de código, no como párrafo */
+  function pista(m) {
+    var t = F.aplicarStack(m.pista, cursoId);
+    return t.indexOf("\n") >= 0 ? '<pre class="dg-pre">' + t + "</pre>" : "<p>" + t + "</p>";
   }
 
   function boton(m) {
@@ -176,7 +183,7 @@ F.vistaProyecto = function (prm) {
       return '<div class="mis-editor" id="ed-' + F.esc(m.id) + '"></div><div class="play-salida" id="sal-' + F.esc(m.id) + '"><p class="salida-vacia">Ejecuta para ver la salida, o comprueba directamente con los casos de prueba.</p></div>';
     }
     if (m.tipo === "salida") {
-      return (m.comando ? '<div class="mis-cmd"><span class="mono">ejecútalo en tu máquina</span><pre>' + F.esc(m.comando) + '</pre><button class="btn btn-suave" data-copiar="' + F.esc(m.id) + '">' + F.icono("copiar") + "Copiar</button></div>" : "") +
+      return (m.comando ? '<div class="mis-cmd"><span class="mono">ejecútalo en tu máquina</span><pre>' + F.aplicarStack(F.esc(m.comando), cursoId) + '</pre><button class="btn btn-suave" data-copiar="' + F.esc(m.id) + '">' + F.icono("copiar") + "Copiar</button></div>" : "") +
         '<textarea class="mis-pega" data-pega="' + F.esc(m.id) + '" rows="7" spellcheck="false" placeholder="Pega aquí la salida tal cual te la dio tu terminal"></textarea>';
     }
     if (m.tipo === "check") {

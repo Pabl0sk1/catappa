@@ -578,5 +578,60 @@ CMD mvn spring-boot:run</div>`},
      <li>Los siete fallos típicos y su arreglo.</li></ul>
      <p>En la siguiente unidad, YAML: media hora, y es el idioma de Compose, Kubernetes y GitHub Actions.</p>`}
 ]}
+,
 
+/* =============== U4 L9 =============== */
+{
+id:"dk4l9",
+titulo:"Tu Dockerfile, en tu stack",
+resumen:"Lo mismo que acabas de aprender, pero escrito en el lenguaje con el que trabajas",
+claves:["El Dockerfile cambia de nombres según el stack, no de forma","Dependencias primero, código después: la caché manda","La etapa final no necesita las herramientas de compilación"],
+pasos:[
+
+ {t:"info", eti:"Adaptado a ti", h:"Ahora, con tu stack",
+  c:`<p>Hasta aquí los ejemplos han usado un lenguaje concreto para poder ser concretos. Pero lo que has aprendido —capas, caché, multi-stage, usuario sin privilegios— <b>es igual en todos</b>.</p>
+     <p>Esta lección está escrita en el stack que tienes elegido en el curso: <b>{{stack:nombre}}</b>. Si quieres otro, cámbialo desde la página del curso y vuelve: el contenido se reescribe solo.</p>
+     <div class="dg"><div class="dg-tit">tu stack ahora mismo</div>
+       <div class="dg-pila">
+         <div class="dg-caja acento">{{stack:nombre}}<small>{{stack:lenguaje}} · {{stack:gestor}}</small></div>
+         <div class="dg-caja">fichero de dependencias: <b>{{stack:deps}}</b></div>
+         <div class="dg-caja">pruebas: <b>{{stack:pruebas}}</b></div>
+         <div class="dg-caja">puerto habitual: <b>{{stack:puerto}}</b> · salud: <b>{{stack:salud}}</b></div>
+       </div></div>`},
+
+ {t:"info", eti:"La receta", h:"Tu Dockerfile multi-stage, línea a línea",
+  c:`<p>Este es el Dockerfile que usarías para {{stack:nombre}}:</p>
+     <pre class="dg-pre">{{stack:dockerfile}}</pre>
+     <p><b>Por qué está así:</b> la etapa <code>build</code> parte de <code>{{stack:baseBuild}}</code>, que trae las herramientas de compilación. La final parte de <code>{{stack:base}}</code>, que solo sabe ejecutar. Entre las dos, un <code>COPY --from=build</code> que se lleva únicamente el resultado.</p>
+     <p><i>{{stack:nota}}</i></p>`},
+
+ {t:"opcion", p:"En tu stack, ¿qué fichero se copia <b>antes</b> que el resto del código?",
+  ops:["{{stack:deps}}","Todo a la vez con COPY . .","El fichero de configuración","Los ficheros de pruebas"],
+  ok:0,
+  why:"Copiar primero <code>{{stack:deps}}</code> e instalar deja esa capa en la caché: mientras no cambien las dependencias, esa parte no se vuelve a ejecutar aunque cambies el código cien veces."},
+
+ {t:"vf", p:"La imagen final de tu stack necesita las herramientas de compilación para ejecutar la aplicación",
+  ok:false,
+  why:"No. Por eso existe el multi-stage: compilar necesita <code>{{stack:baseBuild}}</code>, pero ejecutar solo necesita <code>{{stack:base}}</code>."},
+
+ {t:"hueco", p:"Completa la instrucción que trae el resultado de la etapa de construcción",
+  tpl:"COPY --___=build /app/salida ./salida",
+  banco:["from","to","stage","src"],
+  sol:["from"],
+  why:"<code>COPY --from=build</code> es lo que conecta las dos etapas: copia de la etapa anterior, no de tu máquina."},
+
+ {t:"escribe", p:"¿Con qué comando ejecutarías las pruebas de tu stack dentro de la etapa de construcción?",
+  sol:["{{stack:pruebas}}"],
+  pista:"Es el comando de pruebas propio de tu gestor.",
+  why:"Ejecutar las pruebas dentro de la construcción hace que una imagen con pruebas rotas ni siquiera llegue a existir."},
+
+ {t:"opcion", p:"¿Qué ruta usarías en el HEALTHCHECK de tu aplicación?",
+  ops:["{{stack:salud}}","/","/admin","No hace falta ninguna"],
+  ok:0,
+  why:"<code>{{stack:salud}}</code> es la ruta de salud habitual en {{stack:nombre}}. Una ruta de salud comprueba que la aplicación responde, no solo que el proceso existe."},
+
+ {t:"info", eti:"Cierre", h:"Lo aprendido se traslada solo",
+  c:`<p>Si mañana cambias de {{stack:nombre}} a otra cosa, el Dockerfile cambiará de nombres, pero no de forma: dependencias primero, código después, dos etapas, usuario sin privilegios y arranque en forma exec.</p>
+     <p>Esa es la diferencia entre saber Docker y saberse un Dockerfile de memoria.</p>`}
+]}
 ]});

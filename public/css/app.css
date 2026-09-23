@@ -945,3 +945,27 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 /* bloque de código dentro de la guía de una misión */
 .dg-pre { margin: 10px 0; padding: 12px 14px; background: var(--term); color: var(--term-ink); border-radius: 10px;
   font-family: var(--mono); font-size: 12.5px; line-height: 1.55; overflow-x: auto; white-space: pre; }
+
+/* ---------------- elección de stack ---------------- */
+.stack-caja { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  margin-top: 18px; padding: 14px 18px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); }
+.stack-info { display: grid; gap: 2px; min-width: 0; }
+.stack-info .mono { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.stack-info b { font-size: 15px; }
+.stack-info span:last-child { font-size: 13.5px; color: var(--ink-2); }
+.modal-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 20px; z-index: 60; }
+.modal { width: min(560px, 100%); max-height: 86vh; overflow-y: auto; background: var(--bg); border: 1px solid var(--line-2);
+  border-radius: var(--r-lg); padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.modal-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.modal-cab b { font-size: 18px; }
+.stack-lista { display: grid; gap: 8px; }
+.stack-op { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg-2); color: var(--ink); font: inherit; }
+.stack-op:hover { border-color: var(--accent); background: var(--bg-3); }
+.stack-op.sel { border-color: var(--accent); background: var(--accent-soft); }
+.stack-op > span:nth-child(2) { flex: 1; min-width: 0; display: grid; }
+.stack-op b { font-size: 14.5px; }
+.stack-op span span { font-size: 12.5px; color: var(--ink-3); }
+.stack-op .mono { font-size: 11px; color: var(--accent); }
+.stack-punto { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+@media (max-width: 640px) { .stack-caja { flex-direction: column; align-items: stretch; } .stack-caja .btn { justify-content: center; } }

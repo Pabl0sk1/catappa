@@ -142,6 +142,21 @@ document.addEventListener("keydown", function (e) {
 });
 
 /* ---------------- flujo ---------------- */
+/* en los cursos con stack (Docker, Kubernetes, Jenkins…) el contenido puede
+   llevar marcas {{stack:campo}}: aquí se cambian por las del stack elegido */
+var CAMPOS_STACK = ["c", "p", "h", "why", "pista"];
+function conStack(paso) {
+  if (!F.aplicarStack || !S.cursoId || !F.cursoUsaStack(S.cursoId)) return paso;
+  var hay = CAMPOS_STACK.some(function (k) { return typeof paso[k] === "string" && paso[k].indexOf("{{stack:") >= 0; });
+  if (!hay) return paso;
+  var copia = {};
+  for (var k in paso) copia[k] = paso[k];
+  CAMPOS_STACK.forEach(function (k) {
+    if (typeof copia[k] === "string") copia[k] = F.aplicarStack(copia[k], S.cursoId);
+  });
+  return copia;
+}
+
 function siguiente() {
   var pie = $("#lec-pie");
   pie.classList.remove("bien", "mal");
@@ -154,7 +169,7 @@ function siguiente() {
   $("#lec-prog").style.width = Math.min(100, Math.round(S.hechos / (S.hechos + pendientes) * 100)) + "%";
   $("#lec-cuenta").textContent = "quedan " + pendientes;
   var c = $("#lec-in"); c.innerHTML = ""; $("#lec-scroll").scrollTop = 0;
-  (PINTA[paso.t] || PINTA.info)(c, paso);
+  (PINTA[paso.t] || PINTA.info)(c, conStack(paso));
   var b = $("#lec-ppal");
   if (paso.t === "info") { b.textContent = "Continuar"; b.disabled = false; }
   else { b.textContent = "Comprobar"; b.disabled = paso.t !== "codigo"; }   // en los ejercicios de código se puede comprobar desde el principio
