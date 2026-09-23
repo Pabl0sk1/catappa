@@ -466,11 +466,75 @@ const XP_PROYECTO = { Fundamentos: 60, Intermedio: 90, Avanzado: 130, Experto: 1
 function buscarProyecto(cursoId, proyectoId) {
   return (PROYECTOS_SRV[cursoId] || []).find(p => p.id === proyectoId) || null;
 }
+/* ---- verificación de misiones de un proyecto ----
+   Cada misión se comprueba de verdad en el servidor:
+     term    → el comando escrito, comparado con las soluciones válidas
+     salida  → la salida real pegada desde la máquina de la persona, contra patrones
+     codigo  → se ejecuta con los casos de prueba (los ocultos no se revelan)
+     check   → confirmación manual (lo que no se puede comprobar de otra forma) */
+function normCmd(x) {
+  return String(x || "").trim().replace(/\s+/g, " ").replace(/^\$\s*/, "").replace(/["']/g, "'").toLowerCase();
+}
+async function verificarMision(m, respuesta) {
+  if (!m) return { bien: false, detalle: "Esa misión no existe." };
+  if (m.tipo === "info") return { bien: true };
+  if (m.tipo === "check") {
+    return respuesta === true
+      ? { bien: true, detalle: "Confirmado. Esta parte la verificas tú." }
+      : { bien: false, detalle: "Marca la confirmación cuando lo hayas hecho." };
+  }
+  if (m.tipo === "term") {
+    const dado = normCmd(respuesta);
+    if (!dado) return { bien: false, detalle: "Escribe el comando." };
+    const vale = (m.re && new RegExp(m.re, "i").test(String(respuesta).trim())) || (m.sol || []).some(x => normCmd(x) === dado);
+    return vale
+      ? { bien: true, detalle: m.salida || "" }
+      : { bien: false, detalle: "Ese comando todavía no es el que buscamos." };
+  }
+  if (m.tipo === "salida") {
+    const texto = String(respuesta || "");
+    if (!texto.trim()) return { bien: false, detalle: "Pega aquí la salida que te dio tu máquina." };
+    const faltan = (m.patrones || []).filter(p => !new RegExp(p, "i").test(texto));
+    const sobran = (m.prohibidos || []).filter(p => new RegExp(p, "i").test(texto));
+    if (faltan.length) return { bien: false, detalle: "En esa salida no aparece: " + faltan.map(x => "«" + x + "»").join(", ") };
+    if (sobran.length) return { bien: false, detalle: "Esa salida delata un problema: " + sobran.map(x => "«" + x + "»").join(", ") };
+    return { bien: true, detalle: "Salida verificada." };
+  }
+  if (m.tipo === "codigo") {
+    const r = await runner.corregir({ lenguaje: m.lenguaje, codigo: respuesta, pruebas: m.pruebas });
+    r.resultados = r.resultados.map(x => x.oculta ? { nombre: x.nombre, bien: x.bien, oculta: true } : x);
+    return { bien: !!r.todo, resultado: r, detalle: r.todo ? "Todos los casos pasan." : "Todavía fallan casos de prueba." };
+  }
+  return { bien: false, detalle: "Tipo de misión desconocido." };
+}
+
+/* comprobar una sola misión, para dar respuesta inmediata mientras se hace el proyecto */
+ruta("POST", "/api/proyecto/paso", async (req, res, b, u) => {
+  const pr = buscarProyecto(b.cursoId, b.proyectoId);
+  if (!pr) return error(res, 404, "Ese proyecto no existe.");
+  const m = (pr.misiones || []).find(x => x.id === b.misionId);
+  if (!m) return error(res, 404, "Esa misión no existe.");
+  if (m.tipo === "codigo" && !pasaLimite(req)) return error(res, 429, "Demasiadas ejecuciones seguidas. Espera unos segundos.");
+  const r = await verificarMision(m, b.respuesta);
+  enviar(res, 200, r);
+}, true);
+
 ruta("POST", "/api/proyecto", async (req, res, b, u) => {
   const pr = buscarProyecto(b.cursoId, b.proyectoId);
   if (!pr) return error(res, 404, "Ese proyecto no existe.");
   let resultado = null;
-  if (pr.entrega && pr.entrega.tipo === "codigo") {
+  if (pr.misiones && pr.misiones.length) {
+    const respuestas = b.respuestas || {};
+    const detalle = {};
+    let todas = true;
+    for (const m of pr.misiones) {
+      const r = await verificarMision(m, respuestas[m.id]);
+      detalle[m.id] = { bien: r.bien, detalle: r.detalle || "", resultado: r.resultado || null };
+      if (!r.bien) todas = false;
+    }
+    if (!todas) return enviar(res, 200, { hecho: false, misiones: detalle });
+    resultado = { misiones: detalle };
+  } else if (pr.entrega && pr.entrega.tipo === "codigo") {
     if (!pasaLimite(req)) return error(res, 429, "Demasiadas ejecuciones seguidas. Espera unos segundos.");
     resultado = await runner.corregir({ lenguaje: pr.entrega.lenguaje, codigo: b.codigo, pruebas: pr.entrega.pruebas });
     resultado.resultados = resultado.resultados.map(x => x.oculta ? { nombre: x.nombre, bien: x.bien, oculta: true } : x);

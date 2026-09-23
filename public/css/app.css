@@ -870,3 +870,78 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 .dg-leyenda i.aviso { border-color: var(--bad); background: var(--bad-soft); }
 /* los dibujos antiguos con guiones, mientras se van convirtiendo, al menos con mejor aspecto */
 .diag { background: var(--bg-2); border: 1px solid var(--line); }
+
+/* ---------------- proyectos por misiones ----------------
+   La fila del proyecto es una parada más del camino; la página del
+   proyecto es una lista de misiones que se comprueban una a una. */
+.job.proyecto { border-left: 3px solid var(--accent); background: linear-gradient(90deg, var(--accent-soft), transparent 55%); }
+.job.proyecto .marca svg { color: var(--accent); }
+.job.proyecto .txt b { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.job.proyecto.hecha { border-left-color: var(--ok); background: linear-gradient(90deg, var(--ok-soft), transparent 55%); }
+.job.proyecto.hecha .marca svg { color: var(--ok); }
+.job.proyecto.bloqueada { border-left-color: var(--line-2); background: none; }
+
+.proy-barra { display: flex; align-items: center; gap: 12px; margin: 18px 0 6px; }
+.proy-barra .barra-prog { flex: 1; height: 8px; }
+.proy-obj { padding: 16px 18px; margin: 14px 0 20px; }
+.proy-obj > b { display: block; margin-bottom: 8px; }
+
+.misiones { display: grid; gap: 12px; margin: 18px 0 22px; }
+.mis { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); overflow: hidden; }
+.mis.abierta { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.mis.hecha { border-color: var(--ok-soft); }
+.mis-cab { display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer; }
+.mis-cab:hover { background: var(--bg-3); }
+.mis-num { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: 13px;
+  border: 1.5px solid var(--line-2); color: var(--ink-2); background: var(--bg); }
+.mis.abierta .mis-num { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.mis.hecha .mis-num { border-color: var(--ok); color: var(--ok); background: var(--ok-soft); }
+.mis.hecha .mis-num svg { width: 15px; height: 15px; }
+.mis-tit { flex: 1; min-width: 0; }
+.mis-tit b { display: block; font-size: 15px; }
+.mis-tit .mono { font-size: 11.5px; color: var(--ink-3); letter-spacing: .04em; }
+.mis-estado { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.mis.hecha .mis-estado { color: var(--ok); }
+.mis-cuerpo { display: none; padding: 0 16px 16px; border-top: 1px solid var(--line); }
+.mis.abierta .mis-cuerpo { display: block; }
+.mis-guia { padding-top: 14px; font-size: 14.5px; line-height: 1.65; color: var(--ink-2); }
+.mis-guia p { margin: 0 0 10px; }
+.mis-guia code { font-family: var(--mono); font-size: 12.5px; background: var(--bg-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+.mis-guia ul, .mis-guia ol { margin: 0 0 10px; padding-left: 20px; }
+.mis-guia li { margin: 4px 0; }
+.mis-pista { margin: 6px 0 12px; font-size: 13.5px; color: var(--ink-3); }
+.mis-pista summary { cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.mis-pista p { margin: 8px 0 0; }
+.mis-term { margin: 12px 0; }
+.mis-editor { margin: 12px 0 8px; }
+.mis-cmd { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0 8px; }
+.mis-cmd .mono { font-size: 11.5px; color: var(--ink-3); }
+.mis-cmd pre { flex: 1; min-width: 200px; margin: 0; padding: 10px 12px; background: var(--term-bg, var(--bg-3)); border: 1px solid var(--line); border-radius: 8px;
+  font-family: var(--mono); font-size: 12.5px; overflow-x: auto; color: var(--ink); }
+.mis-pega { width: 100%; box-sizing: border-box; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; padding: 12px;
+  border: 1px solid var(--line-2); border-radius: 8px; background: var(--bg); color: var(--ink); resize: vertical; }
+.mis-pega:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.mis-acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.mis-fb { margin-top: 12px; }
+.mis-res { display: flex; align-items: flex-start; gap: 9px; padding: 11px 13px; border-radius: 9px; font-size: 14px; }
+.mis-res svg { width: 17px; height: 17px; flex: none; margin-top: 1px; }
+.mis-res.bien { background: var(--ok-soft); color: var(--ok); }
+.mis-res.mal { background: var(--bad-soft); color: var(--bad); }
+.mis-res.espera { background: var(--bg-3); color: var(--ink-3); font-family: var(--mono); font-size: 12.5px; }
+.mis-term .salida-t { margin: 4px 0 0; white-space: pre-wrap; }
+
+.proy-fin { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  padding: 18px 20px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); background: var(--bg-2); margin-bottom: 16px; }
+.proy-fin.lista { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+.proy-fin b { display: block; font-size: 16px; }
+.proy-fin span { color: var(--ink-2); font-size: 14px; }
+.proy-fin.lista b, .proy-fin.lista span { color: var(--ok); }
+@media (max-width: 640px) {
+  .mis-cab { gap: 10px; padding: 12px; }
+  .proy-fin { flex-direction: column; align-items: stretch; }
+  .proy-fin .btn { width: 100%; justify-content: center; }
+}
+
+/* bloque de código dentro de la guía de una misión */
+.dg-pre { margin: 10px 0; padding: 12px 14px; background: var(--term); color: var(--term-ink); border-radius: 10px;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.55; overflow-x: auto; white-space: pre; }
