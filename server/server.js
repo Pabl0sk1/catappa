@@ -19,6 +19,7 @@ const MAX_BODY = 64 * 1024;
 /* ---------------- catálogo de cursos (leído de los mismos ficheros que usa el navegador) ---------------- */
 const CATALOGO = {};   // {cursoId: {lecciones: Set, unidades: [[ids]], total, titulo}}
 let CURSOS_SRV = {};   // contenido completo de los cursos (para los ejercicios de código)
+let PROYECTOS_SRV = {}; // proyectos de cada curso (cursos/_proyectos.js)
 function cargarCatalogo() {
   const dir = path.join(PUBLICO, "cursos");
   const ctx = vm.createContext({});
@@ -27,6 +28,7 @@ function cargarCatalogo() {
   for (const f of ficheros) vm.runInContext(fs.readFileSync(path.join(dir, f), "utf8"), ctx, { filename: f });
   const C = ctx.CURSOS || {};
   CURSOS_SRV = C;
+  PROYECTOS_SRV = ctx.PROYECTOS || {};
   for (const id of Object.keys(C)) {
     const unidades = C[id].map(u => u.lecciones.map(l => l.id));
     CATALOGO[id] = { unidades, lecciones: new Set(unidades.flat()), total: unidades.flat().length };
@@ -167,6 +169,7 @@ function perfilPublico(u, completo) {
   if (completo) {
     out.tema = u.tema || "sistema";       // preferencia privada: solo en el perfil propio
     out.examenes = db.get("examenes")[u.id] || {};
+    out.proyectos = db.get("proyectos")[u.id] || {};
     const p = db.get("progreso")[u.id] || {};
     out.cursos = {};
     for (const [cid, cat] of Object.entries(CATALOGO)) {
@@ -360,7 +363,9 @@ function reiniciarCurso(uid, cid) {
   if (certs[uid]) delete certs[uid][cid];
   const ex = db.get("examenes");
   if (ex[uid]) delete ex[uid][cid];
-  db.guardar("examenes");
+  const pro = db.get("proyectos");
+  if (pro[uid]) delete pro[uid][cid];
+  db.guardar("examenes"); db.guardar("proyectos");
   db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos"); db.guardar("certificados");
   return !!c;
 }
@@ -453,6 +458,45 @@ ruta("POST", "/api/examen", (req, res, b, u) => {
   }
   db.guardar("examenes");
   enviar(res, 200, { nota, aprobado, xp, perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
+}, true);
+
+/* entregar un proyecto: si lleva casos de prueba se corrige de verdad;
+   si es de criterios, se marca como terminado cuando la persona los confirma */
+const XP_PROYECTO = { Fundamentos: 60, Intermedio: 90, Avanzado: 130, Experto: 180, Maestro: 220 };
+function buscarProyecto(cursoId, proyectoId) {
+  return (PROYECTOS_SRV[cursoId] || []).find(p => p.id === proyectoId) || null;
+}
+ruta("POST", "/api/proyecto", async (req, res, b, u) => {
+  const pr = buscarProyecto(b.cursoId, b.proyectoId);
+  if (!pr) return error(res, 404, "Ese proyecto no existe.");
+  let resultado = null;
+  if (pr.entrega && pr.entrega.tipo === "codigo") {
+    if (!pasaLimite(req)) return error(res, 429, "Demasiadas ejecuciones seguidas. Espera unos segundos.");
+    resultado = await runner.corregir({ lenguaje: pr.entrega.lenguaje, codigo: b.codigo, pruebas: pr.entrega.pruebas });
+    resultado.resultados = resultado.resultados.map(x => x.oculta ? { nombre: x.nombre, bien: x.bien, oculta: true } : x);
+    if (!resultado.todo) return enviar(res, 200, { hecho: false, resultado });
+  } else if (!b.criterios) {
+    return error(res, 400, "Marca los criterios antes de entregarlo.");
+  }
+
+  const pro = db.get("proyectos");
+  pro[u.id] = pro[u.id] || {}; pro[u.id][b.cursoId] = pro[u.id][b.cursoId] || {};
+  const antes = pro[u.id][b.cursoId][b.proyectoId];
+  const xp = antes ? 0 : (XP_PROYECTO[pr.nivel] || 80);
+  pro[u.id][b.cursoId][b.proyectoId] = { fecha: hoy(), intentos: ((antes && antes.intentos) || 0) + 1, xp: (antes && antes.xp) || xp };
+  if (xp) {
+    const prog = db.get("progreso");
+    prog[u.id] = prog[u.id] || {};
+    const c = prog[u.id][b.cursoId] = prog[u.id][b.cursoId] || { lecciones: {}, xp: 0 };
+    c.xp += xp;
+    const act = db.get("actividad"); act[u.id] = act[u.id] || {};
+    act[u.id][hoy()] = (act[u.id][hoy()] || 0) + xp;
+    const ac = db.get("actividadCursos"); ac[u.id] = ac[u.id] || {}; ac[u.id][b.cursoId] = ac[u.id][b.cursoId] || {};
+    ac[u.id][b.cursoId][hoy()] = (ac[u.id][b.cursoId][hoy()] || 0) + xp;
+    db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos");
+  }
+  db.guardar("proyectos");
+  enviar(res, 200, { hecho: true, xp, resultado, perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
 }, true);
 
 ruta("GET", "/api/insignias", (req, res) => enviar(res, 200, INSIGNIAS.map(({ id, nombre, desc }) => ({ id, nombre, desc }))));

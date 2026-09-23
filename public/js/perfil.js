@@ -73,6 +73,7 @@ function pintarPerfil(p) {
         '<div class="panel stat-p"><b>' + p.racha + "</b><span>días de racha</span></div>" +
         '<div class="panel stat-p"><b>' + p.lecciones + "</b><span>lecciones completadas</span></div>" +
         '<div class="panel stat-p"><b>' + p.insignias.length + "/" + F.INSIGNIAS.length + "</b><span>insignias</span></div>" +
+        '<div class="panel stat-p"><b>' + Object.values(p.proyectos || {}).reduce(function (a, x) { return a + Object.keys(x).length; }, 0) + "</b><span>proyectos hechos</span></div>" +
       "</div>" +
       '<section class="seccion">' + heatmap(p.actividad || {}) + "</section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Progreso por curso</h2></div>' + bloqueCursos(p.cursos || {}) + "</section>" +

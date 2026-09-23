@@ -812,3 +812,61 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 .job.examen .derecha { font-family: var(--mono); font-size: 12px; color: var(--accent); }
 .job.examen.hecha .marca { color: var(--ok); }
 .job.examen .marca svg { width: 17px; height: 17px; }
+
+/* ---------------- proyectos ---------------- */
+.proyectos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.proy { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); text-decoration: none; }
+.proy:hover { border-color: var(--accent); transform: translateY(-1px); }
+.proy.bloqueado { opacity: .62; }
+.proy-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.proy b { font-size: 15.5px; }
+.proy span { font-size: 13px; color: var(--ink-2); }
+.proy .mono { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); display: inline-flex; align-items: center; gap: 4px; }
+.proy-hecho { display: inline-flex; align-items: center; gap: 5px; color: var(--ok); font-size: 12.5px; }
+.proy-hecho svg { width: 14px; height: 14px; }
+.proy-nota { color: var(--ink-3) !important; font-size: 12.5px; }
+.lista-obj, .lista-pasos { margin: 0; padding-left: 20px; display: grid; gap: 7px; color: var(--ink-2); }
+.lista-pasos li { padding-left: 4px; }
+.criterios { display: grid; gap: 8px; }
+.criterio { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg-2); cursor: pointer; }
+.criterio input { margin-top: 3px; accent-color: var(--accent-fill); }
+.aviso-ok { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--r); background: var(--ok-soft); color: var(--ok); font-size: 14px; margin: 12px 0; }
+.aviso-ok svg { width: 17px; height: 17px; }
+
+/* ---------------- diagramas ----------------
+   Cajas, capas, columnas y flechas de verdad: se usan en las lecciones
+   con <div class="dg"> … </div> en lugar de dibujos hechos con guiones. */
+.dg { margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); overflow-x: auto; }
+.dg-tit { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+.dg-cols { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.dg-col { flex: 1 1 240px; min-width: 220px; display: grid; gap: 6px; }
+.dg-col > .dg-col-tit { font-weight: 700; font-size: 13.5px; text-align: center; padding-bottom: 4px; color: var(--ink); }
+.dg-pila { display: grid; gap: 6px; }
+.dg-caja { border: 1.5px solid var(--line-2); border-radius: 8px; background: var(--bg); padding: 9px 12px; font-size: 13.5px; text-align: center; color: var(--ink); }
+.dg-caja.acento { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.dg-caja.ok { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.dg-caja.aviso { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.dg-caja.base { background: var(--bg-3); color: var(--ink-2); }
+.dg-caja.doble { padding: 14px 12px; }
+.dg-caja small { display: block; font-size: 11.5px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+.dg-caja.acento small, .dg-caja.ok small, .dg-caja.aviso small { color: inherit; opacity: .8; }
+.dg-fila { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+.dg-nota { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+.dg-nota::before { content: "◄"; color: var(--accent); }
+.dg-nota.arriba::before { content: "▲"; }
+.dg-flujo { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; }
+.dg-flujo .dg-caja { flex: 1 1 120px; }
+.dg-flujo .dg-caja + .dg-caja { margin-left: 26px; position: relative; }
+.dg-flujo .dg-caja + .dg-caja::before { content: "▸"; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 16px; }
+.dg-vert { display: grid; gap: 22px; justify-items: stretch; }
+.dg-vert > .dg-caja { position: relative; }
+.dg-vert > .dg-caja + .dg-caja::before { content: "▼"; position: absolute; top: -19px; left: 50%; transform: translateX(-50%); color: var(--accent); font-size: 13px; }
+.dg-lado { display: flex; align-items: center; gap: 10px; }
+.dg-lado .dg-pila { flex: 1; }
+.dg-leyenda { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--ink-3); }
+.dg-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.dg-leyenda i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1.5px solid var(--line-2); background: var(--bg); }
+.dg-leyenda i.acento { border-color: var(--accent); background: var(--accent-soft); }
+.dg-leyenda i.aviso { border-color: var(--bad); background: var(--bad-soft); }
+/* los dibujos antiguos con guiones, mientras se van convirtiendo, al menos con mejor aspecto */
+.diag { background: var(--bg-2); border: 1px solid var(--line); }

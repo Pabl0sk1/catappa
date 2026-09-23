@@ -142,21 +142,30 @@ pasos:[
      <p>Un <b>contenedor</b> no simula ningún ordenador. Usa <b>el mismo kernel</b> de la máquina en la que está, y solo se aísla con los trucos de la lección anterior.</p>`},
 
  {t:"info", eti:"Dibújalo", h:"Las dos pilas, una al lado de la otra",
-  c:`<div class="diag">   MAQUINA VIRTUAL                  CONTENEDOR
-+---------+---------+          +---------+---------+
-|  App A  |  App B  |          |  App A  |  App B  |
-+---------+---------+          +---------+---------+
-| Librerias         |          | Librerias         |
-+---------+---------+          +---------+---------+
-| S.O.    | S.O.    | <- 2     |  Motor de Docker  |
-| invitado| invitado| kernels  +-------------------+
-+---------+---------+          | Sistema operativo | <- 1 kernel
-|   Hipervisor      |          |  (kernel Linux)   |    compartido
-+-------------------+          +-------------------+
-| Sistema operativo |          |     Hardware      |
-+-------------------+          +-------------------+
-|     Hardware      |
-+-------------------+</div>
+  c:`<div class="dg">
+       <div class="dg-cols">
+         <div class="dg-col">
+           <div class="dg-col-tit">Máquina virtual</div>
+           <div class="dg-fila"><div class="dg-caja acento">App A</div><div class="dg-caja acento">App B</div></div>
+           <div class="dg-caja">Librerías</div>
+           <div class="dg-fila"><div class="dg-caja aviso doble">Sistema operativo invitado<small>su propio kernel</small></div><div class="dg-caja aviso doble">Sistema operativo invitado<small>su propio kernel</small></div></div>
+           <div class="dg-caja">Hipervisor</div>
+           <div class="dg-caja base">Sistema operativo del anfitrión</div>
+           <div class="dg-caja base">Hardware</div>
+           <div class="dg-nota">dos sistemas operativos de más: gigas de disco y minutos de arranque</div>
+         </div>
+         <div class="dg-col">
+           <div class="dg-col-tit">Contenedores</div>
+           <div class="dg-fila"><div class="dg-caja acento">App A</div><div class="dg-caja acento">App B</div></div>
+           <div class="dg-caja">Librerías</div>
+           <div class="dg-caja">Motor de Docker</div>
+           <div class="dg-caja ok doble">Sistema operativo<small>un único kernel, compartido</small></div>
+           <div class="dg-caja base">Hardware</div>
+           <div class="dg-nota">sin sistemas operativos extra: megas y milisegundos</div>
+         </div>
+       </div>
+       <div class="dg-leyenda"><span><i class="acento"></i>tu aplicación</span><span><i></i>capa compartida</span><span><i class="aviso"></i>lo que sobra en la máquina virtual</span></div>
+     </div>
      <p>Fíjate en la diferencia clave: a la izquierda hay <b>dos sistemas operativos completos</b> de más. A la derecha, ninguno.</p>`},
 
  {t:"opcion", p:"¿Por qué un contenedor arranca en milisegundos y una máquina virtual tarda minutos?",

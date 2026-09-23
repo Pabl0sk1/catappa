@@ -45,7 +45,7 @@ const LENGUAJES = {
   js:   { nombre: "JavaScript", fichero: "main.js",    bin: "node",   args: ["main.js"] },
   py:   { nombre: "Python",     fichero: "main.py",    bin: "python", args: ["main.py"] },
   php:  { nombre: "PHP",        fichero: "main.php",   bin: "php",    args: ["main.php"] },
-  java: { nombre: "Java",       fichero: "Main.java",  bin: "java",   args: ["-cp", ".", "Main"], compilador: "javac", argsCompilar: ["Main.java"] },
+  java: { nombre: "Java",       fichero: "Main.java",  bin: "java",   args: ["-Duser.language=en", "-Duser.country=US", "-cp", ".", "Main"], compilador: "javac", argsCompilar: ["Main.java"] },
   sh:   { nombre: "Terminal",   fichero: "main.sh",    bin: "bash",   args: ["main.sh"] },
   sql:  { nombre: "SQL",        fichero: "main.sql",   bin: "sqlite", args: ["-batch", "-noheader", "-list", ":memory:"], porEntrada: true }
 };

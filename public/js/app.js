@@ -18,6 +18,7 @@ F.ruta("/comunidad/:id", pagina(F.vistaPost), { seccion: "comunidad", migas: mig
 F.ruta("/ranking", pagina(F.vistaRanking), { seccion: "ranking", migas: miga("~/<b>ranking</b>") });
 F.ruta("/perfil", pagina(F.vistaPerfil), { seccion: "perfil", migas: miga("~/<b>perfil</b>") });
 F.ruta("/perfil/:usuario", pagina(F.vistaPerfil), { seccion: "perfil", migas: function (p) { return "~/perfil/<b>" + F.esc(p.usuario) + "</b>"; } });
+F.ruta("/proyecto/:curso/:id", pagina(F.vistaProyecto), { seccion: "catalogo", migas: function (p) { return '<a href="#/curso/' + F.esc(p.curso) + '">~/cursos/' + F.esc(p.curso) + "</a>/<b>proyecto</b>"; } });
 F.ruta("/playground", pagina(F.vistaPlayground), { seccion: "playground", migas: miga("~/<b>playground</b>") });
 F.ruta("/certificado/:codigo", pagina(F.vistaCertificado), { seccion: "perfil", migas: function (p) { return "~/certificado/<b>" + F.esc(p.codigo) + "</b>"; } });
 F.ruta("/ajustes", pagina(F.vistaAjustes), { seccion: "ajustes", migas: miga("~/<b>ajustes</b>") });

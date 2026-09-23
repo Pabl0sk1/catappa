@@ -235,6 +235,7 @@ F.vistaCurso = function (prm) {
         "<span>La hoja de " + F.esc(F.MARCA.mascotaNombre) + " cambia de color con tu nivel: verde en Fundamentos, amarilla en Intermedio, naranja en Avanzado, roja en Experto y dorada en Maestro.</span></div></div>" +
       '<div class="barra-prog" style="--c:' + c.color + ';margin-top:22px;height:8px"><i style="width:' + pct + '%"></i></div>' +
       '<div class="pipeline">' + stages + "</div>" +
+      F.bloqueProyectos(c.id) +
       (hechasN ? '<section class="zona-reinicio"><div><b>Reiniciar el curso</b><span>Empieza ' + F.esc(c.titulo) + " desde cero, como si nunca lo hubieras abierto.</span></div>" +
         '<button class="btn btn-suave btn-peligro" id="reiniciar-curso">' + F.icono("papelera") + "Reiniciar progreso</button></section>" : "") +
     "</div>";
