@@ -100,10 +100,12 @@ pasos:[
 kubectl get certificates -A          <span class="cm"># un tipo que antes no existia</span></div>`},
  {t:"info", eti:"El patrón", h:"Operador = CRD + controlador con conocimiento",
   c:`<p>Una CRD solo guarda datos. Un <b>operador</b> es un controlador que observa esos objetos y hace lo necesario para cumplirlos, con el conocimiento de un experto humano:</p>
-     <div class="diag">tu escribes:   kind: Cluster (postgres), instances: 3, backup a S3
-el operador:   crea StatefulSets, Services, configura la replicacion,
-               programa backups, hace failover si cae el primario,
-               actualiza versiones en orden</div>
+     <div class="dg"><div class="dg-tit">qué pides tú y qué hace el operador</div>
+       <div class="dg-cols">
+         <div class="dg-col"><div class="dg-col-tit">Tú escribes</div><div class="dg-caja acento doble"><code>kind: Cluster</code> (postgres)<small>instances: 3, backup a S3</small></div></div>
+         <div class="dg-col"><div class="dg-col-tit">El operador</div><div class="dg-pila"><div class="dg-caja ok">crea StatefulSets y Services</div><div class="dg-caja ok">configura la replicación</div><div class="dg-caja ok">programa backups</div><div class="dg-caja ok">hace failover si cae el primario</div><div class="dg-caja ok">actualiza versiones en orden</div></div></div>
+       </div>
+     </div>
      <p>Es el mismo bucle de reconciliación que los controladores internos, aplicado a tu dominio. Se construyen con frameworks como <b>Kubebuilder</b> u <b>Operator SDK</b> (en Go).</p>`},
  {t:"par", p:"Empareja cada operador con lo que gestiona",
   pares:[["cert-manager","Certificados TLS y su renovación"],["Prometheus Operator","Prometheus, alertas y ServiceMonitors"],["CloudNativePG","Clústeres de PostgreSQL"],["Strimzi","Clústeres de Kafka"],["Argo CD","Aplicaciones sincronizadas desde Git"]],

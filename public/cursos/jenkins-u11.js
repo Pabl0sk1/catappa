@@ -13,11 +13,12 @@ titulo:"Jenkins frente a las alternativas",
 claves:["GitHub Actions y GitLab CI están integradas en el repositorio y usan YAML, con máquinas gestionadas","Jenkins es autoalojado y más flexible, a cambio de mantenerlo","Argo CD hace la parte de despliegue con GitOps en Kubernetes: se complementa con el CI"],
 pasos:[
  {t:"info", eti:"El panorama", h:"Quién es quién",
-  c:`<div class="diag">JENKINS          lo instalas tú · miles de plugins · Groovy · llega a redes internas
-                 coste: mantener controlador, agentes, plugins y seguridad
-GITHUB ACTIONS   dentro de GitHub · ficheros YAML · máquinas gestionadas
-GITLAB CI        dentro de GitLab · .gitlab-ci.yml · runners propios o gestionados
-ARGO CD          GitOps: mantiene Kubernetes igual a lo que dice un repositorio</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">jenkins y las alternativas</div><table class="dg-tabla"><tbody>
+<tr><td>Jenkins</td><td>lo instalas tú · miles de plugins · Groovy · llega a redes internas<br>coste: mantener controlador, agentes, plugins y seguridad</td></tr>
+<tr><td>GitHub Actions</td><td>dentro de GitHub · ficheros YAML · máquinas gestionadas</td></tr>
+<tr><td>GitLab CI</td><td>dentro de GitLab · <code>.gitlab-ci.yml</code> · runners propios o gestionados</td></tr>
+<tr><td>Argo CD</td><td>GitOps: mantiene Kubernetes igual a lo que dice un repositorio</td></tr>
+</tbody></table></div>
      <p><b>GitOps</b> significa que el estado deseado del sistema está declarado en un repositorio y una herramienta se encarga de que la realidad coincida. Argo CD no compila ni prueba: se ocupa del despliegue. Por eso suele combinarse: Jenkins (o Actions) construye y publica la imagen, y Argo CD la despliega.</p>`},
  {t:"par", p:"Empareja cada situación con la herramienta que mejor encaja",
   pares:[["Empresa con muchos pipelines y servidores en su red interna","Jenkins"],["Proyecto pequeño alojado en GitHub, sin equipo de plataforma","GitHub Actions"],["Todo el código y las incidencias ya están en GitLab","GitLab CI"],["Mantener un clúster de Kubernetes igual a lo declarado en Git","Argo CD"]],
@@ -38,15 +39,18 @@ claves:["Estructura típica: descargar, compilar, probar, análisis, imagen, sta
 pasos:[
  {t:"info", eti:"El ejercicio típico", h:"«Diséñame el pipeline de esta aplicación»",
   c:`<p>Es la pregunta estrella. Una respuesta completa menciona <b>etapas</b>, <b>dónde</b> se ejecutan, <b>secretos</b> y <b>protección de producción</b>:</p>
-     <div class="diag">1. Descargar el código (multibranch: ramas y PRs)
-2. Compilar y probar        agente con imagen de Maven; publicar informes con junit
-3. En paralelo: análisis de seguridad y de calidad
-4. Construir la imagen      etiquetada con el commit
-5. Subirla al registro      credenciales con withCredentials
-6. Desplegar en staging
-7. Pruebas de humo          /actuator/health
-8. Aprobación manual        input con timeout, solo desde main
-9. Desplegar en producción  la MISMA imagen</div>`},
+     <div class="dg"><div class="dg-tit">el pipeline completo</div>
+<div class="dg-vert">
+<div class="dg-caja doble">1. Descargar el código<small>multibranch: ramas y PRs</small></div>
+<div class="dg-caja doble">2. Compilar y probar<small>agente con imagen de Maven; publicar informes con <code>junit</code></small></div>
+<div class="dg-caja">3. En paralelo<div class="dg-fila" style="margin-top:6px"><div class="dg-caja">análisis de seguridad</div><div class="dg-caja">análisis de calidad</div></div></div>
+<div class="dg-caja doble">4. Construir la imagen<small>etiquetada con el commit</small></div>
+<div class="dg-caja doble">5. Subirla al registro<small>credenciales con <code>withCredentials</code></small></div>
+<div class="dg-caja">6. Desplegar en staging</div>
+<div class="dg-caja doble">7. Pruebas de humo<small><code>/actuator/health</code></small></div>
+<div class="dg-caja doble acento">8. Aprobación manual<small><code>input</code> con timeout, solo desde <code>main</code></small></div>
+<div class="dg-caja doble ok">9. Desplegar en producción<small>la MISMA imagen</small></div>
+</div></div>`},
  {t:"orden", p:"Ordena las etapas del pipeline completo",
   items:["Descargar el código","Compilar y pasar las pruebas","Análisis de seguridad y calidad","Construir la imagen etiquetada con el commit","Subir la imagen al registro","Desplegar en staging","Pruebas de humo","Aprobación manual","Desplegar en producción"],
   why:"Este orden es el guion de tu respuesta en la entrevista."},

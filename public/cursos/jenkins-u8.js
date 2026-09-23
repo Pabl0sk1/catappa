@@ -123,7 +123,10 @@ claves:["Con el plugin de Kubernetes, cada build se ejecuta en un pod que se cre
 pasos:[
  {t:"info", eti:"A escala", h:"Un pod por build",
   c:`<p>Mantener agentes encendidos tiene dos problemas: cuestan dinero aunque no se usen, y van acumulando restos de builds anteriores. En Kubernetes se resuelve creando <b>un pod nuevo para cada build</b> y borrándolo al terminar. Son los <b>agentes efímeros</b>.</p>
-     <div class="diag">llega un build ─▶ Kubernetes crea un pod ─▶ se ejecuta el pipeline ─▶ el pod se borra</div>`},
+     <div class="dg"><div class="dg-tit">agentes efímeros en kubernetes</div>
+<div class="dg-flujo" style="row-gap:8px">
+<div class="dg-caja acento">llega un build</div><div class="dg-caja">Kubernetes crea un pod</div><div class="dg-caja">se ejecuta el pipeline</div><div class="dg-caja base">el pod se borra</div>
+</div></div>`},
  {t:"info", eti:"Sintaxis", h:"Declarar el pod",
   c:`<div class="termbox">agent {
     kubernetes {

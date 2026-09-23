@@ -12,13 +12,12 @@ titulo:"Dónde se renderiza",
 claves:["CSR: el navegador construye la página; SSR: el servidor envía HTML ya renderizado","SSG genera HTML al compilar; ISR lo regenera cada cierto tiempo","La hidratación conecta el HTML del servidor con React en el navegador"],
 pasos:[
  {t:"info", eti:"Estrategias", h:"CSR, SSR y SSG",
-  c:`<div class="diag">CSR (SPA con Vite)   el servidor envia un HTML vacio + JS; el navegador pinta todo
-                     + simple de desplegar   - primera carga y SEO peores
-SSR                  el servidor genera el HTML en cada peticion
-                     + contenido visible antes, bueno para SEO   - necesita servidor
-SSG                  el HTML se genera al compilar (blog, documentacion)
-                     + rapidisimo y barato   - contenido estatico
-ISR                  SSG que se regenera cada X segundos</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">dónde se genera el html</div><table class="dg-tabla"><thead><tr><th>Modo</th><th>Cómo funciona</th><th>A favor / en contra</th></tr></thead><tbody>
+       <tr><td>CSR<br><small>SPA con Vite</small></td><td>el servidor envía un HTML vacío + JS; el navegador pinta todo</td><td><b>+</b> simple de desplegar<br><b>−</b> primera carga y SEO peores</td></tr>
+       <tr><td>SSR</td><td>el servidor genera el HTML en cada petición</td><td><b>+</b> contenido visible antes, bueno para SEO<br><b>−</b> necesita servidor</td></tr>
+       <tr><td>SSG</td><td>el HTML se genera al compilar (blog, documentación)</td><td><b>+</b> rapidísimo y barato<br><b>−</b> contenido estático</td></tr>
+       <tr><td>ISR</td><td>SSG que se regenera cada X segundos</td><td>—</td></tr>
+     </tbody></table></div>
      <p>Con SSR, el navegador recibe HTML ya pintado y luego React se «engancha» a él para hacerlo interactivo: la <b>hidratación</b>.</p>`},
  {t:"par", p:"Empareja cada tipo de aplicación con la estrategia más natural",
   pares:[["Panel interno detrás de login","CSR (SPA)"],["Tienda online que debe posicionar en Google","SSR o SSG según la frecuencia de cambio"],["Documentación o blog","SSG"],["Catálogo que cambia cada hora","ISR"]],

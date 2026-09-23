@@ -79,8 +79,8 @@ git commit --amend --no-edit</div>
 
  {t:"info", eti:"La trampa", h:"--amend crea un commit NUEVO",
   c:`<p>Aunque parezca que "modificas" el commit, en realidad Git crea <b>uno nuevo</b> con otro hash y descarta el anterior. Recuerda: el hash depende del contenido.</p>
-     <div class="diag">antes:   e4f5a6b <-- 9f3c1a2   (HEAD)
-despues: e4f5a6b <-- 7b1d4e0   (HEAD)   <- hash distinto</div>
+     <div class="dg"><div class="dg-tit">git commit --amend</div>
+<svg viewBox="0 0 320 176" width="100%" style="max-width:440px;display:block;margin:auto" role="img" aria-label="Antes HEAD está en 9f3c1a2; después del amend está en 7b1d4e0, un commit nuevo con el mismo padre, e4f5a6b"><defs><marker id="fl-git3-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs><text x="8" y="34" text-anchor="start" font-size="12" font-family="var(--sans)" fill="var(--ink)" font-weight="700">antes</text><line x1="166.0" y1="30.0" x2="116.0" y2="30.0" stroke="var(--line-2)" stroke-width="2" marker-end="url(#fl-git3-1)"/><circle cx="95" cy="30" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="95" y="66" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)">e4f5a6b</text><circle cx="185" cy="30" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="185" y="66" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">9f3c1a2</text><rect x="252.5" y="19" width="45" height="22" rx="11" fill="var(--bg-3)" stroke="var(--ink-2)" stroke-width="1.5"/><text x="275" y="34" text-anchor="middle" font-size="12" font-family="var(--mono)" font-weight="700" fill="var(--ink)">HEAD</text><line x1="251" y1="30" x2="207" y2="30" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#fl-git3-1)"/><text x="8" y="114" text-anchor="start" font-size="12" font-family="var(--sans)" fill="var(--ink)" font-weight="700">después</text><line x1="166.0" y1="110.0" x2="116.0" y2="110.0" stroke="var(--line-2)" stroke-width="2" marker-end="url(#fl-git3-1)"/><circle cx="95" cy="110" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="95" y="146" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)">e4f5a6b</text><circle cx="185" cy="110" r="19" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="185" y="146" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">7b1d4e0</text><rect x="252.5" y="99" width="45" height="22" rx="11" fill="var(--bg-3)" stroke="var(--ink-2)" stroke-width="1.5"/><text x="275" y="114" text-anchor="middle" font-size="12" font-family="var(--mono)" font-weight="700" fill="var(--ink)">HEAD</text><line x1="251" y1="110" x2="207" y2="110" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#fl-git3-1)"/><text x="185" y="166" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)" font-weight="700">hash distinto</text></svg></div>
      <p>Si ya habías hecho <b>push</b> de <code>9f3c1a2</code> y alguien lo descargó, ahora tu historial y el suyo <b>no coinciden</b>. Eso se llama <b>reescribir historia publicada</b>, y causa problemas.</p>
      <div class="nota ojo"><b class="tit">Regla de oro</b>Usa <code>--amend</code> solo con commits que <b>todavía no has subido</b>.</div>`},
 
@@ -115,11 +115,11 @@ pasos:[
      <p>La pregunta es: ¿qué pasa con los cambios de los commits que "deshaces"? Depende del modo. Hay tres, y conviene saberlos de memoria.</p>`},
 
  {t:"info", eti:"Los tres modos", h:"--soft, --mixed y --hard",
-  c:`<div class="diag">                      el commit   staging      tu carpeta
-                      desaparece
-git reset --soft  HEAD~1   si     cambios aqui   intacta
-git reset --mixed HEAD~1   si     vacio          cambios aqui   (por defecto)
-git reset --hard  HEAD~1   si     vacio          ¡CAMBIOS BORRADOS!</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">los tres modos de reset</div><table class="dg-tabla"><thead><tr><th>comando</th><th>el commit desaparece</th><th>staging</th><th>tu carpeta</th></tr></thead><tbody>
+<tr><td><code>git reset --soft HEAD~1</code></td><td>sí</td><td>cambios aquí</td><td>intacta</td></tr>
+<tr><td><code>git reset --mixed HEAD~1</code><br><small>(por defecto)</small></td><td>sí</td><td>vacío</td><td>cambios aquí</td></tr>
+<tr><td><code>git reset --hard HEAD~1</code></td><td>sí</td><td>vacío</td><td><b style="color:var(--bad)">¡CAMBIOS BORRADOS!</b></td></tr>
+</tbody></table></div>
      <ul><li><b>--soft</b>: «deshaz el commit pero déjame todo preparado para volver a hacerlo». Útil para juntar varios commits en uno.</li>
      <li><b>--mixed</b> (el que se usa si no pones nada): «deshaz el commit y deja los cambios en mi carpeta, sin preparar». El más común.</li>
      <li><b>--hard</b>: «deshaz el commit y tira los cambios a la basura». Tu carpeta queda idéntica al commit al que vuelves.</li></ul>`},

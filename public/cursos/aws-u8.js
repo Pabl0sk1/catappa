@@ -39,11 +39,20 @@ titulo:"SQS, SNS, EventBridge y Step Functions",
 claves:["SQS: colas para desacoplar productor y consumidor, con reintentos y DLQ","SNS: publicar a muchos suscriptores; EventBridge: bus de eventos con reglas","Step Functions orquesta flujos con pasos, reintentos y compensaciones"],
 pasos:[
  {t:"info", eti:"Desacoplar", h:"Mensajería gestionada",
-  c:`<div class="diag">API --"PedidoPagado"--&gt; EventBridge --regla--&gt; SQS facturacion --&gt; Lambda factura
-                                   |--regla--&gt; SQS logistica   --&gt; servicio de envios (ECS)
-                                   '--regla--&gt; SNS --&gt; correo al equipo si total &gt; 1000
-
-Step Functions: reservar stock -&gt; cobrar -&gt; (si falla) liberar stock -&gt; confirmar</div>`},
+  c:`<div class="dg"><div class="dg-tit">un evento, varios consumidores</div>
+<div class="dg-vert">
+<div class="dg-caja base doble">API<small>publica "PedidoPagado"</small></div>
+<div class="dg-caja acento doble">EventBridge<small>una regla por destino</small></div>
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-pila">
+<div class="dg-flujo"><div class="dg-caja">SQS facturación</div><div class="dg-caja ok">Lambda factura</div></div>
+<div class="dg-flujo"><div class="dg-caja">SQS logística</div><div class="dg-caja ok">servicio de envíos (ECS)</div></div>
+<div class="dg-flujo"><div class="dg-caja">SNS</div><div class="dg-caja ok">correo al equipo si total &gt; 1000</div></div>
+</div></div>
+</div>
+<div class="dg-tit" style="margin-top:16px">Step Functions</div>
+<div class="dg-flujo"><div class="dg-caja">reservar stock</div><div class="dg-caja acento">cobrar</div><div class="dg-caja ok">confirmar</div></div>
+<div class="dg-caja aviso" style="margin-top:8px">si falla: liberar stock</div>
+</div>`},
  {t:"par", p:"Empareja cada servicio con su uso",
   pares:[["SQS","Cola de trabajos con reintentos: un mensaje lo procesa un consumidor"],["SNS","Difusión a muchos suscriptores (correo, SMS, colas)"],["EventBridge","Bus de eventos con reglas de enrutado y programación"],["Step Functions","Orquestar flujos de varios pasos con estado"],["Dead-letter queue","Guardar los mensajes que fallan repetidamente"]],
   why:"Son las versiones gestionadas de lo que viste con Kafka, RabbitMQ y sagas."},

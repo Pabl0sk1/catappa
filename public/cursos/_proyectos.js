@@ -1179,8 +1179,8 @@ spring: [
   }
 ],
 
-/* ---------------- HTML y CSS ---------------- */
-htmlcss: [
+/* ---------------- CSS ---------------- */
+css: [
 {
     id: "hc-p1", titulo: "Tu página de presentación", nivel: "Fundamentos", desdeUnidad: 3, tiempo: "45 min",
     resumen: "Una página personal con HTML semántico y estilos propios. Sin frameworks, sin plantillas.",
@@ -1223,7 +1223,7 @@ htmlcss: [
     ]
   },
   {
-    id: "hc-p2", titulo: "Tarjetas que se adaptan", nivel: "Intermedio", desdeUnidad: 5, tiempo: "50 min",
+    id: "hc-p2", titulo: "Tarjetas que se adaptan", nivel: "Avanzado", desdeUnidad: 6, tiempo: "50 min",
     resumen: "Una rejilla que funciona igual en un móvil de 360px que en una pantalla de 27 pulgadas, sin mil consultas de medios.",
     objetivos: ["Usar Grid y Flexbox donde toca", "Diseñar primero para móvil", "Evitar medidas fijas"],
     misiones: [
@@ -1264,7 +1264,7 @@ htmlcss: [
     ]
   },
   {
-    id: "hc-p3", titulo: "Formulario accesible con tema claro y oscuro", nivel: "Avanzado", desdeUnidad: 7, tiempo: "55 min",
+    id: "hc-p3", titulo: "Formulario accesible con tema claro y oscuro", nivel: "Avanzado", desdeUnidad: 8, tiempo: "55 min",
     resumen: "Un formulario que cualquiera pueda usar, con errores que se entienden y dos temas.",
     objetivos: ["Etiquetar campos", "Mostrar errores accesibles", "Seguir el tema del sistema"],
     misiones: [
@@ -1308,6 +1308,160 @@ htmlcss: [
           "Puedo rellenar y enviar el formulario sin ratón",
           "Los mensajes de error se entienden sin ver el color",
           "El tema oscuro tiene contraste suficiente"
+        ]
+      }
+    ]
+  },
+{
+    id: "cs-p4", titulo: "Rescata una maqueta rota", nivel: "Intermedio", desdeUnidad: 4, tiempo: "45 min",
+    resumen: "Una página con los fallos de siempre: scroll horizontal, una cabecera sticky que no se pega, un menú tapado y un margen que se escapa. Arréglalos de verdad, sin taparlos.",
+    objetivos: ["Diagnosticar con DevTools", "Entender el colapso de márgenes y los contextos de apilamiento", "Arreglar la causa, no el síntoma"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "El margen que se escapa",
+        guia: "<p>Crea una cabecera con fondo de color que contenga un <code>&lt;h1&gt;</code>. Verás una franja sin color encima: es el margen del h1 saliéndose de la cabecera.</p>" +
+          "<p>Arréglalo sin quitar el margen del título: haz que la cabecera sea un contexto de formato de bloque.</p>",
+        comando: "cat estilos.css",
+        patrones: ["display: *flow-root"],
+        exito: "Margen contenido. flow-root sirve también para contener floats."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "La cabecera que no se pega",
+        guia: "<p>Haz la cabecera <code>position: sticky</code> con <code>top: 0</code>. Si algún ancestro tiene <code>overflow: hidden</code>, no se pegará: cámbialo por <code>overflow: clip</code> o quítalo (en este ejercicio no debe quedar ningún <code>overflow: hidden</code>).</p>",
+        comando: "cat estilos.css",
+        patrones: ["position: *sticky", "top: *0"],
+        prohibidos: ["overflow(-x)?: *hidden"],
+        exito: "Sticky funcionando: ningún contenedor de scroll por medio."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "El menú que queda debajo",
+        guia: "<p>Tu menú desplegable queda tapado por el contenido aunque tenga un z-index enorme. En vez de subir el número, pon una escala de z-index en variables y aísla los componentes con <code>isolation: isolate</code>.</p>",
+        comando: "cat estilos.css",
+        patrones: ["--z-[a-z-]+ *:", "var[(]--z-", "isolation: *isolate"],
+        prohibidos: ["z-index: *9{3,}"],
+        exito: "Capas con nombre: cualquiera entiende qué tapa a qué."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "Sin scroll horizontal",
+        guia: "<p>Abre la página a 320px en el modo dispositivo de DevTools. Si hay scroll horizontal, busca el elemento que se sale (<code>* { outline: 1px solid red }</code>) y corrige su ancho.</p>",
+        criterios: [
+          "A 320px no hay desplazamiento horizontal",
+          "No he usado overflow-x: hidden en html ni en body para esconderlo",
+          "Las imágenes tienen max-width: 100% y los textos largos se parten"
+        ]
+      }
+    ]
+  },
+  {
+    id: "cs-p5", titulo: "Animaciones que respetan a todos", nivel: "Experto", desdeUnidad: 9, tiempo: "50 min",
+    resumen: "Microinteracciones fluidas en una interfaz: un aviso que entra, un menú que se despliega y tarjetas que reaccionan, sin tirones y sin marear a nadie.",
+    objetivos: ["Animar transform y opacity", "Animar la aparición con @starting-style", "Respetar prefers-reduced-motion"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Transiciones con nombre",
+        guia: "<p>Añade transiciones al hover de botones y tarjetas nombrando las propiedades (nada de <code>transition: all</code>) y animando solo <code>transform</code>, <code>translate</code>, <code>scale</code> u <code>opacity</code>.</p>",
+        comando: "cat estilos.css",
+        patrones: ["transition:", "(transform|translate|scale|opacity)"],
+        prohibidos: ["transition: *all", "transition: *(width|height|top|left|margin)"],
+        exito: "Transiciones baratas: solo composición."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Un aviso que entra y sale",
+        guia: "<p>Haz que un aviso aparezca con un fundido y un pequeño desplazamiento usando <code>@starting-style</code>, y que al ocultarlo con <code>display: none</code> también se anime (<code>allow-discrete</code>).</p>",
+        comando: "cat estilos.css",
+        patrones: ["@starting-style", "allow-discrete"],
+        exito: "Entrada y salida animadas sin una línea de JavaScript."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Menos movimiento para quien lo pide",
+        guia: "<p>Envuelve los desplazamientos y zooms en <code>@media (prefers-reduced-motion: no-preference)</code>, o sustitúyelos por fundidos dentro de <code>(prefers-reduced-motion: reduce)</code>.</p>",
+        comando: "cat estilos.css",
+        patrones: ["prefers-reduced-motion"],
+        exito: "Tu interfaz ya no marea a nadie."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "Mídelo",
+        guia: "<p>Graba la interacción en la pestaña Performance de DevTools con la CPU ralentizada 4× y emula el movimiento reducido en la pestaña Rendering.</p>",
+        criterios: [
+          "No aparecen bloques de Layout en cada fotograma de las animaciones",
+          "Con movimiento reducido emulado no hay desplazamientos ni zooms",
+          "Ninguna animación de interfaz dura más de 400 ms"
+        ]
+      }
+    ]
+  },
+  {
+    id: "cs-p6", titulo: "La arquitectura CSS de una aplicación", nivel: "Experto", desdeUnidad: 10, tiempo: "60 min",
+    resumen: "Organiza el CSS de una aplicación como en un equipo profesional: capas, reset moderno, tokens semánticos y una librería externa que nunca te pisa.",
+    objetivos: ["Ordenar el CSS con @layer", "Separar tokens primitivos y semánticos", "Aislar el CSS de terceros"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Capas declaradas",
+        guia: "<p>En <code>main.css</code>, declara el orden de capas (<code>reset</code>, <code>terceros</code>, <code>base</code>, <code>componentes</code>, <code>utilidades</code>) e importa una librería externa dentro de la capa de terceros.</p>",
+        comando: "cat main.css",
+        patrones: ["@layer +reset *,", "utilidades", "layer[(]terceros[)]"],
+        exito: "Prioridades explícitas: la librería ya no puede ganar a tus componentes."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Tokens en dos niveles",
+        guia: "<p>En <code>tokens.css</code>, define primitivos (<code>--azul-600</code>…) y semánticos que los usan (<code>--acento: var(--azul-600)</code>). Los componentes solo usan los semánticos.</p>",
+        comando: "cat tokens.css",
+        patrones: [":root", "--[a-z]+-[0-9]{2,3} *:", "--(acento|fondo|texto)[a-z-]* *: *var[(]--"],
+        exito: "Cambiar de tema o de marca es tocar un fichero."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Componentes sin colores sueltos",
+        guia: "<p>Revisa que tus componentes no tengan colores en hex escritos a mano: todo debe salir de <code>var(--…)</code>. Stylelint puede vigilarlo por ti.</p>",
+        comando: "grep -c -E '#[0-9a-fA-F]{3,8}' componentes/*.css",
+        patrones: [":0"],
+        prohibidos: [":[1-9][0-9]*"],
+        exito: "Ni un color fuera del sistema."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "Revisión de la arquitectura",
+        guia: "<p>Abre la aplicación y comprueba en DevTools el orden de capas de un botón (el panel Styles muestra la capa de cada regla).</p>",
+        criterios: [
+          "No hay ningún !important fuera de la capa de utilidades",
+          "El reset es corto y está en su propia capa",
+          "Los estilos base usan :where() o selectores de tipo con especificidad baja"
+        ]
+      }
+    ]
+  },
+  {
+    id: "cs-p7", titulo: "Portada de producto de nivel producción", nivel: "Maestro", desdeUnidad: 11, tiempo: "90 min",
+    resumen: "El proyecto final: una portada completa que aguanta textos largos, 320px, zoom al 200 %, modo oscuro, alto contraste y movimiento reducido.",
+    objetivos: ["Combinar Grid, Flexbox y container queries", "Temas y accesibilidad completos", "Rendimiento medido con Lighthouse"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Maqueta intrínseca",
+        guia: "<p>Monta el esqueleto con Grid, una rejilla de tarjetas con <code>repeat(auto-fill, minmax(min(…, 100%), 1fr))</code> y tipografía fluida con <code>clamp()</code>.</p>",
+        comando: "cat estilos.css",
+        patrones: ["display: *grid", "minmax[(]min[(]", "clamp[(]"],
+        exito: "Se adapta sola antes de escribir una sola media query."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Tarjetas que saben dónde están",
+        guia: "<p>Las tarjetas deben cambiar de disposición según el hueco de su contenedor, no según la ventana: usa container queries.</p>",
+        comando: "cat estilos.css",
+        patrones: ["container(-type)?: *[a-z /-]*inline-size", "@container"],
+        exito: "Componentes que funcionan en cualquier columna."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Temas y preferencias",
+        guia: "<p>Tema claro y oscuro con <code>color-scheme</code> y tokens, estilos para <code>forced-colors</code> y movimiento reducido respetado.</p>",
+        comando: "cat estilos.css",
+        patrones: ["color-scheme", "prefers-color-scheme|light-dark[(]", "forced-colors", "prefers-reduced-motion"],
+        exito: "Respeta todo lo que el usuario ya configuró en su sistema."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "Prueba de estrés",
+        guia: "<p>Pon textos el triple de largos, vacía una lista, abre a 320px, haz zoom al 200 % y pasa Lighthouse en móvil.</p>",
+        criterios: [
+          "Nada se desborda ni se solapa con textos largos ni a 320px",
+          "Con zoom al 200 % todo se lee y se puede usar",
+          "El foco se ve siempre y todo funciona con teclado",
+          "Lighthouse da más de 90 en rendimiento y accesibilidad, con CLS menor de 0,1"
         ]
       }
     ]
@@ -2895,7 +3049,7 @@ go: [
     ]
   },
   {
-    id: "go-p2", titulo: "Concurrencia sin miedo", nivel: "Intermedio", desdeUnidad: 4, tiempo: "50 min",
+    id: "go-p2", titulo: "Concurrencia sin miedo", nivel: "Avanzado", desdeUnidad: 8, tiempo: "50 min",
     resumen: "Goroutines, canales y el detector de carreras: la razón por la que mucha gente viene a Go.",
     objetivos: ["Lanzar goroutines", "Comunicar con canales", "Detectar condiciones de carrera"],
     misiones: [
@@ -2937,7 +3091,7 @@ go: [
     ]
   },
   {
-    id: "go-p3", titulo: "Servicio HTTP listo para producción", nivel: "Avanzado", desdeUnidad: 6, tiempo: "1 h",
+    id: "go-p3", titulo: "Servicio HTTP listo para producción", nivel: "Experto", desdeUnidad: 11, tiempo: "1 h",
     resumen: "Un servicio pequeño con rutas, tiempos límite, apagado ordenado y su imagen mínima.",
     objetivos: ["Servir HTTP con la estándar", "Poner tiempos límite", "Apagar sin cortar peticiones"],
     misiones: [
@@ -2974,6 +3128,202 @@ go: [
         exito: "Unos pocos megas frente a los cientos de otros lenguajes. Esa es una de las razones por las que Go domina en infraestructura."
       }
     ]
+  },
+{
+    id: "go-p4", titulo: "Un inventario con tipos, interfaces y errores de verdad", nivel: "Intermedio", desdeUnidad: 5, tiempo: "1 h",
+    resumen: "Modela un pequeño almacén con structs y métodos, sepáralo del almacenamiento con una interfaz y devuelve errores que quien llama pueda distinguir.",
+    objetivos: ["Diseñar structs con métodos de receptor puntero", "Definir una interfaz pequeña en el consumidor", "Usar errores centinela, tipos de error y wrapping con %w"],
+    misiones: [
+      {
+        id: "m1", tipo: "term", titulo: "El módulo",
+        guia: "<p>Crea una carpeta nueva y dentro el módulo <code>github.com/tu/inventario</code>. Todo el proyecto vive en un único paquete por ahora: ya lo dividirás cuando duela.</p>",
+        pista: "go mod init y la ruta del módulo.",
+        sol: ["go mod init github.com/tu/inventario"],
+        salida: "go: creating new go.mod: module github.com/tu/inventario",
+        exito: "Módulo creado."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Errores que se pueden distinguir",
+        guia: "<p>Escribe un tipo <code>Almacen</code> con un método <code>Reservar(sku string, n int) error</code>. Declara dos centinelas, <code>ErrNoExiste</code> y <code>ErrSinStock</code>, y un tipo <code>*ErrCantidad</code> para cantidades no válidas.</p>" +
+          "<p>Cada error que devuelvas hacia arriba debe llevar contexto con <code>fmt.Errorf(\"…: %w\", err)</code>. Enseña dónde los declaras y los envuelves.</p>",
+        comando: "grep -n -E 'errors.New|%w|func \\(e \\*ErrCantidad\\) Error' *.go",
+        patrones: ["ErrNoExiste", "ErrSinStock", "%w", "ErrCantidad\\) Error"],
+        pista: "var ErrSinStock = errors.New(\"sin stock\") a nivel de paquete; func (e *ErrCantidad) Error() string { … }.",
+        exito: "Errores con identidad y con contexto: quien llame podrá decidir qué hacer con cada uno."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "La interfaz en el consumidor",
+        guia: "<p>Crea un <code>Servicio</code> de pedidos que necesite «algo que reserve stock». Declara en su fichero una interfaz <code>Reservador</code> con <b>solo</b> el método que usa, y comprueba al compilar que <code>*Almacen</code> la cumple.</p>",
+        comando: "grep -n -E 'type Reservador interface|var _ Reservador' *.go",
+        patrones: ["type Reservador interface", "var _ Reservador = \\(\\*Almacen\\)\\(nil\\)"],
+        pista: "var _ Reservador = (*Almacen)(nil) falla al compilar si Almacen deja de cumplirla.",
+        exito: "Servicio y almacén ya no dependen uno del otro: en las pruebas podrás pasar un falso."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Pruebas por tablas con errors.Is y errors.As",
+        guia: "<p>Escribe <code>TestReservar</code> con una tabla de casos: reserva correcta, SKU inexistente, sin stock y cantidad negativa. Comprueba el error esperado con <code>errors.Is</code> (centinelas) y <code>errors.As</code> (el tipo), nunca comparando textos.</p>",
+        comando: "go test -v ./... 2>&1 | tail -8",
+        patrones: ["--- PASS: TestReservar", "(ok|PASS)"],
+        prohibidos: ["FAIL"],
+        pista: "Un campo quiereErr error en la tabla y if !errors.Is(err, c.quiereErr) { t.Errorf(…) }.",
+        exito: "Cuatro caminos probados, incluidos los de error, que son los que más fallan en producción."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Revisión",
+        guia: "<p>Repasa tu código con ojos de revisor.</p>",
+        criterios: [
+          "Ningún método que modifica el almacén tiene receptor por valor",
+          "Ninguna función devuelve un puntero nil tipado como error",
+          "Los mensajes de error van en minúscula y sin punto final",
+          "go vet ./... no muestra nada"
+        ]
+      }
+    ]
+  },
+  {
+    id: "go-p5", titulo: "Tu primera librería genérica, publicada como módulo", nivel: "Intermedio", desdeUnidad: 6, tiempo: "1 h",
+    resumen: "Una pequeña colección genérica con iteradores, documentada, probada y lista para que otros la importen con go get.",
+    objetivos: ["Escribir tipos y funciones genéricas con restricciones", "Ofrecer iteradores con iter.Seq", "Publicar un módulo con versión semántica"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Un conjunto genérico",
+        guia: "<p>Crea el paquete <code>conjunto</code> con <code>type Conjunto[T comparable] struct{…}</code> y los métodos <code>Añadir</code>, <code>Contiene</code>, <code>Len</code> y una función <code>Union[T comparable](a, b *Conjunto[T]) *Conjunto[T]</code>.</p>" +
+          "<p>Recuerda: un método no puede declarar parámetros de tipo propios; lo que necesite otro tipo va como función.</p>",
+        comando: "grep -n -E 'Conjunto\\[T comparable\\]|func Union\\[' *.go",
+        patrones: ["Conjunto\\[T comparable\\]", "func Union\\["],
+        exito: "Un contenedor que funciona con cualquier tipo comparable, comprobado por el compilador."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Recorrible con range",
+        guia: "<p>Añade <code>func (c *Conjunto[T]) Todos() iter.Seq[T]</code>. Respeta el contrato: si <code>yield</code> devuelve false, el iterador para. Escribe una prueba que haga <code>break</code> a mitad y otra que use <code>slices.Collect</code>.</p>",
+        comando: "go test -run 'Todos' -v ./... 2>&1 | tail -6",
+        patrones: ["--- PASS", "(ok|PASS)"],
+        prohibidos: ["FAIL", "panic"],
+        pista: "if !yield(v) { return } dentro del bucle sobre el map interno.",
+        exito: "Tu tipo se recorre como un slice, y un break no lo rompe."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Documentación que se lee en go doc",
+        guia: "<p>Documenta cada identificador exportado con un comentario que empiece por su nombre y añade un <code>ExampleConjunto_Union</code> con su comentario <code>// Output:</code>: go test lo ejecuta y comprueba la salida.</p>",
+        comando: "go doc -all . | head -20 && go test -run Example ./...",
+        patrones: ["func Union", "ok"],
+        prohibidos: ["FAIL"],
+        exito: "La documentación y sus ejemplos se prueban igual que el código."
+      },
+      {
+        id: "m4", tipo: "term", titulo: "Publica la versión",
+        guia: "<p>Con el código en un repositorio público cuya ruta coincida con la del módulo, crea la etiqueta de git que publica la primera versión preliminar.</p>",
+        pista: "git tag con v, mayor 0, menor 1, parche 0.",
+        sol: ["git tag v0.1.0"],
+        salida: "",
+        exito: "Tras git push --tags, cualquiera puede hacer go get github.com/tu/conjunto@v0.1.0. Mientras la versión mayor sea 0, puedes romper la API; en v1 ya no."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Buen ciudadano del ecosistema",
+        guia: "<p>Antes de anunciarla, revisa lo que esperará quien la use.</p>",
+        criterios: [
+          "go.mod declara una versión de Go razonable y go mod tidy no cambia nada",
+          "La API exportada es mínima: lo interno va en minúscula o en internal/",
+          "govulncheck ./... no encuentra nada",
+          "Sé que un cambio incompatible tras v1 exigiría la ruta /v2"
+        ]
+      }
+    ]
+  },
+  {
+    id: "go-p6", titulo: "Una suite de pruebas de nivel profesional", nivel: "Experto", desdeUnidad: 9, tiempo: "1 h 30 min",
+    resumen: "Coge un parser de ficheros CSV de pedidos y rodéalo de pruebas por tablas, fuzzing, benchmarks, cobertura y detector de carreras.",
+    objetivos: ["Probar por tablas con subtests y ayudantes", "Encontrar fallos con fuzzing", "Medir y mejorar con benchmarks y benchstat"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Tabla, subtests y cobertura",
+        guia: "<p>Escribe <code>ParsearPedidos(r io.Reader) ([]Pedido, error)</code> para líneas <code>id,cliente,importe_en_centimos</code>. Pruébalo con una tabla que incluya líneas vacías, importes negativos, campos de más y comillas.</p>" +
+          "<p>Pega la cobertura: el objetivo es superar el 80% con los caminos de error incluidos.</p>",
+        comando: "go test -cover ./...",
+        patrones: ["coverage: ([89][0-9]|100)(\\.[0-9])?% of statements"],
+        prohibidos: ["FAIL"],
+        pista: "go test -coverprofile=cover.out y go tool cover -html=cover.out te enseñan las líneas en rojo.",
+        exito: "Por encima del 80% y probando los errores, no solo el camino feliz."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Que lo rompa el fuzzer",
+        guia: "<p>Escribe <code>FuzzParsearPedidos</code> con un par de semillas. La propiedad: para cualquier entrada, la función no entra en pánico y, si no devuelve error, todos los importes son mayores o iguales que 0.</p>" +
+          "<p>Déjalo un minuto. Si encuentra algo, arréglalo y deja el caso en <code>testdata/fuzz</code>. Pega el listado de esa carpeta (o la salida del fuzzer si no encontró nada).</p>",
+        comando: "go test -fuzz=FuzzParsearPedidos -fuzztime=60s 2>&1 | tail -3; ls testdata/fuzz/FuzzParsearPedidos 2>/dev/null",
+        patrones: ["(PASS|ok|[0-9a-f]{16})"],
+        exito: "Cada entrada rara que encuentra el fuzzer se queda como prueba de regresión para siempre."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Benchmark con memoria",
+        guia: "<p>Añade <code>BenchmarkParsearPedidos</code> con <code>for b.Loop()</code> sobre 10.000 líneas generadas antes del bucle. Mide con <code>-benchmem</code> y pega el resultado.</p>",
+        comando: "go test -run='^$' -bench=Parsear -benchmem",
+        patrones: ["BenchmarkParsearPedidos", "ns/op", "allocs/op"],
+        exito: "Ya tienes la línea base. Sin ella, cualquier «optimización» es una opinión."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Mejora demostrada",
+        guia: "<p>Reduce asignaciones (reserva capacidad para el slice, evita conversiones string/[]byte repetidas, usa <code>strings.Cut</code>…). Guarda 10 ejecuciones antes y después y compáralas con <code>benchstat</code> (<code>go install golang.org/x/perf/cmd/benchstat@latest</code>).</p>",
+        comando: "benchstat viejo.txt nuevo.txt",
+        patrones: ["sec/op", "allocs/op", "(~|-[0-9]+\\.[0-9]+%)"],
+        exito: "Una mejora con intervalo de confianza, no una impresión."
+      },
+      {
+        id: "m5", tipo: "salida", titulo: "Concurrencia comprobada",
+        guia: "<p>Añade <code>ParsearEnParalelo(ficheros []string) ([]Pedido, error)</code> con errgroup y un límite de 4. Escribe una prueba que lo ejecute sobre varios ficheros de <code>t.TempDir()</code> y pásala con el detector de carreras.</p>",
+        comando: "go test -race -count=3 ./... && echo SIN-CARRERAS",
+        patrones: ["SIN-CARRERAS"],
+        prohibidos: ["DATA RACE", "FAIL"],
+        exito: "Probado en paralelo, tres veces, bajo el detector de carreras."
+      }
+    ]
+  },
+  {
+    id: "go-p7", titulo: "Un servicio que se puede operar", nivel: "Experto", desdeUnidad: 11, tiempo: "1 h 30 min",
+    resumen: "Convierte un servicio HTTP en algo que un equipo de guardia agradecería: logs estructurados, perfiles, versión en el binario y límites de memoria.",
+    objetivos: ["Registrar con slog en JSON con id de petición", "Perfilar con pprof en un puerto interno", "Compilar con versión y ajustar el runtime al contenedor"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Logs en JSON con id de petición",
+        guia: "<p>Añade un middleware que genere (o lea de <code>X-Request-ID</code>) un id por petición, cree un <code>logger.With(\"peticion_id\", id)</code> y registre método, ruta, código y duración al terminar.</p>" +
+          "<p>Haz un par de peticiones y pega las líneas de log.</p>",
+        comando: "curl -s localhost:8080/salud > /dev/null; docker logs --tail 3 mi-servicio",
+        patrones: ["\"level\":\"INFO\"", "\"peticion_id\"", "\"codigo\":200"],
+        pista: "Envuelve el ResponseWriter para capturar el código; el nivel sale como \"INFO\" con JSONHandler.",
+        exito: "Cada línea se puede filtrar por petición, código o duración en tu sistema de logs."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "pprof, pero solo por dentro",
+        guia: "<p>Registra los perfiles en un <code>http.ServeMux</code> propio servido en <code>localhost:6060</code>, separado de la API. Genera algo de carga y captura 10 segundos de CPU.</p>",
+        comando: "go tool pprof -top -seconds=10 http://localhost:6060/debug/pprof/profile 2>/dev/null | head -12",
+        patrones: ["flat", "cum"],
+        pista: "import _ \"net/http/pprof\" registra en DefaultServeMux; o registra pprof.Index, pprof.Profile… en tu propio mux.",
+        exito: "Ya sabes en qué se va la CPU, sin exponer nada a Internet."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Versión dentro del binario",
+        guia: "<p>Compila con <code>-trimpath -ldflags=\"-s -w -X main.version=…\"</code> usando la etiqueta de git como versión, y expón la versión en <code>/version</code>. Pega lo que dice el binario de sí mismo.</p>",
+        comando: "go version -m ./api | head -12",
+        patrones: ["path", "(vcs\\.revision|-X main\\.version|build)"],
+        exito: "En un incidente sabrás exactamente qué código y con qué Go se compiló lo que está corriendo."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Ajustado al contenedor",
+        guia: "<p>Despliega en Kubernetes (kind o minikube valen) con límites de CPU y memoria. Pasa <code>GOMEMLIMIT</code> desde <code>resourceFieldRef</code> y añade sondas <code>/salud</code> y <code>/listo</code>.</p>",
+        comando: "kubectl get deploy mi-servicio -o yaml | grep -n -E 'GOMEMLIMIT|limits.memory|readinessProbe|livenessProbe'",
+        patrones: ["GOMEMLIMIT", "readinessProbe"],
+        exito: "El GC sabe cuánta memoria tiene y el balanceador sabe cuándo enviarte tráfico."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Lista de guardia",
+        guia: "<p>Comprueba que el servicio aguanta lo que pasa en producción.</p>",
+        criterios: [
+          "Al hacer kubectl rollout restart, ninguna petición en curso se corta (SIGTERM + Shutdown)",
+          "Todas las llamadas salientes tienen timeout y usan el contexto de la petición",
+          "La métrica o el log del número de goroutines se mantiene estable bajo carga",
+          "No se registran secretos ni datos personales en claro (LogValuer donde haga falta)"
+        ]
+      }
+    ]
   }
 ],
 
@@ -2981,134 +3331,464 @@ go: [
 /* ---------------- Diseño de interfaces ---------------- */
 diseno: [
 {
-    id: "ds-p1", titulo: "Rediseña una pantalla fea", nivel: "Fundamentos", desdeUnidad: 2, tiempo: "45 min",
-    resumen: "Coge una pantalla mala de verdad y arréglala con jerarquía, espacio y contraste. Sin adornos.",
-    objetivos: ["Crear jerarquía visual", "Usar el espacio como herramienta", "Justificar cada decisión"],
+    id: "ds-p4", titulo: "Dimensiona un servicio con números", nivel: "Fundamentos", desdeUnidad: 2, tiempo: "45 min",
+    resumen: "Antes de dibujar cajas, cuentas: peticiones por segundo, ancho de banda y servidores, y luego una prueba de carga que las confirme o las desmienta.",
+    objetivos: ["Estimar capacidad con cuentas de servilleta", "Traducir la estimación a servidores con redundancia", "Contrastar la estimación con una prueba de carga real"],
     misiones: [
       {
-        id: "m1", tipo: "check", titulo: "Elige el paciente y diagnostícalo",
-        guia: "<p>Busca una pantalla mala de verdad: un formulario de la administración, un panel interno, una web vieja. Haz una captura.</p>" +
-          "<p>Escribe <b>cinco problemas concretos</b>. Nada de «es fea»: «hay siete tamaños de letra distintos», «el botón principal y el de cancelar pesan igual», «no se sabe dónde empieza cada sección».</p>",
-        criterios: [
-          "Tengo la captura original guardada",
-          "Tengo cinco problemas concretos, no opiniones",
-          "Sé cuál es la acción principal de esa pantalla"
-        ]
+        id: "m1", tipo: "info", titulo: "Supuestos primero",
+        guia: "<p>Toda estimación empieza con supuestos escritos: usuarios activos diarios, peticiones por usuario, tamaño de respuesta y factor de pico. Si mañana cambia un supuesto, sabrás qué número cambia.</p>" +
+          "<p>Elige un servicio que conozcas (una API de tu trabajo o un proyecto propio) y anota esos cuatro valores antes de seguir.</p>"
       },
       {
-        id: "m2", tipo: "check", titulo: "Jerarquía antes que belleza",
-        guia: "<p>Rediseña en blanco y negro, sin color. Solo con <b>tamaño, peso y espacio</b>.</p>" +
-          "<p>Si funciona en gris, funcionará en color. Si no funciona en gris, el color solo lo está disimulando.</p>",
-        criterios: [
-          "Mi versión en gris se entiende de un vistazo",
-          "Uso como mucho tres tamaños de texto",
-          "El espacio agrupa lo relacionado y separa lo que no lo está"
-        ]
+        id: "m2", tipo: "codigo", titulo: "La calculadora de capacidad",
+        guia: "<p>Lee cinco líneas: usuarios activos diarios, peticiones por usuario al día, tamaño de respuesta en KB, factor de pico y peticiones por segundo que aguanta un servidor. Con 86.400 s/día, imprime:</p><ul>" +
+          "<li><code>media: X/s</code> (redondeada)</li>" +
+          "<li><code>pico: Y/s</code> (media × factor, redondeada)</li>" +
+          "<li><code>ancho de banda: Z MB/s</code> en el pico (pico sin redondear × KB / 1000, con un decimal)</li>" +
+          "<li><code>servidores: N</code>: los que hacen falta para el pico (redondeando hacia arriba) <b>más uno</b> de redundancia (N+1)</li></ul>",
+        lenguaje: "py",
+        plantilla: `import math
+dau = int(input())
+por_usuario = int(input())
+kb = float(input())
+factor = float(input())
+capacidad = int(input())
+# calcula y escribe las cuatro líneas
+`,
+        pruebas: [
+          { entrada: "10000000\n20\n15\n3\n1500\n", salida: "media: 2315/s\npico: 6944/s\nancho de banda: 104.2 MB/s\nservidores: 6" },
+          { entrada: "500000\n40\n4\n2\n800\n", salida: "media: 231/s\npico: 463/s\nancho de banda: 1.9 MB/s\nservidores: 2" },
+          { entrada: "300000000\n30\n8\n4\n2000\n", salida: "media: 104167/s\npico: 416667/s\nancho de banda: 3333.3 MB/s\nservidores: 210", oculta: true }
+        ],
+        solucion: `import math
+dau = int(input())
+por_usuario = int(input())
+kb = float(input())
+factor = float(input())
+capacidad = int(input())
+media = dau * por_usuario / 86400
+pico = media * factor
+print(f"media: {round(media)}/s")
+print(f"pico: {round(pico)}/s")
+print(f"ancho de banda: {pico * kb / 1000:.1f} MB/s")
+print(f"servidores: {math.ceil(pico / capacidad) + 1}")
+`,
+        exito: "Ya tienes los cuatro números que abren cualquier diseño."
       },
       {
-        id: "m3", tipo: "salida", titulo: "Móntala en HTML y mide el contraste",
-        guia: "<p>Llévala a HTML y CSS y comprueba el contraste con las DevTools o un medidor.</p>" +
-          "<p>Mínimo <b>4.5:1</b> para texto normal. No es un capricho: es lo que hace que se lea con sol de frente o con la vista cansada.</p>",
-        comando: "(pega los valores de contraste que midas: texto principal y secundario)",
-        patrones: ["([4-9]|[1-9][0-9])([.,][0-9]+)? *: *1"],
-        exito: "Contraste suficiente, comprobado con números."
+        id: "m3", tipo: "salida", titulo: "Mide lo que aguanta un servidor",
+        guia: "<p>El dato más dudoso de tu estimación es cuánto aguanta un servidor. Mídelo: arranca tu servicio en local y lánzale carga con <code>hey</code>, <code>ab</code> o <code>wrk</code> durante 30 segundos contra un endpoint representativo.</p>" +
+          "<p>Pega la salida. Fíjate también en los percentiles de latencia: el máximo que aguanta es el ritmo al que el p99 sigue siendo aceptable, no aquel en el que empieza a fallar.</p>",
+        comando: "hey -z 30s -c 50 http://localhost:8080/api/recurso",
+        patrones: ["(Requests/sec|Requests per second):\\s*[0-9]+"],
+        pista: "Con ApacheBench: ab -n 20000 -c 50 http://localhost:8080/api/recurso",
+        exito: "Ahora tu estimación se apoya en un dato medido, no en uno inventado."
       },
       {
-        id: "m4", tipo: "check", titulo: "El antes y el después",
-        guia: "<p>Pon las dos capturas juntas y escribe, debajo de cada cambio, <b>por qué</b> lo hiciste.</p>" +
-          "<p>Un diseño que no sabes justificar es una preferencia. Uno que sabes justificar es una decisión.</p>",
+        id: "m4", tipo: "check", titulo: "Saca conclusiones",
+        guia: "<p>Escribe media página: con esos números, ¿basta un servidor o hacen falta muchos? ¿El cuello de botella es la CPU, la base de datos o la red? ¿Qué harías primero si el tráfico se multiplicara por diez?</p>",
         criterios: [
-          "Tengo el antes y el después juntos",
-          "Cada cambio tiene una razón escrita",
-          "Alguien ajeno entiende la mejora sin que yo se la explique"
+          "Tengo los supuestos, los cálculos y la medida real en un mismo documento",
+          "He identificado qué recurso se agota primero",
+          "Sé qué cambiaría si el tráfico se multiplicara por diez"
         ]
       }
     ]
   },
   {
-    id: "ds-p2", titulo: "Tu sistema de diseño mínimo", nivel: "Intermedio", desdeUnidad: 4, tiempo: "1 h",
-    resumen: "Cuatro decisiones tomadas una vez (color, tipografía, espacio, radios) que luego no vuelves a discutir.",
-    objetivos: ["Definir escalas", "Convertirlas en variables", "Aplicarlas de forma consistente"],
+    id: "ds-p5", titulo: "Una caché que no se desploma", nivel: "Intermedio", desdeUnidad: 3, tiempo: "1 h",
+    resumen: "Una caché LRU con caducidad escrita a mano, y después la de verdad con Redis, midiendo aciertos y protegiéndola de la estampida.",
+    objetivos: ["Implementar LRU con TTL", "Medir la tasa de aciertos", "Evitar estampidas y avalanchas"],
     misiones: [
       {
-        id: "m1", tipo: "salida", titulo: "Las escalas, en variables",
-        guia: "<p>Define en <code>:root</code>:</p><ul>" +
-          "<li>una escala de espaciado (4, 8, 12, 16, 24, 32…)</li>" +
-          "<li>tres o cuatro tamaños de texto</li>" +
-          "<li>los colores: fondo, texto, texto secundario, acento, error y acierto</li>" +
-          "<li>dos radios de borde</li></ul>" +
-          "<p>La escala evita el «aquí pongo 13px, aquí 15px»: eliges de una lista corta y todo encaja.</p>",
-        comando: "cat tokens.css",
-        patrones: [":root", "--espacio|--space|--sp-", "--color|--bg|--ink"],
-        exito: "Decisiones tomadas una vez y reutilizables."
+        id: "m1", tipo: "codigo", titulo: "LRU con caducidad",
+        guia: "<p>Primera línea: capacidad. Después, órdenes <code>set clave valor ttl t</code> y <code>get clave t</code> (t en segundos, creciente). Una entrada guardada en t con ttl caduca en t + ttl: un <code>get</code> con tiempo mayor o igual ya no la encuentra (y la borra).</p>" +
+          "<p>Al llenarse, se expulsa la menos usada recientemente (un set o un get con acierto cuentan como uso). Imprime el valor o <code>-1</code> por cada get, y al final <code>aciertos: A fallos: F</code>.</p>",
+        lenguaje: "py",
+        plantilla: `import sys
+from collections import OrderedDict
+lineas = [l.split() for l in sys.stdin.read().split("\\n") if l.strip()]
+capacidad = int(lineas[0][0])
+cache = OrderedDict()  # clave -> (valor, caduca)
+aciertos = fallos = 0
+for p in lineas[1:]:
+    pass  # procesa set y get
+print(f"aciertos: {aciertos} fallos: {fallos}")
+`,
+        pruebas: [
+          { entrada: "2\nset a 1 10 0\nset b 2 10 1\nget a 2\nset c 3 10 3\nget b 4\nget a 5\nget a 10\n", salida: "1\n-1\n1\n-1\naciertos: 2 fallos: 2" },
+          { entrada: "3\nset x 7 5 0\nget x 4\nget x 5\nget y 5\n", salida: "7\n-1\n-1\naciertos: 1 fallos: 2" },
+          { entrada: "1\nset a 1 100 0\nset b 2 100 1\nget a 2\nget b 3\nset b 9 1 4\nget b 5\n", salida: "-1\n2\n-1\naciertos: 1 fallos: 2", oculta: true }
+        ],
+        solucion: `import sys
+from collections import OrderedDict
+lineas = [l.split() for l in sys.stdin.read().split("\\n") if l.strip()]
+capacidad = int(lineas[0][0])
+cache = OrderedDict()  # clave -> (valor, caduca)
+aciertos = fallos = 0
+for p in lineas[1:]:
+    if p[0] == "set":
+        k, v, ttl, t = p[1], p[2], int(p[3]), int(p[4])
+        if k in cache:
+            del cache[k]
+        cache[k] = (v, t + ttl)
+        if len(cache) > capacidad:
+            cache.popitem(last=False)
+    else:
+        k, t = p[1], int(p[2])
+        if k in cache and t < cache[k][1]:
+            cache.move_to_end(k)
+            aciertos += 1
+            print(cache[k][0])
+        else:
+            cache.pop(k, None)
+            fallos += 1
+            print(-1)
+print(f"aciertos: {aciertos} fallos: {fallos}")
+`,
+        exito: "LRU y TTL juntos: las dos formas en que una entrada sale de una caché real."
       },
       {
-        id: "m2", tipo: "salida", titulo: "Los mismos colores en oscuro",
-        guia: "<p>Redefine las variables para el tema oscuro. <b>No</b> inviertas los colores sin más: el oscuro necesita menos saturación y contrastes distintos, o deslumbra.</p>",
-        comando: "cat tokens.css",
-        patrones: ["(prefers-color-scheme|data-theme)"],
-        exito: "Dos temas con el mismo sistema debajo."
+        id: "m2", tipo: "salida", titulo: "Cache-aside con Redis y su tasa de aciertos",
+        guia: "<p>En un servicio tuyo, cachea con cache-aside una consulta lenta en Redis: leer de Redis, y si no está, de la base de datos y guardarlo con <code>SET clave valor EX 300</code>. Al actualizar el dato, <b>borra</b> la clave.</p>" +
+          "<p>Lanza tráfico un rato y pega las estadísticas de Redis. La tasa de aciertos es hits / (hits + misses).</p>",
+        comando: "redis-cli INFO stats | grep keyspace",
+        patrones: ["keyspace_hits:[0-9]+", "keyspace_misses:[0-9]+"],
+        exito: "Tienes una caché funcionando y una cifra para saber si merece la pena."
       },
       {
-        id: "m3", tipo: "salida", titulo: "Los componentes básicos",
-        guia: "<p>Construye botón (normal, secundario, deshabilitado), campo de formulario (normal, con foco, con error) y tarjeta, usando <b>solo</b> tus variables.</p>" +
-          "<p>Busca en tu CSS valores sueltos: cada uno es una decisión que se te escapó del sistema.</p>",
-        comando: "grep -n -E '#[0-9a-fA-F]{3,6}|[0-9]+px' componentes.css | head -20",
-        patrones: ["^$|var[(]--"],
-        pista: "Los valores en píxeles de bordes finos (1px) están bien; los colores en hexadecimal sueltos, no.",
-        exito: "Componentes hechos solo con el sistema."
-      },
-      {
-        id: "m4", tipo: "check", titulo: "La prueba del algodón",
-        guia: "<p>Cambia el color de acento en una sola línea. Debería cambiar toda la interfaz.</p>",
+        id: "m3", tipo: "check", titulo: "Protégela de la estampida y la avalancha",
+        guia: "<p>Haz que tu caché aguante lo que tumba a las cachés ingenuas:</p><ul>" +
+          "<li>TTL con variación aleatoria (por ejemplo 300 ± 60 s) para que no caduquen todas a la vez.</li>" +
+          "<li>Un solo recálculo por clave: <code>SET lock:clave 1 NX EX 10</code>; quien no obtiene el cerrojo espera un poco y vuelve a leer, o sirve el valor anterior.</li>" +
+          "<li>Cachear también el «no existe» con un TTL corto.</li></ul>" +
+          "<p>Pruébalo: borra una clave muy pedida bajo carga y comprueba en los logs de la base de datos que solo llega una consulta.</p>",
         criterios: [
-          "Cambiar una variable cambia toda la aplicación",
-          "No queda ningún color suelto fuera del sistema",
-          "Los estados (foco, error, deshabilitado) están definidos"
+          "Los TTL llevan variación aleatoria",
+          "Bajo carga, al caducar una clave solo una petición consulta la base de datos",
+          "Las claves inexistentes no atraviesan la caché en cada petición"
         ]
       }
     ]
   },
   {
-    id: "ds-p3", titulo: "Pruébalo con personas", nivel: "Avanzado", desdeUnidad: 6, tiempo: "1 h",
-    resumen: "Cinco personas, una tarea, y todo lo que creías saber puesto en duda.",
-    objetivos: ["Preparar una prueba de usabilidad", "Observar sin dirigir", "Convertir lo visto en cambios"],
+    id: "ds-p6", titulo: "Reparte datos con hashing consistente", nivel: "Intermedio", desdeUnidad: 5, tiempo: "1 h",
+    resumen: "Un anillo de hashing consistente con nodos virtuales, y la prueba de que al quitar un nodo solo se mueven sus claves.",
+    objetivos: ["Implementar un anillo con nodos virtuales", "Medir el reparto de claves", "Comprobar cuántas claves se mueven al cambiar los nodos"],
     misiones: [
       {
-        id: "m1", tipo: "check", titulo: "Una tarea, no una opinión",
-        guia: "<p>No preguntes «¿te gusta?». Da una <b>tarea</b>: «compra una entrada para el sábado».</p>" +
-          "<p>Y luego, lo más difícil: <b>cállate</b>. En cuanto ayudas, dejas de medir tu diseño y empiezas a medir tu explicación.</p>",
+        id: "m1", tipo: "info", titulo: "La función de hash",
+        guia: "<p>Usarás <b>FNV-1a de 32 bits</b> con una mezcla final (la de MurmurHash3) para que textos parecidos como <code>A#0</code> y <code>A#1</code> caigan lejos en el anillo. La plantilla ya trae la función <code>fnv1a</code>: no hace falta que la escribas.</p>" +
+          "<p>Cada nodo físico aparece en el anillo V veces con los nombres <code>A#0</code>, <code>A#1</code>… Las claves son <code>k0</code>, <code>k1</code>…</p>"
+      },
+      {
+        id: "m2", tipo: "codigo", titulo: "El anillo con nodos virtuales",
+        guia: "<p>Entrada: nodos separados por espacios; V (nodos virtuales por nodo); K (número de claves <code>k0</code>…<code>k{K-1}</code>); y el nodo que se va a retirar.</p>" +
+          "<p>Coloca en el anillo los nodos virtuales por su hash (ordénalos por hash y, en empate, por nombre). Cada clave va al primer nodo virtual con hash <b>mayor o igual</b> que el suyo (o al primero del anillo si no hay). Imprime cuántas claves tiene cada nodo físico, en orden alfabético (<code>A: 34</code>), después retira el nodo indicado, reasigna y escribe <code>movidas: M</code> con cuántas claves cambiaron de nodo.</p>",
+        lenguaje: "py",
+        plantilla: `def fnv1a(texto):
+    h = 2166136261
+    for b in texto.encode():
+        h ^= b
+        h = (h * 16777619) % 2**32
+    h ^= h >> 16
+    h = (h * 0x85ebca6b) % 2**32
+    h ^= h >> 13
+    h = (h * 0xc2b2ae35) % 2**32
+    h ^= h >> 16
+    return h
+
+nodos = input().split()
+v = int(input())
+k = int(input())
+retirar = input().strip()
+# construye el anillo, asigna, retira y cuenta
+`,
+        pruebas: [
+          { entrada: "A B C\n50\n300\nB\n", salida: "A: 97\nB: 93\nC: 110\nmovidas: 93" },
+          { entrada: "A B C D\n1\n200\nD\n", salida: "A: 53\nB: 34\nC: 104\nD: 9\nmovidas: 9" },
+          { entrada: "n1 n2 n3 n4 n5\n100\n1000\nn3\n", salida: "n1: 196\nn2: 188\nn3: 171\nn4: 249\nn5: 196\nmovidas: 171", oculta: true }
+        ],
+        solucion: `def fnv1a(texto):
+    h = 2166136261
+    for b in texto.encode():
+        h ^= b
+        h = (h * 16777619) % 2**32
+    h ^= h >> 16
+    h = (h * 0x85ebca6b) % 2**32
+    h ^= h >> 13
+    h = (h * 0xc2b2ae35) % 2**32
+    h ^= h >> 16
+    return h
+
+nodos = input().split()
+v = int(input())
+k = int(input())
+retirar = input().strip()
+
+def anillo(fisicos):
+    return sorted((fnv1a(f"{n}#{i}"), f"{n}#{i}", n) for n in fisicos for i in range(v))
+
+def asignar(ring):
+    res = {}
+    for j in range(k):
+        h = fnv1a(f"k{j}")
+        destino = next((n for p, _, n in ring if p >= h), ring[0][2])
+        res[j] = destino
+    return res
+
+antes = asignar(anillo(nodos))
+for n in sorted(nodos):
+    print(f"{n}: {sum(1 for x in antes.values() if x == n)}")
+despues = asignar(anillo([n for n in nodos if n != retirar]))
+print(f"movidas: {sum(1 for j in range(k) if antes[j] != despues[j])}")
+`,
+        exito: "Las claves movidas coinciden con las que tenía el nodo retirado: ninguna otra se ha movido."
+      },
+      {
+        id: "m3", tipo: "check", titulo: "Compara con hash módulo y con pocos nodos virtuales",
+        guia: "<p>Con tu programa, compara tres cosas y apunta los resultados:</p><ul>" +
+          "<li>El reparto con V = 1 frente a V = 100: ¿cuánto se desequilibra?</li>" +
+          "<li>Cuántas claves se mueven al pasar de 4 a 5 nodos con <code>hash mod N</code> frente al anillo.</li>" +
+          "<li>Qué nodo recibe las claves del retirado con V = 1 y con V = 100.</li></ul>",
         criterios: [
-          "Tengo una tarea concreta y medible",
-          "Tengo escrito qué considero éxito y qué fracaso",
-          "Me he comprometido a no ayudar durante la prueba"
+          "Sé explicar por qué los nodos virtuales igualan el reparto",
+          "He medido que hash mod N mueve casi todas las claves y el anillo solo ~1/N",
+          "Entiendo por qué, sin nodos virtuales, un fallo sobrecarga al vecino"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ds-p7", titulo: "Pagos idempotentes con outbox", nivel: "Avanzado", desdeUnidad: 7, tiempo: "1 h 30 min",
+    resumen: "Un endpoint de pagos que no cobra dos veces aunque el cliente reintente, y que publica sus eventos sin perder ninguno.",
+    objetivos: ["Implementar claves de idempotencia", "Aplicar el patrón outbox", "Escribir un consumidor idempotente"],
+    misiones: [
+      {
+        id: "m1", tipo: "codigo", titulo: "La lógica de idempotencia y outbox",
+        guia: "<p>Cada línea es <code>POST clave importe</code>. Simula el servidor:</p><ul>" +
+          "<li>Clave nueva: crea el pago <code>p1</code>, <code>p2</code>… (numerados por orden de creación), añade a la outbox <code>PagoCreado pN importe</code> e imprime <code>201 pN</code>.</li>" +
+          "<li>Clave ya vista con el mismo importe: <code>200 pN</code> (el mismo pago de antes, sin crear nada).</li>" +
+          "<li>Clave ya vista con otro importe: <code>422 clave reutilizada</code>.</li></ul>" +
+          "<p>Al final, imprime cada evento de la outbox como <code>outbox: PagoCreado pN importe</code>.</p>",
+        lenguaje: "py",
+        plantilla: `import sys
+peticiones = [l.split() for l in sys.stdin.read().split("\\n") if l.strip()]
+claves = {}   # clave -> (pago, importe)
+outbox = []
+for _, clave, importe in peticiones:
+    pass  # aplica la idempotencia
+for e in outbox:
+    print(f"outbox: {e}")
+`,
+        pruebas: [
+          { entrada: "POST k1 500\nPOST k1 500\nPOST k2 300\nPOST k1 900\n", salida: "201 p1\n200 p1\n201 p2\n422 clave reutilizada\noutbox: PagoCreado p1 500\noutbox: PagoCreado p2 300" },
+          { entrada: "POST a 10\n", salida: "201 p1\noutbox: PagoCreado p1 10" },
+          { entrada: "POST x 1\nPOST y 1\nPOST x 1\nPOST y 2\nPOST z 5\n", salida: "201 p1\n201 p2\n200 p1\n422 clave reutilizada\n201 p3\noutbox: PagoCreado p1 1\noutbox: PagoCreado p2 1\noutbox: PagoCreado p3 5", oculta: true }
+        ],
+        solucion: `import sys
+peticiones = [l.split() for l in sys.stdin.read().split("\\n") if l.strip()]
+claves = {}   # clave -> (pago, importe)
+outbox = []
+for _, clave, importe in peticiones:
+    if clave in claves:
+        pago, imp = claves[clave]
+        print(f"200 {pago}" if imp == importe else "422 clave reutilizada")
+        continue
+    pago = f"p{len(claves) + 1}"
+    claves[clave] = (pago, importe)
+    outbox.append(f"PagoCreado {pago} {importe}")
+    print(f"201 {pago}")
+for e in outbox:
+    print(f"outbox: {e}")
+`,
+        exito: "Reintentar ya no cobra dos veces, y cada pago deja su evento pendiente de publicar."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Llévalo a tu base de datos",
+        guia: "<p>En tu stack (Spring, Node, Django…), crea las tablas <code>pagos</code>, <code>claves_idempotencia</code> (con la clave como clave primaria) y <code>outbox</code>, y haz que el endpoint inserte las tres cosas <b>en la misma transacción</b>.</p>" +
+          "<p>Envía dos veces la misma petición con la misma cabecera <code>Idempotency-Key</code> y pega el conteo de filas.</p>",
+        comando: "psql -c \"SELECT (SELECT count(*) FROM pagos) AS pagos, (SELECT count(*) FROM outbox) AS eventos;\"",
+        patrones: ["pagos", "eventos", "\\b1\\s*\\|\\s*1\\b"],
+        pista: "Tras dos peticiones idénticas debe haber un pago y un evento: 1 | 1.",
+        exito: "La base de datos garantiza la idempotencia con una restricción, no con buena voluntad."
+      },
+      {
+        id: "m3", tipo: "check", titulo: "El relé y el consumidor",
+        guia: "<p>Escribe un proceso que lea la outbox en orden, publique en Kafka o RabbitMQ y marque cada evento como enviado. Después, un consumidor que registre el id del evento en una tabla <code>procesados</code> en la misma transacción que su efecto.</p>" +
+          "<p>Prueba el caso feo: mata el relé justo después de publicar y antes de marcar. Al arrancar, publicará el evento otra vez; el consumidor debe ignorarlo.</p>",
+        criterios: [
+          "El relé publica los eventos pendientes en orden y los marca como enviados",
+          "Si el relé muere a mitad, ningún evento se pierde",
+          "Un evento duplicado no produce un efecto duplicado en el consumidor"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ds-p8", titulo: "Resiliencia: reintentos y circuit breaker", nivel: "Experto", desdeUnidad: 10, tiempo: "1 h",
+    resumen: "Llamar a una dependencia que falla sin tumbarte con ella: timeouts, espera exponencial con tope y un disyuntor.",
+    objetivos: ["Calcular esperas exponenciales con tope", "Poner timeouts y circuit breaker a una llamada real", "Provocar fallos a propósito y observar"],
+    misiones: [
+      {
+        id: "m1", tipo: "codigo", titulo: "Espera exponencial con tope",
+        guia: "<p>Primera línea: <code>base tope maximo</code> (milisegundos y número máximo de intentos). Segunda: el resultado de cada intento posible (<code>fallo</code> u <code>ok</code>). Antes del intento n+1 se espera <code>min(tope, base × 2^(n−1))</code>, donde n es el número de intentos fallidos hasta ese momento.</p>" +
+          "<p>Imprime <code>intento N: resultado</code> por cada intento hecho y <code>espera: X ms</code> antes de cada reintento. Termina en el primer <code>ok</code> o al agotar el máximo, e imprime <code>total esperado: T ms</code> y <code>resultado: ok</code> o <code>resultado: agotado</code>.</p>",
+        lenguaje: "py",
+        plantilla: `base, tope, maximo = map(int, input().split())
+resultados = input().split()
+total = 0
+# simula los intentos
+`,
+        pruebas: [
+          { entrada: "100 1000 5\nfallo fallo ok\n", salida: "intento 1: fallo\nespera: 100 ms\nintento 2: fallo\nespera: 200 ms\nintento 3: ok\ntotal esperado: 300 ms\nresultado: ok" },
+          { entrada: "200 500 4\nfallo fallo fallo fallo fallo\n", salida: "intento 1: fallo\nespera: 200 ms\nintento 2: fallo\nespera: 400 ms\nintento 3: fallo\nespera: 500 ms\nintento 4: fallo\ntotal esperado: 1100 ms\nresultado: agotado" },
+          { entrada: "50 10000 3\nok\n", salida: "intento 1: ok\ntotal esperado: 0 ms\nresultado: ok", oculta: true }
+        ],
+        solucion: `base, tope, maximo = map(int, input().split())
+resultados = input().split()
+total = 0
+estado = "agotado"
+for n in range(1, maximo + 1):
+    r = resultados[n - 1] if n - 1 < len(resultados) else "fallo"
+    print(f"intento {n}: {r}")
+    if r == "ok":
+        estado = "ok"
+        break
+    if n < maximo:
+        espera = min(tope, base * 2 ** (n - 1))
+        total += espera
+        print(f"espera: {espera} ms")
+print(f"total esperado: {total} ms")
+print(f"resultado: {estado}")
+`,
+        exito: "Esperas que crecen y se detienen en un tope: el esqueleto de cualquier política de reintentos. En producción, añade jitter."
+      },
+      {
+        id: "m2", tipo: "check", titulo: "Protege una llamada real",
+        guia: "<p>En un servicio tuyo que llame a otro por HTTP, añade: timeout de conexión y de respuesta, reintentos solo para operaciones idempotentes con espera exponencial y jitter, y un circuit breaker (Resilience4j, opossum, pybreaker o el de tu service mesh) con un plan B.</p>",
+        criterios: [
+          "Toda llamada remota tiene timeout explícito",
+          "Solo se reintentan operaciones idempotentes, con jitter y un máximo",
+          "Con la dependencia caída, el circuito se abre y se sirve el plan B al instante"
         ]
       },
       {
-        id: "m2", tipo: "check", titulo: "Cinco personas bastan",
-        guia: "<p>Con cinco personas encuentras la gran mayoría de los problemas graves. No hace falta un estudio.</p>" +
-          "<p>Apunta: dónde dudan, dónde se equivocan, qué dicen en voz alta. Los silencios largos son oro.</p>",
+        id: "m3", tipo: "salida", titulo: "Rómpelo a propósito",
+        guia: "<p>Haz que la dependencia falle o vaya lenta (apágala, o mete latencia con Toxiproxy o <code>tc netem</code>) y lanza carga. Pega el recuento de códigos de respuesta de tu servicio: deberían ser respuestas degradadas rápidas, no timeouts en cadena.</p>",
+        comando: "for i in $(seq 1 50); do curl -s -o /dev/null -w \"%{http_code}\\n\" http://localhost:8080/api/producto/1; done | sort | uniq -c",
+        patrones: ["[0-9]+ (200|503)"],
+        prohibidos: ["[0-9]+ 504"],
+        pista: "Un 504 significa que alguien esperó hasta el timeout del proxy: el circuito no se abrió o el timeout de tu cliente es más largo que el del proxy.",
+        exito: "Tu servicio falla rápido y con plan B en vez de arrastrar a los demás."
+      }
+    ]
+  },
+  {
+    id: "ds-p9", titulo: "Limitador de peticiones distribuido", nivel: "Experto", desdeUnidad: 11, tiempo: "1 h 30 min",
+    resumen: "Un token bucket por cliente, primero en código y luego en Redis con un script atómico, compartido por varias réplicas.",
+    objetivos: ["Implementar token bucket por cliente", "Hacerlo atómico y compartido con Redis", "Responder 429 con las cabeceras correctas"],
+    misiones: [
+      {
+        id: "m1", tipo: "codigo", titulo: "Token bucket por cliente",
+        guia: "<p>Primera línea: <code>capacidad ritmo</code> (fichas por segundo). Después, líneas <code>t cliente</code> con t creciente. Cada cliente tiene su propio cubo, que empieza lleno la primera vez que aparece. Rellena con <code>(t − último_t_del_cliente) × ritmo</code> sin pasar de la capacidad; si hay al menos una ficha, gasta una e imprime <code>t cliente ok</code>; si no, <code>t cliente 429</code>.</p>",
+        lenguaje: "js",
+        plantilla: `const lineas = require("fs").readFileSync(0, "utf8").trim().split("\\n").map(l => l.trim()).filter(Boolean);
+const [capacidad, ritmo] = lineas[0].split(" ").map(Number);
+const cubos = new Map(); // cliente -> { fichas, ultimo }
+const salida = [];
+for (const l of lineas.slice(1)) {
+  const [ts, cliente] = l.split(" ");
+  const t = Number(ts);
+  // rellena, decide y guarda
+}
+console.log(salida.join("\\n"));
+`,
+        pruebas: [
+          { entrada: "2 1\n0 ana\n0 ana\n0 ana\n0 luis\n1 ana\n", salida: "0 ana ok\n0 ana ok\n0 ana 429\n0 luis ok\n1 ana ok" },
+          { entrada: "1 0.5\n0 x\n1 x\n2 x\n2 y\n", salida: "0 x ok\n1 x 429\n2 x ok\n2 y ok" },
+          { entrada: "3 1\n0 a\n0 a\n0 a\n0 a\n10 a\n10 a\n10 a\n10 a\n", salida: "0 a ok\n0 a ok\n0 a ok\n0 a 429\n10 a ok\n10 a ok\n10 a ok\n10 a 429", oculta: true }
+        ],
+        solucion: `const lineas = require("fs").readFileSync(0, "utf8").trim().split("\\n").map(l => l.trim()).filter(Boolean);
+const [capacidad, ritmo] = lineas[0].split(" ").map(Number);
+const cubos = new Map(); // cliente -> { fichas, ultimo }
+const salida = [];
+for (const l of lineas.slice(1)) {
+  const [ts, cliente] = l.split(" ");
+  const t = Number(ts);
+  const c = cubos.get(cliente) || { fichas: capacidad, ultimo: t };
+  c.fichas = Math.min(capacidad, c.fichas + (t - c.ultimo) * ritmo);
+  c.ultimo = t;
+  if (c.fichas >= 1) {
+    c.fichas -= 1;
+    salida.push(ts + " " + cliente + " ok");
+  } else {
+    salida.push(ts + " " + cliente + " 429");
+  }
+  cubos.set(cliente, c);
+}
+console.log(salida.join("\\n"));
+`,
+        exito: "Un cubo por cliente, dos números por cubo: así de barato es limitar."
+      },
+      {
+        id: "m2", tipo: "check", titulo: "Atómico y compartido en Redis",
+        guia: "<p>Lleva la lógica a un script Lua que reciba la clave del cliente, la capacidad, el ritmo y el instante, y haga en un solo paso: leer <code>fichas</code> y <code>ultimo</code> (un hash), rellenar, decidir, guardar y poner caducidad a la clave. Llámalo con <code>EVALSHA</code> desde un middleware de tu API.</p>" +
+          "<p>Decide y documenta qué pasa si Redis no responde: dejar pasar con un límite local de emergencia (fail open) o rechazar (fail closed).</p>",
         criterios: [
-          "He probado con al menos tres personas (cinco mejor)",
-          "Tengo apuntado dónde dudó cada una",
-          "No he ayudado a nadie a mitad de la tarea"
+          "La decisión se toma en un único script atómico",
+          "Las claves de clientes inactivos caducan solas",
+          "Está decidido y documentado el comportamiento si Redis cae"
         ]
       },
       {
-        id: "m3", tipo: "salida", titulo: "De lo observado a lo que se cambia",
-        guia: "<p>Escribe <code>HALLAZGOS.md</code>: cada problema, cuántas personas lo sufrieron, y el cambio concreto que propones.</p>" +
-          "<p>Ordena por «cuánta gente lo sufre × cuánto duele». Eso es priorizar.</p>",
-        comando: "cat HALLAZGOS.md",
-        patrones: ["[0-9]+", "(cambio|propuesta|arreglo|solución|solucion)"],
-        exito: "Observaciones convertidas en decisiones."
+        id: "m3", tipo: "salida", titulo: "Compruébalo con dos réplicas",
+        guia: "<p>Arranca dos réplicas de tu API detrás de un balanceador (o en dos puertos) con un límite de 10 peticiones y lanza 30 seguidas repartidas entre las dos. Si el límite es de verdad compartido, deben pasar unas 10, no 20.</p>" +
+          "<p>Devuelve <code>429</code> con <code>Retry-After</code>. Pega el recuento de códigos.</p>",
+        comando: "for i in $(seq 1 30); do curl -s -o /dev/null -w \"%{http_code}\\n\" http://localhost:8080/api/recurso; done | sort | uniq -c",
+        patrones: ["\\b(9|1[01]) 200\\b", "[0-9]+ 429"],
+        pista: "Si ves unas 20 respuestas 200, cada réplica está contando por su cuenta.",
+        exito: "Un límite global, respetado por todas las réplicas."
+      }
+    ]
+  },
+  {
+    id: "ds-p10", titulo: "Tu documento de diseño completo", nivel: "Maestro", desdeUnidad: 14, tiempo: "3 h",
+    resumen: "Un documento de diseño de verdad para un sistema de reservas (o el caso que elijas), con números, compromisos, fallos y un simulacro de defensa.",
+    objetivos: ["Escribir un documento de diseño completo", "Justificar cada decisión con su precio", "Defenderlo en una entrevista simulada de 45 minutos"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "El documento",
+        guia: "<p>Escribe <code>DISENO.md</code> para un sistema de venta de entradas con picos de 1 millón de personas a la vez (o el caso clásico que prefieras) con estas secciones:</p><ul>" +
+          "<li><b>Requisitos</b> funcionales y no funcionales con números.</li>" +
+          "<li><b>Estimación</b>: peticiones por segundo, datos, ancho de banda.</li>" +
+          "<li><b>API</b> y <b>modelo de datos</b>.</li>" +
+          "<li><b>Arquitectura</b> de alto nivel con un diagrama.</li>" +
+          "<li><b>Profundización</b> en dos piezas difíciles (por ejemplo, retención de asientos y sala de espera).</li>" +
+          "<li><b>Fallos</b> y riesgos: qué pasa si cae cada pieza.</li>" +
+          "<li><b>SLOs</b> y qué medirías.</li>" +
+          "<li><b>Decisiones</b> (ADR) con las alternativas descartadas.</li></ul>",
+        comando: "grep -E '^#' DISENO.md",
+        patrones: ["requisitos", "estimaci", "api", "datos", "arquitectura", "(fallos|riesgos)", "slo", "(decisi|adr)"],
+        exito: "Un documento que cualquier ingeniero del equipo podría revisar y cuestionar."
       },
       {
-        id: "m4", tipo: "check", titulo: "Arregla y vuelve a probar",
-        guia: "<p>Aplica los dos cambios más importantes y repite la prueba con una persona nueva.</p>",
+        id: "m2", tipo: "check", titulo: "Que te lo destrocen",
+        guia: "<p>Pásale el documento a alguien con experiencia (o revísalo tú al día siguiente como si fueras el revisor más duro) con estas preguntas: ¿qué pasa si el tráfico es 10 veces mayor?, ¿qué pieza cae primero?, ¿dónde se puede vender un asiento dos veces?, ¿cuánto cuesta al mes?</p>",
         criterios: [
-          "He aplicado los dos cambios prioritarios",
-          "He vuelto a probar con alguien que no había participado",
-          "El problema principal ya no aparece"
+          "He recibido (o escrito) al menos cinco preguntas difíciles",
+          "He respondido cada una en el documento o he cambiado el diseño",
+          "Tengo una estimación de coste mensual, aunque sea aproximada"
+        ]
+      },
+      {
+        id: "m3", tipo: "check", titulo: "El simulacro de 45 minutos",
+        guia: "<p>Con un temporizador y una pizarra en blanco (sin mirar el documento), diseña el sistema en voz alta siguiendo el guion: requisitos, estimación, API y datos, alto nivel, profundización y fallos. Grábate si puedes y revisa dónde perdiste el tiempo.</p>",
+        criterios: [
+          "He terminado las seis fases dentro de los 45 minutos",
+          "He dado números en la estimación y los he usado para decidir",
+          "He explicado al menos tres compromisos con su precio"
         ]
       }
     ]
@@ -3119,7 +3799,7 @@ diseno: [
 /* ---------------- Observabilidad ---------------- */
 observabilidad: [
 {
-    id: "ob-p1", titulo: "Métricas que sirven para algo", nivel: "Fundamentos", desdeUnidad: 2, tiempo: "50 min",
+    id: "ob-p1", titulo: "Métricas que sirven para algo", nivel: "Intermedio", desdeUnidad: 4, tiempo: "50 min",
     resumen: "Instrumenta una aplicación, recógela con Prometheus y responde preguntas reales con PromQL.",
     objetivos: ["Exponer métricas", "Recogerlas con Prometheus", "Consultar con PromQL"],
     misiones: [
@@ -3160,7 +3840,7 @@ observabilidad: [
     ]
   },
   {
-    id: "ob-p2", titulo: "Panel y alerta que no molestan", nivel: "Intermedio", desdeUnidad: 4, tiempo: "55 min",
+    id: "ob-p2", titulo: "Panel y alerta que no molestan", nivel: "Avanzado", desdeUnidad: 5, tiempo: "55 min",
     resumen: "Un panel que se lee en diez segundos y una alerta que solo suena cuando hay que levantarse.",
     objetivos: ["Diseñar un panel útil", "Alertar por síntomas", "Evitar la fatiga de alertas"],
     misiones: [
@@ -3240,6 +3920,160 @@ observabilidad: [
         ]
       }
     ]
+  },
+{
+    id: "ob-p4", titulo: "Logs que se pueden consultar", nivel: "Fundamentos", desdeUnidad: 2, tiempo: "45 min",
+    resumen: "Pasa tu aplicación a logs estructurados, recógelos con un agente y responde preguntas reales con LogQL.",
+    objetivos: ["Escribir logs en JSON con contexto", "Centralizarlos en Loki", "Consultar y agregar con LogQL"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Logs en JSON",
+        guia: "<p>Cambia la configuración de logs de tu aplicación para que escriba <b>JSON a stdout</b>: nivel, servicio, mensaje fijo y los datos en campos aparte.</p>" +
+          "<p>Nada de «Usuario 42 ha comprado 3 productos» dentro del mensaje: <code>msg</code> fijo y <code>usuario</code> y <code>productos</code> como campos.</p>",
+        comando: "docker logs --tail 3 mi-api",
+        patrones: ["\\{.*\"(nivel|level)\"", "\"(msg|message|mensaje)\""],
+        prohibidos: ["(password|contrase[ñn]a|authorization|bearer )"],
+        pista: "En Spring Boot 3.4+ basta con logging.structured.format.console=ecs; en Node, pino ya escribe JSON.",
+        exito: "Logs estructurados: ya se pueden filtrar y agregar por campos."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Loki recibiendo",
+        guia: "<p>Levanta Loki y un agente (Grafana Alloy, Fluent Bit o el Collector de OpenTelemetry) que lea los logs de tus contenedores y los envíe con etiquetas de <b>baja cardinalidad</b>: servicio y entorno.</p>" +
+          "<p>No uses Promtail: está obsoleto.</p>",
+        comando: "curl -s http://localhost:3100/ready",
+        patrones: ["ready"],
+        exito: "Loki listo para recibir."
+      },
+      {
+        id: "m3", tipo: "term", titulo: "Los errores de un servicio",
+        guia: "<p>Escribe la consulta LogQL que devuelve las líneas del servicio <code>api</code> cuyo campo JSON <code>nivel</code> es <code>ERROR</code>.</p>",
+        pista: "Selector de flujo, parser json y filtro por el campo.",
+        sol: ["{servicio=\"api\"} | json | nivel=\"ERROR\"", "{servicio=\"api\"} | json | nivel = \"ERROR\"", "{servicio=\"api\"}|json|nivel=\"ERROR\""],
+        salida: "",
+        exito: "El filtro por campo solo es posible porque los logs son JSON."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Una métrica a partir de logs",
+        guia: "<p>Con <code>logcli</code> (o en Grafana Explore), calcula los errores por minuto de cada servicio en la última hora:</p>" +
+          "<pre class=\"dg-pre\">sum by (servicio) (count_over_time({entorno=\"local\"} | json | nivel=\"ERROR\" [1m]))</pre>" +
+          "<p>Provoca algún error en tu API para que salga algo.</p>",
+        comando: "logcli query 'sum by (servicio) (count_over_time({entorno=\"local\"} | json | nivel=\"ERROR\" [1m]))' --since=1h",
+        patrones: ["servicio", "[0-9]"],
+        exito: "Ya sabes sacar números de los logs. Si esa consulta la necesitas a menudo, conviértela en una métrica de verdad."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Revisión de privacidad y coste",
+        guia: "<p>Repasa tus logs como si fueras el responsable de protección de datos y el que paga la factura.</p>",
+        criterios: [
+          "No aparecen contraseñas, tokens ni cabeceras Authorization",
+          "Los datos personales imprescindibles están minimizados o seudonimizados",
+          "Las comprobaciones de salud y el nivel DEBUG no se envían a Loki",
+          "Las etiquetas de Loki tienen pocos valores posibles (nada de ids)"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ob-p5", titulo: "Un SLO con alertas por burn rate", nivel: "Experto", desdeUnidad: 7, tiempo: "1 h 15 min",
+    resumen: "Define un SLO de verdad para tu API, precalcula sus tasas con reglas de grabación probadas y alerta por burn rate multiventana.",
+    objetivos: ["Definir un SLI y un SLO", "Escribir y probar reglas de grabación", "Alertar por burn rate en varias ventanas"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "El SLI",
+        guia: "<p>Elige el SLI de disponibilidad de tu API (peticiones sin 5xx entre todas) y calcula su valor en la última hora en Prometheus.</p>",
+        comando: "(pega tu consulta y su resultado)",
+        patrones: ["(rate|increase)[(]", "5\\.\\.", "0[.,]9"],
+        exito: "SLI medido. Ahora decide el objetivo con lo que necesita el usuario y lo que el sistema consigue hoy."
+      },
+      {
+        id: "m2", tipo: "codigo", titulo: "El presupuesto, en números",
+        guia: "<p>Antes de alertar, echa la cuenta. Lee <code>slo total fallidas</code> e imprime el presupuesto en peticiones (redondeado) y el porcentaje consumido con un decimal:</p>" +
+          "<pre class=\"dg-pre\">presupuesto=10000\nconsumido=40.0%</pre>",
+        lenguaje: "js",
+        plantilla: "const [slo, total, fallidas] = require(\"fs\").readFileSync(0, \"utf8\").trim().split(/\\s+/).map(Number);\n// imprime presupuesto= y consumido=\n",
+        pruebas: [
+          { entrada: "99.9 10000000 4000", salida: "presupuesto=10000\nconsumido=40.0%" },
+          { entrada: "99 50000 0", salida: "presupuesto=500\nconsumido=0.0%" },
+          { entrada: "99.95 2000000 1500", salida: "presupuesto=1000\nconsumido=150.0%", oculta: true }
+        ],
+        solucion: "const [slo, total, fallidas] = require(\"fs\").readFileSync(0, \"utf8\").trim().split(/\\s+/).map(Number);\nconst presupuesto = Math.round(total * (100 - slo) / 100);\nconsole.log(\"presupuesto=\" + presupuesto);\nconsole.log(\"consumido=\" + (fallidas / presupuesto * 100).toFixed(1) + \"%\");",
+        exito: "Presupuesto calculado. Más del 100 % consumido significa SLO incumplido en la ventana."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Reglas de grabación",
+        guia: "<p>Escribe las reglas <code>job:slo_errors:ratio_rate5m</code>, <code>30m</code>, <code>1h</code>, <code>6h</code> y <code>3d</code>, y la alerta con las parejas 1 h + 5 min (14,4×) y 6 h + 30 min (6×). Valida el fichero.</p>",
+        comando: "promtool check rules reglas/slo.yml",
+        patrones: ["SUCCESS: *[0-9]+ rules found"],
+        prohibidos: ["FAILED"],
+        exito: "Reglas válidas."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Prueba que la alerta salta",
+        guia: "<p>Escribe una prueba unitaria con <code>input_series</code> que simule un 2 % de errores durante una hora y comprueba con <code>alert_rule_test</code> que la alerta rápida está disparada. Añade otro caso con un 0,05 % en el que no debe saltar.</p>",
+        comando: "promtool test rules tests/slo_test.yml",
+        patrones: ["SUCCESS"],
+        prohibidos: ["FAILED"],
+        exito: "La alerta está probada antes del primer incidente, que es cuando debe estarlo."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Que sea accionable",
+        guia: "<p>Una alerta por SLO sin contexto obliga a investigar desde cero. Complétala.</p>",
+        criterios: [
+          "La alerta lleva resumen con el valor y enlace a un runbook",
+          "Existe un panel con el SLI, el objetivo y el presupuesto restante",
+          "La alerta lenta (3 días + 6 h) va a ticket, no a página",
+          "Hay una alerta absent() por si desaparece la métrica del SLI"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ob-p6", titulo: "Día de juego: incidente simulado y postmortem", nivel: "Maestro", desdeUnidad: 9, tiempo: "1 h 30 min",
+    resumen: "Rompe tu propio sistema a propósito, detecta el fallo con tus alertas, investígalo de la métrica a la traza y al log, y escribe el postmortem.",
+    objetivos: ["Probar la detección de extremo a extremo", "Investigar con las tres señales conectadas", "Escribir un postmortem sin culpa con acciones"],
+    misiones: [
+      {
+        id: "m1", tipo: "check", titulo: "Prepara el simulacro",
+        guia: "<p>Con tu pila (API con OpenTelemetry, Prometheus, Alertmanager, Grafana, Loki y Tempo), elige un fallo realista y no lo cuentes a quien haga de guardia: latencia añadida en la base de datos, un pool de conexiones pequeño o un despliegue con un error.</p>",
+        criterios: [
+          "El fallo está elegido y se puede revertir con un comando",
+          "Hay alguien (o tú mismo) en el papel de guardia y alguien de coordinador",
+          "Se ha acordado el canal donde se anotará la cronología"
+        ]
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Que lo detecten las alertas",
+        guia: "<p>Provoca el fallo y espera. La detección debe venir de una alerta por síntomas, no de alguien mirando un panel.</p>",
+        comando: "amtool alert query",
+        patrones: ["[A-Za-z]+"],
+        pista: "Si no aparece nada tras 15 minutos, eso ya es un hallazgo para el postmortem: la detección falló.",
+        exito: "Alerta disparada. Anota cuánto tardó desde que provocaste el fallo: es tu tiempo de detección."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "De la métrica a la traza",
+        guia: "<p>Desde el panel, salta a una traza lenta o con error (con un exemplar o con TraceQL) y localiza el span responsable.</p>",
+        comando: "(pega el trace_id y el span que se lleva el tiempo)",
+        patrones: ["[0-9a-f]{16,}"],
+        exito: "Localizado el tramo que falla."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "De la traza al log",
+        guia: "<p>Con ese trace_id, busca en Loki los logs de la petición y encuentra el mensaje que explica el fallo.</p>",
+        comando: "logcli query '{entorno=\"local\"} |= \"TU_TRACE_ID\"' --since=1h",
+        patrones: ["(trace_id|traceId)", "(ERROR|WARN|error|warn)"],
+        exito: "Las tres señales conectadas: métrica, traza y log de la misma petición."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "El postmortem",
+        guia: "<p>Revierte el fallo y escribe el postmortem sin culpas.</p>",
+        criterios: [
+          "Tiene resumen, impacto, cronología con horas y factores contribuyentes",
+          "No aparece «error humano» como causa",
+          "Recoge qué fue bien, qué fue mal y dónde hubo suerte",
+          "Tiene acciones de prevenir, detectar y mitigar, con responsable y fecha"
+        ]
+      }
+    ]
   }
 ],
 
@@ -3247,7 +4081,7 @@ observabilidad: [
 /* ---------------- Ansible ---------------- */
 ansible: [
 {
-    id: "an-p1", titulo: "Tu primer playbook idempotente", nivel: "Fundamentos", desdeUnidad: 2, tiempo: "45 min",
+    id: "an-p1", titulo: "Tu primer playbook idempotente", nivel: "Fundamentos", desdeUnidad: 3, tiempo: "45 min",
     resumen: "Configura una máquina sin entrar en ella, y compruébalo con la prueba de fuego: ejecutarlo dos veces.",
     objetivos: ["Escribir un inventario y un playbook", "Entender la idempotencia", "Usar módulos en vez de comandos"],
     misiones: [
@@ -3290,7 +4124,7 @@ ansible: [
     ]
   },
   {
-    id: "an-p2", titulo: "Roles, variables y secretos", nivel: "Intermedio", desdeUnidad: 3, tiempo: "55 min",
+    id: "an-p2", titulo: "Roles, variables y secretos", nivel: "Avanzado", desdeUnidad: 8, tiempo: "55 min",
     resumen: "Organiza el playbook en roles reutilizables y guarda los secretos cifrados con Vault.",
     objetivos: ["Estructurar en roles", "Usar plantillas con variables", "Cifrar secretos"],
     misiones: [
@@ -3330,7 +4164,7 @@ ansible: [
     ]
   },
   {
-    id: "an-p3", titulo: "Despliegue sin cortes con Ansible", nivel: "Avanzado", desdeUnidad: 5, tiempo: "1 h",
+    id: "an-p3", titulo: "Despliegue sin cortes con Ansible", nivel: "Experto", desdeUnidad: 9, tiempo: "1 h",
     resumen: "Actualiza una flota de servidores por tandas, sacándolos del balanceador y comprobando antes de seguir.",
     objetivos: ["Desplegar por tandas", "Comprobar salud antes de continuar", "Parar a la primera señal de humo"],
     misiones: [
@@ -3365,6 +4199,123 @@ ansible: [
           "El despliegue se detuvo en el primer servidor",
           "Los demás servidores siguen con la versión anterior",
           "Sé cómo volver atrás el que quedó a medias"
+        ]
+      }
+    ]
+  },
+{
+    id: "an-p4", titulo: "Un balanceador que se configura solo", nivel: "Intermedio", desdeUnidad: 6, tiempo: "1 h",
+    resumen: "Genera la configuración de Nginx a partir del inventario: añades un servidor al grupo y el balanceador lo incorpora sin tocar la plantilla.",
+    objetivos: ["Escribir plantillas Jinja2 con bucles y condiciones", "Usar hostvars y groups", "Recargar solo cuando cambia la configuración"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Inventario con dos grupos",
+        guia: "<p>Crea un inventario con un grupo <code>balanceadores</code> (un host) y un grupo <code>api</code> (al menos dos hosts; valen contenedores o máquinas virtuales).</p>" +
+          "<p>Enseña el árbol de grupos para comprobar que está bien.</p>",
+        comando: "ansible-inventory -i inventario.ini --graph",
+        patrones: ["@balanceadores", "@api"],
+        exito: "Inventario listo."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "La plantilla del upstream",
+        guia: "<p>Escribe <code>templates/upstream.conf.j2</code> con un <code>{% for h in groups['api'] %}</code> que genere una línea <code>server</code> por cada host, usando la IP de sus facts.</p>" +
+          "<p>Para que existan los facts de los hosts de <code>api</code>, el playbook debe recogerlos antes (un play previo sobre <code>api</code>).</p>",
+        comando: "grep -n -E 'for .* in groups|endfor|hostvars' templates/upstream.conf.j2",
+        patrones: ["for .* in groups", "endfor"],
+        exito: "Plantilla generada desde el inventario."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Recarga solo si cambia",
+        guia: "<p>La tarea de la plantilla debe notificar un handler que recargue Nginx. Ejecuta el playbook dos veces: la segunda no debe recargar nada.</p>",
+        comando: "ansible-playbook -i inventario.ini balanceador.yml",
+        patrones: ["changed=0"],
+        prohibidos: ["failed=[1-9]", "RUNNING HANDLER"],
+        pista: "Si el handler se ejecuta en la segunda pasada, algo en la plantilla cambia cada vez (¿una fecha?).",
+        exito: "Idempotente: sin recargas innecesarias."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Añade un servidor",
+        guia: "<p>Añade un host más al grupo <code>api</code> y ensaya con <code>--check --diff</code>: debe aparecer solo la línea nueva del upstream.</p>",
+        comando: "ansible-playbook -i inventario.ini balanceador.yml --check --diff",
+        patrones: ["\\+\\s*server "],
+        exito: "El balanceador sigue al inventario, sin editar a mano."
+      }
+    ]
+  },
+  {
+    id: "an-p5", titulo: "Un rol con pruebas y pipeline", nivel: "Experto", desdeUnidad: 10, tiempo: "1 h 30 min",
+    resumen: "Convierte un rol en código de calidad: ansible-lint en perfil production, Molecule en dos distribuciones y un pipeline que lo comprueba en cada cambio.",
+    objetivos: ["Pasar ansible-lint con el perfil production", "Probar un rol con Molecule, idempotencia incluida", "Automatizarlo en CI"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Lint limpio",
+        guia: "<p>Crea un <code>.ansible-lint</code> con <code>profile: production</code> y corrige tu rol hasta que no haya fallos. Prueba <code>ansible-lint --fix</code> para lo automático (FQCN, formato).</p>",
+        comando: "ansible-lint",
+        patrones: ["(Passed|passed)"],
+        prohibidos: ["Failed: [1-9]"],
+        exito: "Rol limpio en el perfil más exigente."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Molecule en dos plataformas",
+        guia: "<p>Configura <code>molecule/default/molecule.yml</code> con una plataforma Ubuntu y otra de la familia RHEL (Rocky o Alma).</p>",
+        comando: "grep -n -E 'name:|image:' molecule/default/molecule.yml",
+        patrones: ["(ubuntu|debian)", "(rocky|alma|rhel|ubi)"],
+        exito: "El rol se probará en las dos familias."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "El ciclo completo, idempotencia incluida",
+        guia: "<p>Ejecuta <code>molecule test</code>. La fase <code>idempotence</code> debe pasar: la segunda aplicación del rol no cambia nada.</p>",
+        comando: "molecule test",
+        patrones: ["idempotence"],
+        prohibidos: ["Idempotence test failed", "CRITICAL"],
+        pista: "Si falla la idempotencia, Molecule te dice qué tarea: suele ser un command sin creates o changed_when.",
+        exito: "Rol probado de verdad."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "En el pipeline",
+        guia: "<p>Añade un flujo de CI (GitHub Actions, GitLab CI…) que instale versiones fijadas de ansible-core, ansible-lint y Molecule, y ejecute lint y <code>molecule test</code> en cada pull request.</p>",
+        criterios: [
+          "El pipeline se ejecuta en cada pull request",
+          "Las versiones de las herramientas están fijadas en un fichero del repositorio",
+          "He comprobado que un cambio no idempotente hace fallar el pipeline"
+        ]
+      }
+    ]
+  },
+  {
+    id: "an-p6", titulo: "Parcheo de flota con canario", nivel: "Maestro", desdeUnidad: 12, tiempo: "1 h 30 min",
+    resumen: "Aplica actualizaciones de seguridad a una flota detrás de un balanceador: canario, tandas crecientes, reinicio solo cuando hace falta y marcha atrás si algo sale mal.",
+    objetivos: ["Diseñar un despliegue rodante con canario", "Reiniciar de forma controlada con el módulo reboot", "Recuperarse de fallos con block y rescue"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Canario y tandas",
+        guia: "<p>Escribe <code>parche.yml</code> con <code>serial</code> en forma de lista creciente (1, luego porcentajes) y <code>max_fail_percentage: 0</code>.</p>",
+        comando: "grep -n -A3 -E 'serial|max_fail_percentage' parche.yml",
+        patrones: ["serial", "max_fail_percentage: *0", "%"],
+        exito: "Si el canario falla, no se toca nada más."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Reiniciar solo si hace falta",
+        guia: "<p>Comprueba con <code>stat</code> si existe <code>/var/run/reboot-required</code> (o usa <code>needs-restarting -r</code> en RHEL) y reinicia con el módulo <code>reboot</code> solo en ese caso.</p>",
+        comando: "grep -n -E 'reboot|reboot-required|needs-restarting' parche.yml",
+        patrones: ["ansible.builtin.reboot", "(reboot-required|needs-restarting)"],
+        prohibidos: ["shell: *reboot", "command: *reboot"],
+        exito: "Reinicios controlados y solo los necesarios."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Fuera del balanceador mientras tanto",
+        guia: "<p>Saca cada servidor del balanceador en <code>pre_tasks</code> (delegando en el balanceador o en localhost), comprueba la salud con <code>until</code> y devuélvelo en <code>post_tasks</code>.</p>",
+        comando: "grep -n -E 'pre_tasks|post_tasks|delegate_to|until' parche.yml",
+        patrones: ["pre_tasks", "post_tasks", "delegate_to", "until"],
+        exito: "Los usuarios no ven los reinicios."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "Rómpelo a propósito",
+        guia: "<p>Haz que la comprobación de salud falle en el primer servidor (por ejemplo, parando la app en un <code>post_task</code> de prueba) y lanza el parcheo.</p>",
+        criterios: [
+          "El despliegue se detuvo tras el canario",
+          "El canario quedó fuera del balanceador y el resto de la flota intacta",
+          "Tengo un block/rescue o un procedimiento escrito para devolver el canario a su estado"
         ]
       }
     ]
@@ -3752,5 +4703,217 @@ mongodb: [
     ]
   }
 ],
+
+html: [
+{
+    id: "ht-p1", titulo: "Tu primera página con estructura de verdad", nivel: "Fundamentos", desdeUnidad: 2, tiempo: "45 min",
+    resumen: "Una página sobre un tema que te guste, escrita a mano: documento completo, títulos con jerarquía, listas, enlaces e imágenes bien puestas. Sin CSS todavía: que el HTML se sostenga solo.",
+    objetivos: ["Escribir un documento HTML completo y válido", "Jerarquizar el contenido con títulos y listas", "Enlazar e insertar imágenes accesibles y sin saltos"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "El esqueleto completo",
+        guia: "<p>Crea <code>index.html</code> con <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html lang=\"es\"&gt;</code>, y en el head la codificación, el viewport y un <code>&lt;title&gt;</code> que diga de qué va la página (no «Home»).</p>" +
+          "<p>Son cuatro líneas que casi nadie recuerda y que evitan tildes rotas, páginas diminutas en el móvil y el modo quirks.</p>",
+        comando: "head -n 15 index.html",
+        patrones: ["<!doctype html>", "<html[^>]+lang=\"es\"", "<meta charset=\"?utf-8", "name=\"viewport\"", "<title>[^<]{5,}</title>"],
+        prohibidos: ["maximum-scale", "user-scalable *= *no", "<title>(home|inicio|document|untitled)</title>"],
+        pista: "La meta viewport estándar es width=device-width, initial-scale=1.",
+        exito: "Documento en modo estándar, en español y listo para móvil."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Títulos y listas con sentido",
+        guia: "<p>Un solo <code>&lt;h1&gt;</code> con el tema, al menos dos apartados con <code>&lt;h2&gt;</code> y, dentro de uno, un <code>&lt;h3&gt;</code>. Añade una lista ordenada (unos pasos) y otra sin orden.</p>" +
+          "<p>Lista los títulos y listas para comprobar que no saltas niveles.</p>",
+        comando: "grep -n -o -E '<(h[1-6]|ul|ol)[ >]' index.html",
+        patrones: ["<h1", "<h2", "<h3", "<ol", "<ul"],
+        exito: "Un índice que un lector de pantalla puede recorrer con la tecla H."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Imágenes que no hacen saltar la página",
+        guia: "<p>Inserta al menos dos imágenes con <code>alt</code> descriptivo (o <code>alt=\"\"</code> si son decorativas) y con <code>width</code> y <code>height</code>. Si alguna está fuera de la primera pantalla, ponle <code>loading=\"lazy\"</code>.</p>" +
+          "<p>Una de ellas dentro de <code>&lt;figure&gt;</code> con su <code>&lt;figcaption&gt;</code>.</p>",
+        comando: "grep -n -E '<img|figcaption' index.html",
+        patrones: ["<img[^>]+alt=", "<img[^>]+width=\"?[0-9]+", "<img[^>]+height=\"?[0-9]+", "<figcaption"],
+        prohibidos: ["alt=\"(imagen|foto|image|img)\""],
+        pista: "width y height en píxeles, sin unidad: son la proporción, no el tamaño final.",
+        exito: "Imágenes accesibles y sin saltos de maquetación."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Enlaces que se entienden",
+        guia: "<p>Añade un índice al principio con enlaces a cada apartado (<code>href=\"#id\"</code>), un enlace externo y un <code>mailto:</code>. Ninguno puede decir «haz clic aquí» ni «aquí».</p>",
+        comando: "grep -n -o -E '<a [^>]*>[^<]*</a>' index.html",
+        patrones: ["href=\"#[a-z]", "href=\"https?://", "href=\"mailto:"],
+        prohibidos: [">\\s*(haz clic aquí|pulsa aquí|aquí|click here)\\s*<"],
+        exito: "Enlaces con sentido fuera de contexto, como los oye quien usa lector de pantalla."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Pásala por el validador",
+        guia: "<p>Sube el fichero a <code>validator.w3.org/nu</code> (pestaña «Validate by File Upload») y corrige lo que salga. Después ábrela en el navegador con el CSS desactivado: debe entenderse igual.</p>",
+        criterios: [
+          "El validador no muestra errores",
+          "La página se lee bien de arriba abajo sin estilos",
+          "Los enlaces del índice llevan a cada apartado"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ht-p2", titulo: "Formulario de inscripción accesible y validado", nivel: "Intermedio", desdeUnidad: 4, tiempo: "1 h",
+    resumen: "El formulario de inscripción a un curso: controles adecuados, autocompletado, validación nativa, un DNI comprobado de verdad y errores que se entienden con y sin lector de pantalla.",
+    objetivos: ["Elegir el control y el autocomplete correctos para cada dato", "Validar con restricciones nativas y la Constraint Validation API", "Mostrar errores accesibles"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Campos con etiqueta, nombre y autocompletado",
+        guia: "<p>Crea <code>inscripcion.html</code> con un <code>form</code> (<code>method=\"post\"</code>) que pida nombre, email, teléfono, DNI, fecha de nacimiento y turno (mañana o tarde, con radios en un <code>fieldset</code>).</p>" +
+          "<p>Cada campo con su <code>label for</code>, su <code>name</code> y el <code>autocomplete</code> que le toque (<code>name</code>, <code>email</code>, <code>tel</code>, <code>bday</code>).</p>",
+        comando: "grep -n -E '<(form|label|input|fieldset|legend)' inscripcion.html",
+        patrones: ["method=\"post\"", "<label for=", "autocomplete=\"email\"", "autocomplete=\"tel\"", "type=\"email\"", "type=\"date\"", "<fieldset", "<legend", "type=\"radio\""],
+        prohibidos: ["type=\"number\"[^>]*(tel|dni|telefono)"],
+        pista: "El teléfono es type=\"tel\", no number: no es una cantidad.",
+        exito: "Formulario que el navegador sabe rellenar y el lector sabe anunciar."
+      },
+      {
+        id: "m2", tipo: "codigo", titulo: "Comprueba el DNI de verdad",
+        guia: "<p>El <code>pattern</code> solo mira el formato. La letra del DNI se calcula: el número módulo 23 da la posición en <code>TRWAGMYFPDXBNJZSQVHLCKE</code>. En un NIE, la X, Y o Z inicial valen 0, 1 y 2.</p>" +
+          "<p>Escribe la función que usarás con <code>setCustomValidity</code>: por cada línea de la entrada imprime <code>válido</code> o <code>inválido</code>. Acepta minúsculas; el formato es 8 cifras (o X/Y/Z + 7 cifras) y una letra.</p>",
+        lenguaje: "js",
+        plantilla: "const lineas = require(\"fs\").readFileSync(0, \"utf8\").trim().split(\"\\n\").filter(Boolean);\nconst LETRAS = \"TRWAGMYFPDXBNJZSQVHLCKE\";\n// imprime válido o inválido por cada línea\n",
+        pruebas: [
+          { entrada: "12345678Z\n12345678A", salida: "válido\ninválido" },
+          { entrada: "x1234567l\n1234567Z", salida: "válido\ninválido" },
+          { entrada: "Y0000000Z\nZ7654321A\n00000000T", salida: "válido\ninválido\nválido", oculta: true }
+        ],
+        solucion: "const lineas = require(\"fs\").readFileSync(0, \"utf8\").trim().split(\"\\n\").filter(Boolean);\nconst LETRAS = \"TRWAGMYFPDXBNJZSQVHLCKE\";\nfunction dniValido(s) {\n  s = s.trim().toUpperCase();\n  if (!/^[0-9XYZ][0-9]{7}[A-Z]$/.test(s)) return false;\n  const n = Number(s.slice(0, 8).replace(/^[XYZ]/, c => \"XYZ\".indexOf(c)));\n  return LETRAS[n % 23] === s[8];\n}\nfor (const l of lineas) console.log(dniValido(l) ? \"válido\" : \"inválido\");",
+        exito: "Letra comprobada. En la página, llama a setCustomValidity(dniValido(v) ? \"\" : \"La letra del DNI no corresponde al número\") en cada input."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Errores que se oyen y se leen",
+        guia: "<p>Desactiva la validación al enviar con <code>novalidate</code> y pinta tú los errores: cada campo erróneo con <code>aria-invalid=\"true\"</code> y un mensaje visible asociado con <code>aria-describedby</code>. Al enviar con errores, un resumen con <code>role=\"alert\"</code> y enlaces a cada campo.</p>" +
+          "<p>Usa <code>checkValidity()</code> y <code>validity</code> para no reescribir las reglas.</p>",
+        comando: "grep -n -o -E 'novalidate|aria-invalid|aria-describedby|role=\"alert\"|checkValidity|setCustomValidity' inscripcion.html",
+        patrones: ["novalidate", "aria-invalid", "aria-describedby", "role=\"alert\"", "(checkValidity|reportValidity)", "setCustomValidity"],
+        exito: "Errores perceptibles sin depender del color ni de la vista."
+      },
+      {
+        id: "m4", tipo: "check", titulo: "Rellénalo como lo haría otra persona",
+        guia: "<p>Rellena y envía el formulario solo con el teclado, luego con NVDA o VoiceOver, y por último en el móvil.</p>",
+        criterios: [
+          "Puedo rellenarlo y enviarlo sin ratón, y el foco va al resumen de errores",
+          "El lector anuncia el nombre, la ayuda y el error de cada campo",
+          "En el móvil sale el teclado adecuado en email, teléfono y fecha",
+          "El navegador me ofrece autocompletar nombre, email y teléfono"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ht-p3", titulo: "Componentes interactivos sin librerías", nivel: "Avanzado", desdeUnidad: 6, tiempo: "1 h",
+    resumen: "La página de ayuda de una aplicación: preguntas frecuentes desplegables, un menú de usuario, una confirmación modal y navegación por teclado impecable, todo con elementos nativos y el mínimo JavaScript.",
+    objetivos: ["Usar details, dialog y popover en lugar de widgets propios", "Gestionar el foco con intención", "Auditar con teclado, lector de pantalla y axe"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Landmarks y salto al contenido",
+        guia: "<p>Crea <code>ayuda.html</code> con <code>header</code>, un <code>nav</code> con <code>aria-label</code>, <code>main</code> y <code>footer</code>. Lo primero del body: un enlace «Saltar al contenido» que lleve al main.</p>",
+        comando: "grep -n -o -E '<(header|nav|main|footer)[^>]*>|href=\"#[a-z-]+\"' ayuda.html",
+        patrones: ["<header", "<nav[^>]+aria-label", "<main[^>]+id=", "<footer", "href=\"#"],
+        exito: "Página que se hojea por regiones."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Preguntas frecuentes en acordeón",
+        guia: "<p>Al menos cuatro preguntas con <code>details</code> y <code>summary</code>, todas con el mismo <code>name</code> para que solo haya una abierta.</p>" +
+          "<p>Cero JavaScript en esta parte.</p>",
+        comando: "grep -n -E '<details|<summary' ayuda.html",
+        patrones: ["(<details[^>]+name=\"[a-z-]+\"[\\s\\S]*){4}", "<summary"],
+        exito: "Acordeón accesible con teclado sin escribir ni un manejador."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Menú de usuario con popover y confirmación con dialog",
+        guia: "<p>Un botón «Mi cuenta» con <code>popovertarget</code> que abre un menú (<code>popover</code>) con tres enlaces. Uno de ellos, «Cerrar sesión», abre un <code>dialog</code> con <code>showModal()</code> y un <code>&lt;form method=\"dialog\"&gt;</code> con «Cancelar» (con <code>autofocus</code>) y «Cerrar sesión».</p>",
+        comando: "grep -n -o -E 'popovertarget|popover|<dialog|showModal|method=\"dialog\"|autofocus|returnValue' ayuda.html",
+        patrones: ["popovertarget", "<dialog", "showModal", "method=\"dialog\"", "autofocus"],
+        prohibidos: ["z-index: *9999"],
+        exito: "Capa superior, Escape, foco dentro y de vuelta: gratis."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Pasa axe",
+        guia: "<p>Sirve la página en local y pásale axe desde la terminal (<code>npx @axe-core/cli</code>) o la extensión axe DevTools. Arregla lo que salga y pega la salida final.</p>",
+        comando: "npx @axe-core/cli http://localhost:8080/ayuda.html",
+        patrones: ["0 violations"],
+        pista: "Sirve la carpeta con npx serve -l 8080 (o cualquier servidor estático) antes de lanzar axe.",
+        exito: "Sin violaciones automáticas. Ahora falta lo que axe no ve."
+      },
+      {
+        id: "m5", tipo: "check", titulo: "Lo que ninguna herramienta comprueba",
+        guia: "<p>Recorre la página con el teclado y con un lector de pantalla (NVDA con Firefox o Chrome, o VoiceOver con Safari).</p>",
+        criterios: [
+          "El enlace de salto es lo primero que alcanza el tabulador y se ve al recibir el foco",
+          "El menú se cierra con Escape o al pulsar fuera, y el foco vuelve a «Mi cuenta»",
+          "Con el modal abierto no puedo tabular a la página de detrás",
+          "Al cerrar el modal, el foco vuelve al enlace que lo abrió",
+          "Con la tecla D del lector salto entre las regiones y con H entre los títulos"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ht-p4", titulo: "Página lista para producción", nivel: "Experto", desdeUnidad: 8, tiempo: "1 h 30 min",
+    resumen: "La landing de un curso preparada como la de un equipo profesional: SEO técnico, vista previa al compartir, datos estructurados, imágenes responsive, carga optimizada, un Web Component y validación automática.",
+    objetivos: ["Completar el head para buscadores y redes", "Optimizar la carga para Core Web Vitals", "Crear un custom element con mejora progresiva", "Automatizar la validación"],
+    misiones: [
+      {
+        id: "m1", tipo: "salida", titulo: "Head para buscadores y redes",
+        guia: "<p>En <code>landing.html</code>: <code>title</code> y <code>meta description</code> propios, <code>link rel=\"canonical\"</code> con URL absoluta, las etiquetas Open Graph (<code>og:title</code>, <code>og:description</code>, <code>og:image</code> absoluta, <code>og:url</code>) y <code>twitter:card</code>.</p>",
+        comando: "grep -n -E 'canonical|og:|twitter:|name=\"description\"' landing.html",
+        patrones: ["rel=\"canonical\" href=\"https://", "property=\"og:title\"", "property=\"og:image\" content=\"https://", "name=\"twitter:card\"", "name=\"description\""],
+        prohibidos: ["name=\"robots\" content=\"[^\"]*noindex", "og:image\" content=\"/"],
+        exito: "Encontrable y con buena pinta al compartirla."
+      },
+      {
+        id: "m2", tipo: "salida", titulo: "Datos estructurados",
+        guia: "<p>Añade un bloque <code>application/ld+json</code> de tipo <code>Course</code> con <code>name</code>, <code>description</code> y <code>provider</code> (una <code>Organization</code>). Todo lo marcado debe verse en la página.</p>" +
+          "<p>Compruébalo en la Prueba de resultados enriquecidos de Google o en <code>validator.schema.org</code>.</p>",
+        comando: "grep -n -A 12 'application/ld+json' landing.html",
+        patrones: ["application/ld\\+json", "\"@context\": *\"https://schema.org\"", "\"@type\": *\"Course\"", "\"provider\""],
+        exito: "La página se describe a sí misma a los buscadores."
+      },
+      {
+        id: "m3", tipo: "salida", titulo: "Imagen principal y scripts sin bloqueos",
+        guia: "<p>La imagen de cabecera en un <code>picture</code> con fuentes AVIF y WebP, <code>srcset</code> con descriptores <code>w</code>, <code>sizes</code>, dimensiones y <code>fetchpriority=\"high\"</code> (y sin lazy). El resto de imágenes, con <code>loading=\"lazy\"</code>.</p>" +
+          "<p>Todos los scripts con <code>defer</code> o <code>type=\"module\"</code>.</p>",
+        comando: "grep -n -E '<picture|<source|<img|<script' landing.html",
+        patrones: ["<picture", "type=\"image/avif\"", "srcset=\"[^\"]+ [0-9]+w", "sizes=\"", "fetchpriority=\"high\""],
+        prohibidos: ["fetchpriority=\"high\"[^>]*loading=\"lazy\"", "loading=\"lazy\"[^>]*fetchpriority=\"high\"", "<script src=\"[^\"]+\"></script>"],
+        pista: "El prohibido del final atrapa scripts clásicos sin defer ni type=module.",
+        exito: "LCP a favor: la imagen principal se pide la primera y nada bloquea el análisis."
+      },
+      {
+        id: "m4", tipo: "salida", titulo: "Un Web Component con mejora progresiva",
+        guia: "<p>Crea <code>&lt;cuenta-atras fin=\"2026-12-01T09:00\"&gt;</code> que muestre cuánto falta para el inicio del curso. Dentro, antes de que cargue el JS, debe haber un texto útil con la fecha (<code>&lt;time datetime&gt;</code>).</p>" +
+          "<p>La clase extiende <code>HTMLElement</code>, observa el atributo <code>fin</code> y limpia su intervalo en <code>disconnectedCallback</code>.</p>",
+        comando: "grep -n -E 'customElements.define|observedAttributes|connectedCallback|disconnectedCallback|clearInterval|<cuenta-atras|<time' landing.html js/*.js",
+        patrones: ["customElements\\.define\\(\"cuenta-atras\"", "observedAttributes", "disconnectedCallback", "clearInterval", "<time datetime="],
+        exito: "Componente nativo que no deja la página vacía si falla el JavaScript."
+      },
+      {
+        id: "m5", tipo: "salida", titulo: "Validación automática",
+        guia: "<p>Valida con html-validate (la configuración recomendada ya incluye reglas de accesibilidad) y deja la página sin errores. Este comando es el que pondrías en el pipeline de CI.</p>",
+        comando: "npx html-validate landing.html && echo VALIDA",
+        patrones: ["VALIDA"],
+        prohibidos: ["error"],
+        exito: "Validación en verde: lista para ir a CI."
+      },
+      {
+        id: "m6", tipo: "check", titulo: "Mídelo",
+        guia: "<p>Pasa Lighthouse en modo móvil y revisa el panel Rendimiento de DevTools con la CPU ralentizada 4×.</p>",
+        criterios: [
+          "LCP por debajo de 2,5 s y CLS por debajo de 0,1 en Lighthouse móvil",
+          "Accesibilidad, buenas prácticas y SEO a 100 (y sé que eso no lo es todo)",
+          "La vista previa se ve bien en el depurador de Open Graph de una red social",
+          "Con JavaScript desactivado, la página se entiende y la fecha de inicio se ve"
+        ]
+      }
+    ]
+  }
+]
 
 };

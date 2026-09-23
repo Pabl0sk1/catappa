@@ -292,11 +292,14 @@ pasos:[
   why:"Una metáfora muy conocida en el sector. Si la usas en una entrevista, la entenderán."},
 
  {t:"info", eti:"El mapa completo", h:"Cómo encaja todo",
-  c:`<div class="diag">Terraform  -> crea la red, las maquinas / el cluster, la BD gestionada
-Ansible    -> (si hay maquinas) instala Docker, usuarios, seguridad
-Docker     -> empaqueta la aplicacion de forma inmutable
-CI/CD      -> construye la imagen y la despliega
-Kubernetes -> la ejecuta, la escala y la mantiene viva (siguiente unidad)</div>
+  c:`<div class="dg"><div class="dg-tit">qué herramienta hace cada parte</div>
+<div class="dg-vert">
+<div class="dg-caja doble">Terraform<small>crea la red, las máquinas / el clúster, la BD gestionada</small></div>
+<div class="dg-caja doble">Ansible<small>(si hay máquinas) instala Docker, usuarios, seguridad</small></div>
+<div class="dg-caja doble">Docker<small>empaqueta la aplicación de forma inmutable</small></div>
+<div class="dg-caja doble">CI/CD<small>construye la imagen y la despliega</small></div>
+<div class="dg-caja acento doble">Kubernetes<small>la ejecuta, la escala y la mantiene viva (siguiente unidad)</small></div>
+</div></div>
      <p>Y todo en ficheros de texto, en Git, revisado con Pull Requests.</p>`}
 ]}
 

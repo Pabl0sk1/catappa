@@ -68,6 +68,33 @@ function migrarIdsDocker() {
   if (n) { db.guardar("progreso"); console.log("[migracion] " + n + " lecciones de Docker renombradas a dk*"); }
 }
 
+/* «HTML y CSS» se separó en dos cursos (html y css) que conservan los ids de las
+   lecciones: cada lección hecha pasa al curso que ahora la contiene, con su parte de XP.
+   Los exámenes y proyectos del curso antiguo no se trasladan (sus unidades ya no existen). */
+const CURSOS_DIVIDIDOS = { htmlcss: ["html", "css"] };
+function cursoDestino(viejo, id) {
+  return (CURSOS_DIVIDIDOS[viejo] || []).find(cid => CATALOGO[cid] && CATALOGO[cid].lecciones.has(id)) || null;
+}
+function migrarCursosDivididos() {
+  const prog = db.get("progreso");
+  let n = 0;
+  for (const uid of Object.keys(prog)) {
+    for (const viejo of Object.keys(CURSOS_DIVIDIDOS)) {
+      const c = prog[uid][viejo];
+      if (!c) continue;
+      const ids = Object.keys(c.lecciones || {});
+      const xpPorLeccion = ids.length ? (c.xp || 0) / ids.length : 0;
+      for (const id of ids) {
+        const cid = cursoDestino(viejo, id); if (!cid) continue;
+        const d = prog[uid][cid] = prog[uid][cid] || { lecciones: {}, xp: 0 };
+        if (!d.lecciones[id]) { d.lecciones[id] = c.lecciones[id]; d.xp += Math.round(xpPorLeccion); n++; }
+      }
+      delete prog[uid][viejo];
+    }
+  }
+  if (n) { db.guardar("progreso"); console.log("[migracion] " + n + " lecciones de cursos divididos repartidas"); }
+}
+
 /* ---------------- certificados ----------------
    Al completar todas las lecciones de un curso se emite un certificado con un código
    único que cualquiera puede verificar en /#/certificado/<código>. Se emite una sola vez
@@ -408,6 +435,12 @@ ruta("POST", "/api/perfil", (req, res, b, u) => {
 function importarProgreso(uid, datos) {
   // los navegadores con el curso antiguo de Docker envían ids u1l1: se traducen a dk1l1
   for (const cid of Object.keys(datos)) if (cid === "docker") datos[cid] = (datos[cid] || []).map(x => /^u\d+l\d+$/.test(x) ? "dk" + x.slice(1) : x);
+  // y los de un curso que se dividió van al curso que ahora contiene cada lección
+  for (const viejo of Object.keys(CURSOS_DIVIDIDOS)) {
+    if (!Array.isArray(datos[viejo])) continue;
+    for (const id of datos[viejo]) { const cid = cursoDestino(viejo, id); if (cid) (datos[cid] = Array.isArray(datos[cid]) ? datos[cid] : []).push(id); }
+    delete datos[viejo];
+  }
   // datos: {cursoId: [leccionIds]}
   const prog = db.get("progreso");
   prog[uid] = prog[uid] || {};
@@ -906,5 +939,6 @@ const servidor = http.createServer(async (req, res) => {
 db.cargar();
 cargarCatalogo();
 migrarIdsDocker();
+migrarCursosDivididos();
 semilla.aplicar(db, hashClave);
 servidor.listen(PUERTO, () => console.log(`[catappa] escuchando en http://localhost:${PUERTO}  datos en ${db.DIR}`));

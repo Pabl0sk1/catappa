@@ -34,10 +34,12 @@ claves:["DynamoDB: NoSQL clave-valor gestionado, escala masiva y latencia de mil
 pasos:[
  {t:"info", eti:"NoSQL", h:"DynamoDB",
   c:`<p><b>DynamoDB</b> guarda elementos por <b>clave de partición</b> (y opcionalmente de ordenación). Escala a millones de peticiones por segundo sin administrar nada, pero exige diseñar las tablas pensando en <b>cómo vas a consultar</b>: no hay JOINs y las consultas flexibles son caras.</p>
-     <div class="diag">tabla Pedidos
- PK = CLIENTE#42    SK = PEDIDO#2026-09-22#1001   total=45.9
- PK = CLIENTE#42    SK = PEDIDO#2026-09-23#1002   total=12.0
- consulta: todos los pedidos del cliente 42 ordenados por fecha</div>`},
+     <div class="dg dg-tabla-caja"><div class="dg-tit">tabla Pedidos</div>
+<table class="dg-tabla"><thead><tr><th>PK</th><th>SK</th><th>total</th></tr></thead><tbody>
+<tr><td><code>CLIENTE#42</code></td><td><code>PEDIDO#2026-09-22#1001</code></td><td>45.9</td></tr>
+<tr><td><code>CLIENTE#42</code></td><td><code>PEDIDO#2026-09-23#1002</code></td><td>12.0</td></tr>
+</tbody></table>
+<div class="dg-nota arriba" style="padding:4px 14px 12px">consulta: todos los pedidos del cliente 42 ordenados por fecha</div></div>`},
  {t:"par", p:"Empareja cada caso con la base de datos más adecuada",
   pares:[["Aplicación de negocio con relaciones y transacciones","RDS o Aurora (PostgreSQL)"],["Carrito o sesiones con millones de accesos por clave","DynamoDB"],["Caché de consultas costosas","ElastiCache (Redis/Valkey)"],["Búsqueda de texto completo","OpenSearch"],["Analítica sobre terabytes","Redshift o Athena sobre S3"]],
   why:"Elegir base de datos por los patrones de acceso, no por moda."},

@@ -48,12 +48,13 @@ titulo:"Consistencia entre servicios y modelo de concurrencia",
 claves:["Sin transacciones distribuidas: sagas con pasos y compensaciones","Consistencia eventual mediante eventos","Reactivo (WebFlux) o hilos virtuales: con Java 21, lo síncrono escala para E/S"],
 pasos:[
  {t:"info", eti:"Transacciones largas", h:"Sagas",
-  c:`<div class="diag">1. Pedidos: crear pedido (PENDIENTE)       compensacion: cancelar pedido
-2. Pagos: cobrar                           compensacion: reembolsar
-3. Stock: reservar                         compensacion: liberar
-4. Pedidos: confirmar
-
-Si falla el paso 3 -&gt; reembolsar (2) y cancelar (1)</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">saga de un pedido y sus compensaciones</div><table class="dg-tabla"><thead><tr><th>Paso</th><th>Acción</th><th>Compensación</th></tr></thead><tbody>
+       <tr><td>1</td><td>Pedidos: crear pedido (PENDIENTE)</td><td>cancelar pedido</td></tr>
+       <tr><td>2</td><td>Pagos: cobrar</td><td>reembolsar</td></tr>
+       <tr><td>3</td><td>Stock: reservar</td><td>liberar</td></tr>
+       <tr><td>4</td><td>Pedidos: confirmar</td><td>—</td></tr>
+     </tbody></table>
+     <div class="dg-caja aviso" style="margin:0 14px 14px">si falla el paso 3 → reembolsar (2) y cancelar (1)</div></div>
      <ul><li><b>Coreografía</b>: cada servicio reacciona a eventos de los demás.</li>
      <li><b>Orquestación</b>: un orquestador (código propio, Temporal, Camunda) dirige los pasos.</li></ul>`},
  {t:"par", p:"Empareja cada concepto con su descripción",

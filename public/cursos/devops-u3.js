@@ -20,10 +20,12 @@ pasos:[
      <p>Si algo se rompe, se sabe en minutos y se sabe qué cambio fue.</p>`},
 
  {t:"info", eti:"Entrega y despliegue", h:"Las dos CD",
-  c:`<div class="diag">CI                  -> build + tests en cada push
-Continuous DELIVERY -> + el artefacto queda listo para produccion
-                       (el paso final es un BOTON manual)
-Continuous DEPLOYMENT -> + sin boton: si todo pasa, se despliega solo</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">CI, entrega continua y despliegue continuo</div>
+<table class="dg-tabla"><thead><tr><th>práctica</th><th>qué hace</th></tr></thead><tbody>
+<tr><td>CI</td><td>build + tests en cada push</td></tr>
+<tr><td>Continuous DELIVERY</td><td>+ el artefacto queda listo para producción<br><small>el paso final es un BOTÓN manual</small></td></tr>
+<tr><td>Continuous DEPLOYMENT</td><td>+ sin botón: si todo pasa, se despliega solo</td></tr>
+</tbody></table></div>
      <p>La mayoría de empresas hacen <b>entrega continua</b>: todo automatizado hasta producción, con una aprobación humana al final. Las más maduras, <b>despliegue continuo</b>.</p>`},
 
  {t:"par", p:"Empareja cada práctica con su definición",
@@ -62,17 +64,15 @@ pasos:[
      <li><b>Artefacto</b>: un resultado que se guarda para usarlo después (un jar, un informe de tests).</li></ul>`},
 
  {t:"info", eti:"Dibujado", h:"Un pipeline típico",
-  c:`<div class="diag">push a main
-    |
-[ build ]  compilar, empaquetar ---> artefacto: app.jar
-    |
-[ test  ]  unit   |  integracion  |  analisis estatico   (en paralelo)
-    |
-[ imagen ] docker build + escaneo + push al registry
-    |
-[ deploy staging ] -> smoke tests
-    |
-[ deploy produccion ] (aprobacion manual)</div>
+  c:`<div class="dg"><div class="dg-tit">un pipeline típico</div>
+<div class="dg-vert">
+<div class="dg-caja base">push a main</div>
+<div class="dg-caja doble">build<small>compilar, empaquetar → artefacto: app.jar</small></div>
+<div class="dg-caja">test <small>en paralelo</small><div class="dg-fila" style="margin-top:6px"><div class="dg-caja">unit</div><div class="dg-caja">integración</div><div class="dg-caja">análisis estático</div></div></div>
+<div class="dg-caja doble">imagen<small>docker build + escaneo + push al registry</small></div>
+<div class="dg-caja doble">deploy staging<small>→ smoke tests</small></div>
+<div class="dg-caja acento doble">deploy producción<small>aprobación manual</small></div>
+</div></div>
      <p>Si <b>cualquier</b> paso falla (código de salida distinto de 0), el pipeline se para ahí y avisa.</p>`},
 
  {t:"orden", p:"Ordena las etapas de un pipeline típico",
@@ -308,20 +308,28 @@ pasos:[
   c:`<p>Parar la versión vieja y arrancar la nueva deja el servicio caído unos segundos o minutos, y si la nueva falla, la caída se alarga. Hay estrategias para evitarlo.</p>`},
 
  {t:"info", eti:"Rolling", h:"Rolling update: poco a poco",
-  c:`<div class="diag">[v1][v1][v1][v1]
-[v2][v1][v1][v1]
-[v2][v2][v1][v1]
-[v2][v2][v2][v2]</div>
+  c:`<div class="dg"><div class="dg-tit">rolling update: réplica a réplica</div>
+<div class="dg-pila">
+<div class="dg-fila"><div class="dg-caja">v1</div><div class="dg-caja">v1</div><div class="dg-caja">v1</div><div class="dg-caja">v1</div></div>
+<div class="dg-fila"><div class="dg-caja acento">v2</div><div class="dg-caja">v1</div><div class="dg-caja">v1</div><div class="dg-caja">v1</div></div>
+<div class="dg-fila"><div class="dg-caja acento">v2</div><div class="dg-caja acento">v2</div><div class="dg-caja">v1</div><div class="dg-caja">v1</div></div>
+<div class="dg-fila"><div class="dg-caja acento">v2</div><div class="dg-caja acento">v2</div><div class="dg-caja acento">v2</div><div class="dg-caja acento">v2</div></div>
+</div>
+<div class="dg-leyenda"><span><i></i>versión antigua (v1)</span><span><i class="acento"></i>versión nueva (v2)</span></div>
+</div>
      <p>Se sustituyen las instancias <b>de una en una</b> (o en grupos). Siempre hay instancias atendiendo. Es lo que hace <b>Kubernetes por defecto</b>.</p>
      <p>Pega: durante un rato conviven v1 y v2, así que tienen que ser compatibles (por ejemplo, con la base de datos).</p>`},
 
  {t:"info", eti:"Blue-green", h:"Dos entornos idénticos",
-  c:`<div class="diag">           +--> [ AZUL  v1 ]   (en produccion)
-usuarios --+
- (router)  +..> [ VERDE v2 ]   (preparado y probado)
-
-cambio del router: todo el trafico pasa a VERDE de golpe
-si algo va mal: vuelta a AZUL en segundos</div>
+  c:`<div class="dg"><div class="dg-tit">despliegue azul-verde</div>
+<div class="dg-vert">
+<div class="dg-caja base doble">usuarios<small>a través del router</small></div>
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-fila"><div class="dg-caja acento doble">AZUL v1<small>en producción</small></div><div class="dg-caja ok doble" style="border-style:dashed">VERDE v2<small>preparado y probado</small></div></div></div>
+</div>
+<div class="dg-pila" style="margin-top:10px">
+<div class="dg-nota">cambio del router: todo el tráfico pasa a VERDE de golpe</div>
+<div class="dg-nota">si algo va mal: vuelta a AZUL en segundos</div>
+</div></div>
      <p>Rollback instantáneo, pero necesitas <b>el doble de infraestructura</b> durante el cambio.</p>`},
 
  {t:"info", eti:"Canary", h:"El canario en la mina",

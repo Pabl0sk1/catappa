@@ -150,9 +150,8 @@ claves:["El registro es el almacén de imágenes (Docker Hub, ghcr.io, ECR…)",
 pasos:[
  {t:"info", eti:"Recuerda Docker", h:"Registro y etiquetas",
   c:`<p>Del curso de Docker: un <b>registro</b> es donde se guardan las imágenes (Docker Hub, GitHub Container Registry, Amazon ECR). Una imagen se identifica así:</p>
-     <div class="diag">ghcr.io/pablo/api-tareas:a1b2c3d
-└──┬───┘ └─┬──┘ └────┬────┘ └──┬──┘
-registro  usuario   nombre   etiqueta</div>
+     <div class="dg"><div class="dg-tit">las partes del nombre de una imagen</div>
+<svg viewBox="0 0 305 72" width="100%" style="max-width:420px;display:block;margin:auto" role="img" aria-label="ghcr.io es el registro, pablo el usuario, api-tareas el nombre y a1b2c3d la etiqueta"><defs><marker id="fl-jenkins7-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs><text x="47.4" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink)">ghcr.io</text><path d="M19.0 34 V40 H75.8 V34 M47.4 40 V46" fill="none" stroke="var(--accent)" stroke-width="1.5"/><text x="47.4" y="62" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)">registro</text><text x="81.0" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink-3)">/</text><text x="106.2" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink)">pablo</text><path d="M86.2 34 V40 H126.2 V34 M106.2 40 V46" fill="none" stroke="var(--accent)" stroke-width="1.5"/><text x="106.2" y="62" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)">usuario</text><text x="131.4" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink-3)">/</text><text x="177.6" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink)">api-tareas</text><path d="M136.6 34 V40 H218.6 V34 M177.6 40 V46" fill="none" stroke="var(--accent)" stroke-width="1.5"/><text x="177.6" y="62" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)">nombre</text><text x="223.8" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink-3)">:</text><text x="257.4" y="24" text-anchor="middle" font-size="14" font-family="var(--mono)" font-weight="700" fill="var(--ink)">a1b2c3d</text><path d="M229.0 34 V40 H285.8 V34 M257.4 40 V46" fill="none" stroke="var(--accent)" stroke-width="1.5"/><text x="257.4" y="62" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)">etiqueta</text></svg></div>
      <p>La <b>etiqueta</b> (tag) es la versión. Si siempre usas <code>latest</code>, nunca sabrás qué código lleva la imagen que está en producción. Por eso se etiqueta con algo único: el <b>identificador del commit</b> o el número de build.</p>`},
  {t:"opcion", p:"¿Por qué no basta con etiquetar las imágenes como <code>latest</code>?",
   ops:["Porque ocupa más","Porque latest cambia con cada build: no sabrías qué código está realmente en producción ni podrías volver a una versión anterior","Porque Docker no lo permite","Porque es más lento"],
@@ -191,9 +190,16 @@ titulo:"Desplegar por entornos hasta producción",
 claves:["Build once, deploy many: la misma imagen probada pasa de staging a producción","Pruebas de humo después de desplegar, para comprobar que la versión arranca y responde","Producción: solo desde main y con aprobación"],
 pasos:[
  {t:"info", eti:"La idea", h:"Construir una vez, desplegar muchas",
-  c:`<div class="diag">commit ─▶ compilar ─▶ probar ─▶ imagen :a1b2c3d ─▶ STAGING ─▶ humo ─▶ [aprobación] ─▶ PRODUCCIÓN
-                                      │                                                    │
-                                      └───────── la MISMA imagen, sin reconstruir ──────────┘</div>
+  c:`<div class="dg"><div class="dg-tit">construir una vez, desplegar muchas</div>
+<div class="dg-flujo" style="row-gap:8px">
+<div class="dg-caja">commit</div><div class="dg-caja">compilar</div><div class="dg-caja">probar</div>
+<div class="dg-caja acento doble">imagen<small><code>:a1b2c3d</code></small></div>
+<div class="dg-caja doble">STAGING<small><code>:a1b2c3d</code></small></div>
+<div class="dg-caja">humo</div>
+<div class="dg-caja">aprobación</div>
+<div class="dg-caja ok doble">PRODUCCIÓN<small><code>:a1b2c3d</code></small></div>
+</div>
+<div class="dg-nota arriba" style="margin-top:8px">la MISMA imagen, sin reconstruir</div></div>
      <p>Si para producción volvieras a construir la imagen, ya <b>no sería la misma</b> que probaste: podrían haber cambiado dependencias o la imagen base. Lo que cambia entre entornos es la <b>configuración</b> (variables de entorno, contraseñas), no el artefacto.</p>`},
  {t:"opcion", p:"¿Por qué no se reconstruye la imagen para producción?",
   ops:["Para ahorrar tiempo de build","Para desplegar exactamente el mismo artefacto que pasó las pruebas en staging","Porque Docker no deja","Porque producción usa otra rama"],

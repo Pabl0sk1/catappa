@@ -59,15 +59,14 @@ pasos:[
      <li>un <b>gestor de paquetes</b> para instalar programas,</li>
      <li>un sistema de arranque y servicios,</li>
      <li>y a veces un escritorio gráfico.</li></ul>
-     <div class="diag">+------------------------------------+
-|  tus programas (nginx, java, ...)  |
-+------------------------------------+
-|  herramientas y gestor de paquetes |  <- lo que aporta la distribucion
-+------------------------------------+
-|             KERNEL LINUX           |  <- el nucleo
-+------------------------------------+
-|              HARDWARE              |
-+------------------------------------+</div>`},
+     <div class="dg"><div class="dg-tit">las capas de un sistema linux</div>
+       <div class="dg-pila">
+         <div class="dg-caja acento">Tus programas<small>nginx, java, ...</small></div>
+         <div class="dg-caja doble">Herramientas y gestor de paquetes<small>lo que aporta la distribución</small></div>
+         <div class="dg-caja ok doble">Kernel Linux<small>el núcleo</small></div>
+         <div class="dg-caja base">Hardware</div>
+       </div>
+     </div>`},
  {t:"par", p:"Empareja cada pieza con su función",
   pares:[["Kernel","Gestiona procesos, memoria, disco y red"],
          ["Distribución","Kernel más herramientas, paquetes y configuración"],

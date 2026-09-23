@@ -15,8 +15,17 @@ pasos:[
   c:`<ul><li><b>Autenticación</b>: comprobar la identidad (usuario y contraseña, token, certificado). Si falla: <b>401</b>.</li>
      <li><b>Autorización</b>: decidir si esa identidad puede hacer esa acción. Si no: <b>403</b>.</li></ul>
      <p>Al añadir <code>spring-boot-starter-security</code>, <b>todo queda protegido</b> por defecto. Cada petición atraviesa una <b>cadena de filtros</b> antes de llegar a tu controlador:</p>
-     <div class="diag">peticion -&gt; CorsFilter -&gt; CsrfFilter -&gt; BearerTokenAuthenticationFilter
-         -&gt; ExceptionTranslationFilter -&gt; AuthorizationFilter -&gt; tu controlador</div>`},
+     <div class="dg"><div class="dg-tit">la cadena de filtros de spring security</div>
+       <div class="dg-vert">
+         <div class="dg-caja base">petición</div>
+         <div class="dg-caja"><code>CorsFilter</code></div>
+         <div class="dg-caja"><code>CsrfFilter</code></div>
+         <div class="dg-caja"><code>BearerTokenAuthenticationFilter</code></div>
+         <div class="dg-caja"><code>ExceptionTranslationFilter</code></div>
+         <div class="dg-caja"><code>AuthorizationFilter</code></div>
+         <div class="dg-caja ok">tu controlador</div>
+       </div>
+     </div>`},
  {t:"info", eti:"Configurar", h:"SecurityFilterChain",
   c:`<div class="termbox">@Configuration
 @EnableMethodSecurity
@@ -78,8 +87,13 @@ titulo:"JWT y OAuth2 Resource Server",
 claves:["Un JWT es un token firmado con cabecera, datos (claims) y firma","La API valida la firma y la caducidad sin consultar la base de datos","Con un proveedor de identidad (Keycloak, Auth0, Cognito), tu API es un Resource Server"],
 pasos:[
  {t:"info", eti:"Tokens", h:"Qué es un JWT",
-  c:`<div class="diag">eyJhbGciOiJSUzI1NiJ9 . eyJzdWIiOiI0MiIsInJvbGVzIjpbIlVTRVIiXSwiZXhwIjoxNzU4NTUwMDAwfQ . firma
-   cabecera (algoritmo)          datos: sub=42, roles=[USER], exp=...               firma</div>
+  c:`<div class="dg"><div class="dg-tit">las tres partes de un jwt, unidas por puntos</div>
+       <div class="dg-pila">
+         <div class="dg-caja base"><code style="word-break:break-all">eyJhbGciOiJSUzI1NiJ9</code><small>cabecera (algoritmo)</small></div>
+         <div class="dg-caja acento"><code style="word-break:break-all">eyJzdWIiOiI0MiIsInJvbGVzIjpbIlVTRVIiXSwiZXhwIjoxNzU4NTUwMDAwfQ</code><small>datos: sub=42, roles=[USER], exp=...</small></div>
+         <div class="dg-caja ok">firma</div>
+       </div>
+     </div>
      <ul><li>Los datos van en <b>Base64</b>, no cifrados: cualquiera puede leerlos. No metas secretos.</li>
      <li>La <b>firma</b> garantiza que nadie los ha modificado.</li>
      <li><code>exp</code> fija la caducidad: tokens de acceso cortos (5–15 min) y un <b>refresh token</b> para renovarlos.</li></ul>`},

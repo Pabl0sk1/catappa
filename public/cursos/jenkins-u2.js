@@ -43,11 +43,14 @@ pasos:[
  {t:"info", eti:"Pieza 2", h:"Los agentes",
   c:`<p>Un <b>agente</b> (antes llamado <i>slave</i> o <i>nodo</i>) es una máquina donde Jenkins <b>ejecuta los builds</b>. Puede ser un servidor, una máquina virtual, un contenedor Docker o un pod de Kubernetes.</p>
      <p>¿Por qué no ejecutarlo todo en el controlador? Porque los builds consumen mucha CPU y memoria (compilar Java es pesado), y porque cada proyecto puede necesitar herramientas distintas: uno Java 21, otro Node.js, otro Windows.</p>
-     <div class="diag">                 CONTROLADOR
-                 (decide y organiza)
-          ┌───────────┼────────────┐
-     AGENTE linux  AGENTE docker  AGENTE windows
-     (Java 21)     (contenedores) (apps de Windows)</div>`},
+     <div class="dg"><div class="dg-tit">controlador y agentes</div>
+<div class="dg-pila">
+<div class="dg-caja acento doble">Controlador<small>decide y organiza</small></div>
+<div class="dg-fila">
+<div class="dg-caja doble">agente linux<small>Java 21</small></div>
+<div class="dg-caja doble">agente docker<small>contenedores</small></div>
+<div class="dg-caja doble">agente windows<small>apps de Windows</small></div>
+</div></div></div>`},
  {t:"opcion", p:"¿Dónde se ejecutan los builds en una instalación bien organizada de Jenkins?",
   ops:["En el navegador del usuario","En los agentes","En GitHub","En la base de datos"],
   ok:1, why:"El controlador reparte el trabajo; los agentes lo hacen."},

@@ -7,7 +7,7 @@
 
 # Catappa
 
-Plataforma para aprender tecnología desde cero hasta nivel maestro — Linux, Git y GitHub, Docker, Kubernetes, DevOps, Jenkins, Terraform, AWS, Redes, SQL y PostgreSQL, Java, Spring Boot, Python, HTML y CSS, JavaScript, TypeScript, React, Node.js, Seguridad web, Algoritmos y estructuras de datos, Diseño de sistemas, Observabilidad, Ansible, Apache Kafka, Redis, MongoDB y Go — con lecciones
+Plataforma para aprender tecnología desde cero hasta nivel maestro — Linux, Git y GitHub, Docker, Kubernetes, DevOps, Jenkins, Terraform, AWS, Redes, PostgreSQL, Java, Spring Boot, Python, HTML y CSS, JavaScript, TypeScript, React, Node.js, Seguridad web, Algoritmos y estructuras de datos, Diseño de sistemas, Observabilidad, Ansible, Apache Kafka, Redis, MongoDB y Go — con lecciones
 cortas estilo Duolingo, sonido, cuentas, comunidad de preguntas y respuestas,
 ranking, perfiles e insignias. Se instala como aplicación (PWA) y funciona sin
 conexión.
@@ -66,7 +66,7 @@ comunidad ni ranking.
 | Terraform | Infraestructura | 7 | 23 | 93 |
 | AWS | Cloud | 11 | 36 | 130 |
 | Redes | Sistemas | 11 | 44 | 232 |
-| SQL y PostgreSQL | Datos | 13 | 47 | 237 |
+| PostgreSQL | Datos | 13 | 47 | 237 |
 | Java | Lenguajes | 15 | 58 | 281 |
 | Spring Boot | Backend | 13 | 50 | 222 |
 | Python | Lenguajes | 11 | 40 | 151 |

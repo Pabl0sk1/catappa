@@ -1,142 +1,159 @@
 window.CURSOS = window.CURSOS || {};
 (CURSOS.kubernetes = CURSOS.kubernetes || []).push({
-titulo: "Almacenamiento y aplicaciones con estado",
-resumen: "Volúmenes, PV y PVC, StorageClass y provisión dinámica, StatefulSets y bases de datos en Kubernetes",
-nivel: "Avanzado",
-color: "#4f7fd8",
+titulo: "Configuración y secretos",
+resumen: "ConfigMaps, Secrets, cómo inyectarlos, recargarlos, cifrarlos en etcd y sacarlos de Git",
+nivel: "Intermedio",
+color: "#5b8ce6",
 lecciones: [
 
 {
-id:"k6l1",
-titulo:"Volúmenes, PV y PVC",
-claves:["emptyDir vive lo que vive el pod; persistentVolumeClaim sobrevive","PersistentVolume es el disco; PersistentVolumeClaim es la petición de un pod","Modos de acceso: ReadWriteOnce, ReadOnlyMany, ReadWriteMany, ReadWriteOncePod"],
+id:"k5l1",
+titulo:"ConfigMaps",
+claves:["Un ConfigMap guarda configuración no sensible fuera de la imagen","Se inyecta como variables de entorno o como ficheros montados","Las variables no se actualizan en caliente; los ficheros montados sí (con retraso)"],
 pasos:[
- {t:"info", eti:"Tipos de volumen", h:"De efímero a persistente",
-  c:`<ul><li><b>emptyDir</b>: carpeta temporal que comparten los contenedores del pod. Muere con el pod.</li>
-     <li><b>configMap / secret</b>: configuración montada como ficheros.</li>
-     <li><b>hostPath</b>: una carpeta del nodo. Peligroso y atado a una máquina: casi nunca en aplicaciones.</li>
-     <li><b>persistentVolumeClaim</b>: almacenamiento persistente que sobrevive al pod.</li></ul>`},
- {t:"info", eti:"Dos objetos", h:"PersistentVolume y PersistentVolumeClaim",
-  c:`<ul><li><b>PersistentVolume (PV)</b>: un trozo de almacenamiento real (un disco EBS, un volumen de NFS). Es del clúster.</li>
-     <li><b>PersistentVolumeClaim (PVC)</b>: la <b>petición</b> de un pod: «necesito 20 GiB, lectura/escritura desde un nodo».</li></ul>
+ {t:"info", eti:"Separar configuración", h:"La misma imagen en todos los entornos",
+  c:`<p>Como en Docker: la imagen es la misma en desarrollo, staging y producción; cambia la configuración. En Kubernetes se guarda en un <b>ConfigMap</b>:</p>
      <div class="termbox">apiVersion: v1
-kind: PersistentVolumeClaim
-metadata: { name: datos-pg }
-spec:
-  accessModes: [ReadWriteOnce]
-  storageClassName: gp3
-  resources:
-    requests: { storage: 20Gi }</div>
-     <p>Kubernetes <b>une</b> (bind) cada PVC con un PV que cumpla. El pod solo conoce el PVC: no sabe si detrás hay AWS, Azure o un NFS.</p>`},
- {t:"par", p:"Empareja cada modo de acceso con su significado",
-  pares:[["ReadWriteOnce (RWO)","Lectura y escritura desde un solo nodo"],["ReadOnlyMany (ROX)","Solo lectura desde muchos nodos"],["ReadWriteMany (RWX)","Lectura y escritura desde muchos nodos (NFS, EFS...)"],["ReadWriteOncePod","Lectura y escritura desde un único pod"]],
-  why:"Los discos de bloque de la nube (EBS, Persistent Disk) son RWO. Si necesitas RWX, hace falta un sistema de ficheros de red."},
- {t:"opcion", p:"Tu Deployment de 3 réplicas monta un PVC de tipo EBS (RWO) y dos pods se quedan en ContainerCreating. ¿Por qué?",
-  ops:["Falta memoria","Un volumen RWO solo puede montarse en un nodo; los pods programados en otros nodos no pueden engancharlo","El PVC es demasiado grande","Falta un Service"],
-  ok:1, why:"Para compartir datos entre réplicas en varios nodos hace falta RWX (EFS, Filestore, NFS)... o replantear el diseño."},
- {t:"vf", p:"Los datos de un emptyDir sobreviven si el pod se recrea en otro nodo.",
-  ok:false, why:"emptyDir nace y muere con el pod. Sirve para cachés y ficheros temporales compartidos entre contenedores."}
+kind: ConfigMap
+metadata: { name: api-config }
+data:
+  SPRING_PROFILES_ACTIVE: prod
+  LOG_LEVEL: info
+  application.yml: |              <span class="cm"># tambien ficheros enteros</span>
+    server:
+      shutdown: graceful</div>
+     <p>Límite: 1 MiB por ConfigMap (se guarda en etcd). Para ficheros grandes, otro sitio.</p>`},
+ {t:"info", eti:"Inyectar", h:"Como variables o como ficheros",
+  c:`<div class="termbox">containers:
+  - name: api
+    envFrom:
+      - configMapRef: { name: api-config }     <span class="cm"># todas las claves como variables</span>
+    env:
+      - name: NIVEL
+        valueFrom:
+          configMapKeyRef: { name: api-config, key: LOG_LEVEL }   <span class="cm"># una concreta</span>
+    volumeMounts:
+      - name: config
+        mountPath: /app/config                  <span class="cm"># cada clave, un fichero</span>
+volumes:
+  - name: config
+    configMap: { name: api-config }</div>`},
+ {t:"par", p:"Empareja cada forma de uso con su efecto",
+  pares:[["envFrom + configMapRef","Todas las claves como variables de entorno"],["valueFrom.configMapKeyRef","Una clave concreta como variable"],["volume con configMap","Cada clave como fichero en una carpeta"],["subPath","Montar un solo fichero sin tapar la carpeta (pero sin actualizaciones en caliente)"]],
+  why:"Montar como volumen es lo habitual para ficheros de configuración completos (nginx.conf, application.yml)."},
+ {t:"term", p:"Crea el ConfigMap <code>nginx-conf</code> a partir del fichero local <code>nginx.conf</code>", prompt:"pablo@portatil:~$",
+  sol:["kubectl create configmap nginx-conf --from-file=nginx.conf","kubectl create cm nginx-conf --from-file=nginx.conf","kubectl create configmap nginx-conf --from-file nginx.conf","kubectl create configmap nginx-conf --from-file=nginx.conf=nginx.conf"],
+  pista:"kubectl create configmap, el nombre y --from-file.",
+  salida:`configmap/nginx-conf created`,
+  why:"La clave será el nombre del fichero (nginx.conf) y el valor, su contenido. Con --from-file=carpeta/ se crea una clave por fichero."},
+ {t:"opcion", p:"Cambias un valor del ConfigMap que la API recibe como variable de entorno. ¿Cuándo lo ve la API?",
+  ops:["Al instante","Cuando se recrean los pods (por ejemplo, con kubectl rollout restart); las variables se fijan al arrancar el contenedor","Nunca","En 24 horas"],
+  ok:1, why:"Las variables de entorno se leen al arrancar el proceso. Los ficheros montados sí se actualizan (con un retraso de hasta un minuto), aunque la aplicación tenga que releerlos."},
+ {t:"info", eti:"Truco profesional", h:"Reiniciar al cambiar la configuración",
+  c:`<p>Para que un cambio de configuración provoque un despliegue controlado, se añade a la plantilla del pod una anotación con el <b>hash</b> del ConfigMap. Si cambia la configuración, cambia la plantilla, y el Deployment hace un rolling update. Helm y Kustomize lo hacen automáticamente (Kustomize añade un sufijo con hash al nombre del ConfigMap).</p>
+     <p>Y si un ConfigMap no debe cambiar nunca, márcalo <code>immutable: true</code>: nadie podrá editarlo por error y el kubelet deja de vigilarlo, lo que alivia al API server en clústeres grandes.</p>`},
+ {t:"vf", p:"Un ConfigMap es un buen sitio para guardar la contraseña de la base de datos.",
+  ok:false, why:"Los ConfigMaps no tienen ninguna protección especial. Lo sensible va en Secrets (y aun así, protegidos como en la lección siguiente)."},
+ {t:"opcion", p:"Montas un ConfigMap en <code>/etc/nginx</code> y nginx deja de arrancar porque «falta mime.types». ¿Qué ha pasado?",
+  ops:["El ConfigMap está vacío","El volumen tapa la carpeta entera de la imagen: solo quedan las claves del ConfigMap. Monta en otra ruta o usa subPath para un fichero suelto","Falta memoria","nginx no admite ConfigMaps"],
+  ok:1, why:"Un volumen sustituye el contenido de su punto de montaje. subPath monta un único fichero dentro de la carpeta existente (a cambio, sin actualizaciones en caliente)."}
 ]},
 
 {
-id:"k6l2",
-titulo:"StorageClass y provisión dinámica",
-claves:["La StorageClass describe un tipo de almacenamiento y quién lo crea (provisioner/CSI)","Con provisión dinámica, crear un PVC crea el disco automáticamente","reclaimPolicy Delete borra el disco al borrar el PVC; Retain lo conserva"],
+id:"k5l2",
+titulo:"Secrets",
+claves:["Un Secret guarda datos sensibles; se usan igual que los ConfigMaps","base64 NO es cifrado: hay que activar cifrado en reposo y restringir RBAC","Tipos: Opaque, kubernetes.io/tls, dockerconfigjson..."],
 pasos:[
- {t:"info", eti:"Automatizar", h:"StorageClass",
-  c:`<div class="termbox">apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: gp3
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
-provisioner: ebs.csi.aws.com         <span class="cm"># el driver CSI que crea los discos</span>
-parameters: { type: gp3, encrypted: "true" }
-reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer
-allowVolumeExpansion: true</div>
-     <p>Con esto, cuando alguien crea un PVC con <code>storageClassName: gp3</code>, el driver <b>CSI</b> crea un disco EBS cifrado del tamaño pedido y lo une al PVC. Nadie crea PVs a mano.</p>`},
- {t:"par", p:"Empareja cada campo de la StorageClass con su efecto",
-  pares:[["provisioner","El driver CSI que crea los volúmenes"],["reclaimPolicy: Retain","Conservar el disco aunque se borre el PVC"],["WaitForFirstConsumer","Crear el disco cuando se sepa en qué zona irá el pod"],["allowVolumeExpansion","Permitir ampliar el PVC después"]],
-  why:"WaitForFirstConsumer evita el clásico error de disco creado en una zona y pod programado en otra."},
- {t:"opcion", p:"Borras por error el PVC de la base de datos y su StorageClass tiene <code>reclaimPolicy: Delete</code>. ¿Qué pasa con los datos?",
-  ops:["Se conservan en el PV","El disco se borra también: los datos se pierden salvo que haya backups o snapshots","Se mueven a otro PVC","Nada, los PVC no se pueden borrar"],
-  ok:1, why:"Para datos críticos: Retain, snapshots de volumen (VolumeSnapshot) y backups con Velero."},
- {t:"info", eti:"Copias", h:"VolumeSnapshots y Velero",
-  c:`<p><b>VolumeSnapshot</b> pide al driver CSI una instantánea del disco. <b>Velero</b> hace copias de seguridad de objetos del clúster y de sus volúmenes, y permite restaurar en otro clúster: la herramienta estándar para recuperación ante desastres.</p>`},
- {t:"vf", p:"Con provisión dinámica, un administrador debe crear el PersistentVolume antes de que el pod pida su PVC.",
-  ok:false, why:"Es justo lo que evita la provisión dinámica: el PV se crea automáticamente a partir de la StorageClass."}
+ {t:"info", eti:"Datos sensibles", h:"Un Secret",
+  c:`<div class="termbox">apiVersion: v1
+kind: Secret
+metadata: { name: api-secretos }
+type: Opaque
+stringData:                        <span class="cm"># en claro al escribirlo; se guarda en base64</span>
+  SPRING_DATASOURCE_PASSWORD: cambia-esto
+  JWT_SECRET: otro-secreto</div>
+     <div class="termbox">kubectl create secret generic api-secretos \\
+  --from-literal=SPRING_DATASOURCE_PASSWORD=cambia-esto
+kubectl create secret tls tareas-tls --cert=tls.crt --key=tls.key
+kubectl create secret docker-registry ghcr --docker-server=ghcr.io \\
+  --docker-username=pablo --docker-password=$TOKEN   <span class="cm"># para descargar imagenes privadas</span></div>`},
+ {t:"info", eti:"La trampa", h:"base64 no protege nada",
+  c:`<div class="termbox">kubectl get secret api-secretos -o jsonpath='{.data.JWT_SECRET}' | base64 -d
+<span class="cm">otro-secreto</span></div>
+     <p>Cualquiera con permiso de leer Secrets los ve en claro. Protegerlos de verdad requiere:</p>
+     <ul><li><b>Cifrado en reposo</b> de etcd (en EKS/GKE/AKS se activa con una clave KMS).</li>
+     <li><b>RBAC</b> estricto: casi nadie debería poder hacer <code>get secret</code>.</li>
+     <li>No guardarlos en Git sin cifrar (siguiente lección).</li></ul>`},
+ {t:"term", p:"Muestra en claro el valor de la clave <code>password</code> del Secret <code>bd</code>", prompt:"pablo@portatil:~$",
+  sol:["kubectl get secret bd -o jsonpath='{.data.password}' | base64 -d","kubectl get secret bd -o jsonpath={.data.password} | base64 -d","kubectl get secret bd -o jsonpath='{.data.password}' | base64 --decode","kubectl get secrets bd -o jsonpath='{.data.password}' | base64 -d"],
+  pista:"-o jsonpath='{.data.password}' y pásalo por base64 -d.",
+  salida:`s3cr3to`,
+  why:"Cualquiera con get sobre Secrets en ese namespace puede hacer esto. Ese permiso, en RBAC, equivale a conocer todas las contraseñas del namespace."},
+ {t:"opcion", p:"Un compañero dice que los Secrets de Kubernetes son seguros porque están en base64. ¿Qué le respondes?",
+  ops:["Tiene razón","base64 es una codificación reversible, no un cifrado: la seguridad viene del cifrado en reposo de etcd, de RBAC y de no filtrarlos","Hay que usar base32","Solo son seguros en namespaces"],
+  ok:1, why:"Pregunta trampa muy frecuente en entrevistas."},
+ {t:"info", eti:"En el disco de etcd", h:"Cifrado en reposo",
+  c:`<p>En un clúster propio (kubeadm), el API server cifra los Secrets antes de guardarlos en etcd si le pasas un fichero de configuración con <code>--encryption-provider-config</code>:</p>
+     <div class="termbox">apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources: [secrets]
+    providers:
+      - kms:                            <span class="cm"># lo recomendable: la clave vive en un KMS externo</span>
+          apiVersion: v2
+          name: kms-aws
+          endpoint: unix:///var/run/kms/socket.sock
+      - identity: {}                    <span class="cm"># para poder leer lo que aun no esta cifrado</span></div>
+     <p>El primer proveedor de la lista es el que cifra; los demás solo sirven para leer. Tras activarlo, los Secrets existentes siguen en claro hasta que se reescriben: <code>kubectl get secrets -A -o json | kubectl replace -f -</code>.</p>`},
+ {t:"par", p:"Empareja cada tipo de Secret con su uso",
+  pares:[["Opaque","Datos genéricos: contraseñas, tokens"],["kubernetes.io/tls","Certificado y clave TLS"],["kubernetes.io/dockerconfigjson","Credenciales para descargar imágenes privadas"],["Token de ServiceAccount","Identidad de un pod ante la API (hoy, tokens proyectados temporales)"]],
+  why:"imagePullSecrets referencia el de tipo dockerconfigjson en el pod o en la ServiceAccount."},
+ {t:"vf", p:"Montar los secretos como ficheros es más seguro que como variables de entorno.",
+  ok:true, why:"Las variables se heredan por procesos hijos, aparecen en volcados y a veces en logs de errores. Los ficheros montados en tmpfs se leen solo cuando hace falta."},
+ {t:"escribe", p:"Escribe el comando que crea un Secret genérico <code>bd</code> con la clave <code>PASSWORD=s3cr3to</code>",
+  sol:["kubectl create secret generic bd --from-literal=PASSWORD=s3cr3to","kubectl create secret generic bd --from-literal PASSWORD=s3cr3to"], ph:"kubectl create secret ...",
+  pista:"kubectl create secret generic, el nombre y --from-literal.", why:"kubectl create secret generic bd --from-literal=PASSWORD=s3cr3to. Ojo: el valor queda en el historial de tu shell; para secretos reales, --from-file o un gestor externo."}
 ]},
 
 {
-id:"k6l3",
-titulo:"StatefulSets",
-claves:["Identidad estable: nombres ordenados (db-0, db-1) y DNS propio vía Service headless","Un PVC propio por réplica con volumeClaimTemplates","Arranque y parada ordenados"],
+id:"k5l3",
+titulo:"Secretos en GitOps y gestores externos",
+claves:["Nunca Secrets en claro en Git","Sealed Secrets o SOPS para guardarlos cifrados en el repositorio","External Secrets Operator sincroniza desde Vault, AWS Secrets Manager, etc."],
 pasos:[
- {t:"info", eti:"Aplicaciones con estado", h:"Cuando las réplicas no son intercambiables",
-  c:`<p>En un Deployment todas las réplicas son iguales e intercambiables. Una base de datos replicada no: <code>postgres-0</code> es el primario, <code>postgres-1</code> una réplica, y cada uno tiene <b>sus propios datos</b>. Para eso existe el <b>StatefulSet</b>:</p>
-     <ul><li>Nombres <b>estables y ordenados</b>: <code>db-0</code>, <code>db-1</code>, <code>db-2</code>. Si <code>db-1</code> muere, vuelve como <code>db-1</code>.</li>
-     <li>Un <b>PVC por réplica</b> que la sigue siempre.</li>
-     <li><b>DNS propio</b> por pod gracias a un Service headless: <code>db-0.db.datos.svc.cluster.local</code>.</li>
-     <li>Arranque en orden (0, 1, 2) y parada en orden inverso.</li></ul>`},
- {t:"info", eti:"El manifiesto", h:"volumeClaimTemplates",
-  c:`<div class="termbox">apiVersion: apps/v1
-kind: StatefulSet
-metadata: { name: db }
+ {t:"info", eti:"El problema", h:"Todo en Git... ¿también los secretos?",
+  c:`<p>Si el estado del clúster vive en Git (GitOps), ¿dónde van los secretos? Nunca en claro. Tres enfoques:</p>
+     <ul><li><b>Sealed Secrets</b>: cifras el Secret con la clave pública de un controlador del clúster; en Git guardas un <code>SealedSecret</code> que solo ese clúster puede descifrar.</li>
+     <li><b>SOPS</b> (con age o KMS): cifra los valores dentro del YAML; Argo CD o Flux los descifran al aplicar.</li>
+     <li><b>External Secrets Operator</b>: en Git solo va una referencia («trae la clave X de AWS Secrets Manager»); el operador crea y mantiene el Secret.</li></ul>`},
+ {t:"term", p:"Cifra el fichero <code>secreto.yaml</code> con Sealed Secrets y guarda el resultado en <code>sellado.yaml</code> en formato YAML", prompt:"pablo@portatil:~$",
+  sol:["kubeseal --format yaml < secreto.yaml > sellado.yaml","kubeseal -o yaml < secreto.yaml > sellado.yaml","kubeseal --format=yaml < secreto.yaml > sellado.yaml","kubeseal -f secreto.yaml -w sellado.yaml --format yaml","kubeseal --format yaml -f secreto.yaml -w sellado.yaml"],
+  pista:"kubeseal lee el Secret por la entrada estándar y escribe el SealedSecret.",
+  salida:``,
+  why:"sellado.yaml ya se puede subir a Git; secreto.yaml, no (bórralo o ponlo en .gitignore). Genera el Secret en claro con kubectl create secret ... --dry-run=client -o yaml sin tocar el clúster."},
+ {t:"info", eti:"El más usado en empresa", h:"External Secrets Operator",
+  c:`<div class="termbox">apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata: { name: api-secretos }
 spec:
-  serviceName: db               <span class="cm"># Service headless (clusterIP: None)</span>
-  replicas: 3
-  selector: { matchLabels: { app: db } }
-  template:
-    metadata: { labels: { app: db } }
-    spec:
-      containers:
-        - name: postgres
-          image: postgres:16
-          volumeMounts: [{ name: datos, mountPath: /var/lib/postgresql/data }]
-  volumeClaimTemplates:          <span class="cm"># un PVC por replica: datos-db-0, datos-db-1...</span>
-    - metadata: { name: datos }
-      spec:
-        accessModes: [ReadWriteOnce]
-        resources: { requests: { storage: 50Gi } }</div>`},
- {t:"par", p:"Empareja cada característica con el objeto que la ofrece",
-  pares:[["Réplicas intercambiables con nombres aleatorios","Deployment"],["Nombres estables db-0, db-1","StatefulSet"],["Un volumen propio por réplica","StatefulSet (volumeClaimTemplates)"],["DNS por pod individual","Service headless"]],
-  why:"Deployment para aplicaciones sin estado; StatefulSet para bases de datos, colas y sistemas distribuidos con identidad."},
- {t:"opcion", p:"Escalas un StatefulSet de 3 a 1 réplica. ¿Qué pasa con los PVCs de db-1 y db-2?",
-  ops:["Se borran","Se conservan por defecto, para que al volver a escalar esas réplicas recuperen sus datos","Se fusionan","Se mueven a db-0"],
-  ok:1, why:"Kubernetes es prudente con los datos. (persistentVolumeClaimRetentionPolicy permite cambiarlo.)"},
- {t:"vf", p:"Un StatefulSet convierte automáticamente PostgreSQL en un clúster replicado con failover.",
-  ok:false, why:"Solo da identidad y almacenamiento estables. La replicación y el failover los gestiona la aplicación o un operador (CloudNativePG, Zalando, Patroni)."}
-]},
-
-{
-id:"k6l4",
-titulo:"¿Bases de datos dentro de Kubernetes?",
-claves:["Opción 1: base de datos gestionada del proveedor (RDS, Cloud SQL)","Opción 2: un operador especializado (CloudNativePG, Strimzi...)","Nunca un Deployment con un solo PVC para datos críticos"],
-pasos:[
- {t:"info", eti:"El debate", h:"Dónde vive la base de datos",
-  c:`<p>Es posible ejecutar bases de datos en Kubernetes, pero operar datos es difícil: backups, replicación, failover, actualizaciones de versión, rendimiento de disco. Las dos opciones sensatas:</p>
-     <ul><li><b>Servicio gestionado</b> (RDS, Cloud SQL, Azure Database): el proveedor se encarga de backups, parches y alta disponibilidad. La opción por defecto en la mayoría de empresas.</li>
-     <li><b>Operador</b> dentro del clúster: software que sabe operar esa base de datos (CloudNativePG para PostgreSQL, Strimzi para Kafka). Tiene sentido con equipos de plataforma maduros o para evitar dependencia de un proveedor.</li></ul>`},
- {t:"opcion", p:"Un equipo pequeño sin experiencia en operar PostgreSQL necesita una base de datos fiable para su API en EKS. ¿Qué recomiendas?",
-  ops:["Un Deployment con un PVC","RDS (servicio gestionado) y la API en EKS conectándose a él","Una base de datos en un emptyDir","Un pod suelto"],
-  ok:1, why:"Delegar la operación de datos en el proveedor es lo prudente cuando no hay un equipo para hacerlo."},
- {t:"info", eti:"Operadores", h:"Kubernetes que sabe de bases de datos",
-  c:`<div class="termbox">apiVersion: postgresql.cnpg.io/v1
-kind: Cluster                     <span class="cm"># un recurso NUEVO que define el operador</span>
-metadata: { name: pg-tareas }
-spec:
-  instances: 3                    <span class="cm"># 1 primario + 2 replicas, con failover automatico</span>
-  storage: { size: 50Gi }
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://backups/pg-tareas</div>
-     <p>El operador traduce ese deseo en StatefulSets, Services, replicación, backups a S3 y failover. Es el patrón <b>operador</b>, que verás en la unidad de extensibilidad.</p>`},
- {t:"vf", p:"Un operador de bases de datos incorpora conocimiento operativo (failover, backups, actualizaciones) en forma de software.",
-  ok:true, why:"Es la definición de operador: automatizar lo que haría un administrador experto."},
- {t:"par", p:"Empareja cada opción con su ventaja principal",
-  pares:[["Servicio gestionado","El proveedor opera backups, parches y alta disponibilidad"],["Operador en el clúster","Control total y portabilidad entre proveedores"],["Deployment con PVC","Solo aceptable para pruebas y desarrollo"]],
-  why:"Esta respuesta matizada es la que se espera en una entrevista de arquitectura."}
+  refreshInterval: 1h
+  secretStoreRef: { name: aws-secrets-manager, kind: ClusterSecretStore }
+  target: { name: api-secretos }             <span class="cm"># el Secret que creara</span>
+  data:
+    - secretKey: SPRING_DATASOURCE_PASSWORD
+      remoteRef: { key: prod/api/bd, property: password }</div>
+     <p>La rotación se hace en el gestor central; el operador la propaga. El clúster accede al gestor con una identidad (EKS Pod Identity o IRSA en AWS, Workload Identity en GKE y AKS), no con otra contraseña.</p>
+     <p>Alternativa sin objetos Secret: el <b>Secrets Store CSI Driver</b> monta los secretos del gestor directamente como ficheros en el pod.</p>`},
+ {t:"par", p:"Empareja cada herramienta con cómo funciona",
+  pares:[["Sealed Secrets","Secret cifrado con la clave del clúster, seguro en Git"],["SOPS","Valores cifrados dentro del YAML con age o KMS"],["External Secrets Operator","Sincroniza secretos desde un gestor externo"],["Vault Agent Injector","Un sidecar inyecta secretos de Vault como ficheros"],["Secrets Store CSI Driver","Monta secretos del gestor como un volumen"]],
+  why:"Saber nombrar estas opciones y cuándo usarlas es de nivel senior."},
+ {t:"opcion", p:"Tu empresa ya usa AWS Secrets Manager y rota las contraseñas cada 30 días. ¿Qué encaja mejor en Kubernetes?",
+  ops:["Copiar las contraseñas a mano en Secrets","External Secrets Operator, que sincroniza desde Secrets Manager y recoge las rotaciones","Guardarlas en un ConfigMap","Ponerlas en la imagen"],
+  ok:1, why:"Una única fuente de verdad, rotación centralizada y nada sensible en Git."},
+ {t:"opcion", p:"Reinstalas el clúster desde cero y los SealedSecrets de Git dejan de descifrarse. ¿Qué se perdió?",
+  ops:["El repositorio","La clave privada del controlador de Sealed Secrets, que vivía en el clúster antiguo: sin copia, hay que volver a sellar todo","Los Services","Nada, es normal"],
+  ok:1, why:"La clave del controlador es un secreto crítico: guarda una copia fuera del clúster (en un gestor) como parte del plan de recuperación."},
+ {t:"vf", p:"Borrar un Secret de Git con un commit nuevo es suficiente si se subió por error.",
+  ok:false, why:"Sigue en el historial. Hay que rotar el secreto inmediatamente (lo viste en el curso de Git)."}
 ]}
 
 ]});

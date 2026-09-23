@@ -81,9 +81,10 @@ claves:["Git es la fuente de verdad del estado del clúster","Argo CD (o Flux) s
 pasos:[
  {t:"info", eti:"El modelo", h:"Qué es GitOps",
   c:`<p>En GitOps, el estado deseado del clúster vive en un <b>repositorio Git</b>. Un agente dentro del clúster (<b>Argo CD</b> o <b>Flux</b>) compara continuamente el repositorio con el clúster y los <b>sincroniza</b>.</p>
-     <div class="diag">desarrollador --PR--> repo de manifiestos --(Argo CD observa)--> cluster
-       CI: construye imagen y actualiza el tag en el repo  ^
-                                                           | tira (pull), no empuja</div>
+     <div class="dg"><div class="dg-tit">gitops: el clúster tira del repositorio</div>
+       <div class="dg-flujo"><div class="dg-caja">desarrollador<small>abre un PR</small></div><div class="dg-caja acento">repo de manifiestos</div><div class="dg-caja">Argo CD<small>observa el repo: tira (pull), no empuja</small></div><div class="dg-caja ok">clúster</div></div>
+       <div class="dg-caja base" style="margin-top:12px">CI<small>construye la imagen y actualiza el tag en el repo de manifiestos</small></div>
+     </div>
      <ul><li>Desplegar = fusionar un Pull Request.</li>
      <li>Rollback = <code>git revert</code>.</li>
      <li>Auditoría completa: quién cambió qué y cuándo está en Git.</li>

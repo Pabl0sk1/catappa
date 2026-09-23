@@ -61,10 +61,14 @@ titulo:"Webs estáticas y CloudFront",
 claves:["Una SPA (React, Vue) se sirve desde S3 detrás de CloudFront","Origin Access Control: el bucket solo acepta peticiones de CloudFront","Caché larga para ficheros con hash e invalidación del index.html"],
 pasos:[
  {t:"info", eti:"Frontend en la nube", h:"S3 + CloudFront",
-  c:`<div class="diag">usuario --HTTPS--&gt; CloudFront (CDN, certificado de ACM, WAF opcional)
-                      |  /api/*  -&gt; ALB de la API
-                      |  /*      -&gt; bucket S3 privado (Origin Access Control)
-                      '-- error 403/404 -&gt; /index.html (para el router de la SPA)</div>
+  c:`<div class="dg"><div class="dg-tit">SPA y API detrás de CloudFront</div>
+<div class="dg-vert">
+<div class="dg-caja base doble">usuario<small>por HTTPS</small></div>
+<div class="dg-caja acento doble">CloudFront<small>CDN, certificado de ACM, WAF opcional</small></div>
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-fila"><div class="dg-caja doble"><code>/api/*</code><small>→ ALB de la API</small></div><div class="dg-caja ok doble"><code>/*</code><small>→ bucket S3 privado (Origin Access Control)</small></div></div></div>
+</div>
+<div class="dg-nota arriba" style="margin-top:8px">error 403/404 → /index.html (para el router de la SPA)</div>
+</div>
      <div class="termbox">npm run build
 aws s3 sync dist/ s3://web-catappa --delete
 aws cloudfront create-invalidation --distribution-id E123ABC --paths "/index.html"</div>`},

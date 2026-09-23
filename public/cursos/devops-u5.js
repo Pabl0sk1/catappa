@@ -37,13 +37,13 @@ pasos:[
 
  {t:"info", eti:"El modelo mental", h:"Estado deseado y bucle de control",
   c:`<p>Kubernetes es <b>declarativo</b>: tú le dices «quiero 3 réplicas de mi API con esta imagen», y él trabaja constantemente para que la realidad coincida.</p>
-     <div class="diag">   estado DESEADO (tu YAML)       3 replicas
-            |
-      [ bucle de control ]  <- compara continuamente
-            |
-   estado REAL del cluster        2 replicas (una murio)
-            |
-      accion: crear 1 replica mas</div>
+     <div class="dg"><div class="dg-tit">el bucle de reconciliación</div>
+<div class="dg-vert">
+<div class="dg-caja ok doble">estado DESEADO (tu YAML)<small>3 réplicas</small></div>
+<div class="dg-caja acento doble">bucle de control<small>compara continuamente</small></div>
+<div class="dg-caja aviso doble">estado REAL del clúster<small>2 réplicas (una murió)</small></div>
+<div class="dg-caja doble">acción<small>crear 1 réplica más</small></div>
+</div></div>
      <p>No le dices «arranca un contenedor»; le dices cómo quieres que esté el sistema, y él se encarga.</p>`},
 
  {t:"vf", p:"En Kubernetes indicas los pasos exactos que hay que ejecutar para arrancar tu aplicación.",
@@ -66,16 +66,11 @@ titulo:"La arquitectura de un clúster",
 claves:["Plano de control: API server, scheduler, controladores y etcd","Nodos de trabajo: kubelet, runtime de contenedores y kube-proxy","Todo pasa por el API server; kubectl es solo un cliente"],
 pasos:[
  {t:"info", eti:"Las dos partes", h:"El cerebro y los músculos",
-  c:`<div class="diag">+----------- PLANO DE CONTROL (control plane) -----------+
-|  API server  |  scheduler  |  controladores  |  etcd   |
-+-------------------------+------------------------------+
-                          |
-     +--------------------+--------------------+
-     v                    v                    v
- [ nodo 1 ]           [ nodo 2 ]           [ nodo 3 ]
- kubelet              kubelet              kubelet
- containerd           containerd           containerd
- pods...              pods...              pods...</div>
+  c:`<div class="dg"><div class="dg-tit">arquitectura de un clúster de Kubernetes</div>
+<div class="dg-vert">
+<div class="dg-caja acento">Plano de control (control plane)<div class="dg-pila" style="margin-top:8px"><div class="dg-fila"><div class="dg-caja">API server</div><div class="dg-caja">scheduler</div></div><div class="dg-fila"><div class="dg-caja">controladores</div><div class="dg-caja">etcd</div></div></div></div>
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-fila"><div class="dg-caja base doble">nodo 1<small>kubelet<br>containerd<br>pods…</small></div><div class="dg-caja base doble">nodo 2<small>kubelet<br>containerd<br>pods…</small></div><div class="dg-caja base doble">nodo 3<small>kubelet<br>containerd<br>pods…</small></div></div></div>
+</div></div>
      <p>El <b>plano de control</b> decide. Los <b>nodos</b> (máquinas de trabajo) ejecutan los contenedores.</p>`},
 
  {t:"info", eti:"Plano de control", h:"Las piezas del cerebro",

@@ -32,12 +32,12 @@ titulo:"Regiones y zonas de disponibilidad",
 claves:["Una región es una zona geográfica (eu-west-1 Irlanda, eu-south-2 España)","Cada región tiene varias zonas de disponibilidad (AZ): centros de datos separados","Alta disponibilidad = repartir en varias AZ; recuperación ante desastres = otra región"],
 pasos:[
  {t:"info", eti:"Geografía", h:"Regiones y AZ",
-  c:`<div class="diag">REGION eu-west-1 (Irlanda)
- |- AZ eu-west-1a   (uno o varios centros de datos)
- |- AZ eu-west-1b   separadas km entre si, con energia y red propias
- '- AZ eu-west-1c   unidas con red de baja latencia
-
-Edge locations: cientos de puntos para CloudFront (CDN) y Route 53</div>
+  c:`<div class="dg"><div class="dg-tit">una región y sus zonas de disponibilidad</div>
+<div class="dg-caja acento">Región eu-west-1 (Irlanda)</div>
+<div class="dg-fila" style="margin-top:6px"><div class="dg-caja ok doble">AZ eu-west-1a<small>uno o varios centros de datos</small></div><div class="dg-caja ok doble">AZ eu-west-1b<small>uno o varios centros de datos</small></div><div class="dg-caja ok doble">AZ eu-west-1c<small>uno o varios centros de datos</small></div></div>
+<div class="dg-nota arriba" style="margin-top:6px">separadas km entre sí, con energía y red propias, y unidas con red de baja latencia</div>
+<div class="dg-caja base doble" style="margin-top:12px">Edge locations<small>cientos de puntos para CloudFront (CDN) y Route 53</small></div>
+</div>
      <p>Una AZ puede fallar (incendio, corte eléctrico). Por eso una arquitectura seria reparte instancias y bases de datos en <b>al menos dos AZ</b>. La región se elige por latencia a tus usuarios, precio, servicios disponibles y requisitos legales (datos en la UE).</p>`},
  {t:"par", p:"Empareja cada concepto con su definición",
   pares:[["Región","Área geográfica con varias zonas de disponibilidad"],["Zona de disponibilidad","Uno o más centros de datos aislados dentro de una región"],["Edge location","Punto de presencia para la CDN y el DNS"],["Multi-AZ","Desplegar en varias zonas para sobrevivir al fallo de una"]],
@@ -84,13 +84,13 @@ titulo:"Responsabilidad compartida y costes",
 claves:["AWS: seguridad «de» la nube; tú: seguridad «en» la nube","Se paga por cómputo, almacenamiento y, a menudo sorprendentemente, transferencia de datos","Etiquetas (tags) y Cost Explorer para saber quién gasta qué"],
 pasos:[
  {t:"info", eti:"Quién responde de qué", h:"Modelo de responsabilidad compartida",
-  c:`<div class="diag">TU RESPONSABILIDAD (seguridad EN la nube)
-  datos, cifrado, IAM y permisos, configuracion de red (grupos de seguridad),
-  sistema operativo y parches (en EC2), tu aplicacion
-
-AWS (seguridad DE la nube)
-  centros de datos, hardware, red fisica, hipervisor,
-  el software de los servicios gestionados</div>
+  c:`<div class="dg"><div class="dg-tit">modelo de responsabilidad compartida</div>
+<div class="dg-cols">
+<div class="dg-col"><div class="dg-col-tit">Tu responsabilidad<br><small>seguridad EN la nube</small></div>
+<div class="dg-caja acento">datos, cifrado</div><div class="dg-caja acento">IAM y permisos</div><div class="dg-caja acento">configuración de red (grupos de seguridad)</div><div class="dg-caja acento">sistema operativo y parches (en EC2)</div><div class="dg-caja acento">tu aplicación</div></div>
+<div class="dg-col"><div class="dg-col-tit">AWS<br><small>seguridad DE la nube</small></div>
+<div class="dg-caja base">centros de datos</div><div class="dg-caja base">hardware</div><div class="dg-caja base">red física</div><div class="dg-caja base">hipervisor</div><div class="dg-caja base">el software de los servicios gestionados</div></div>
+</div></div>
      <p>Un bucket S3 público con datos de clientes es responsabilidad <b>tuya</b>, no de AWS.</p>`},
  {t:"par", p:"Empareja cada tarea con quién es responsable",
   pares:[["Seguridad física del centro de datos","AWS: es infraestructura suya"],["Parches del sistema operativo de una EC2","Tú: la máquina virtual es tuya"],["Parches del motor de base de datos en RDS","AWS: es un servicio gestionado"],["Permisos de acceso a un bucket","Tú: la configuración de IAM y S3 es tuya"],["Cifrar datos sensibles","Tú, con las herramientas que ofrece AWS (KMS)"]],

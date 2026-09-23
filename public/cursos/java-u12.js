@@ -22,8 +22,13 @@ t.join();      <span class="cm">// esperar a que termine</span></div>
     void incrementar() { valor++; }     <span class="cm">// leer, sumar 1, escribir: 3 pasos</span>
 }
 <span class="cm">// 2 hilos x 1000 incrementos = casi nunca 2000</span></div>
-     <div class="diag">hilo A lee 5        hilo B lee 5
-hilo A escribe 6    hilo B escribe 6     -&gt; se ha perdido un incremento</div>`},
+     <div class="dg"><div class="dg-tit">dos hilos incrementan el mismo contador</div>
+<div class="dg-pila">
+<div class="dg-fila"><div class="dg-caja acento">hilo A</div><div class="dg-caja acento">hilo B</div></div>
+<div class="dg-fila"><div class="dg-caja">lee 5</div><div class="dg-caja">lee 5</div></div>
+<div class="dg-fila"><div class="dg-caja">escribe 6</div><div class="dg-caja">escribe 6</div></div>
+<div class="dg-caja aviso">se ha perdido un incremento</div>
+</div></div>`},
  {t:"opcion", p:"¿Por qué un bean <code>@Service</code> de Spring con un atributo <code>private int contador</code> que se incrementa en cada petición es un problema?",
   ops:["No lo es","Los beans son singleton: todas las peticiones (hilos) comparten ese atributo y se producen condiciones de carrera","Porque int es pequeño","Porque Spring no admite atributos"],
   ok:1, why:"Regla: los servicios no deben tener estado mutable compartido. Si hace falta, AtomicInteger o mejor guardarlo fuera (base de datos, Redis)."},

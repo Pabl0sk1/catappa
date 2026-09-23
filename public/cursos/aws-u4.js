@@ -57,13 +57,13 @@ titulo:"Auto Scaling y balanceadores",
 claves:["Auto Scaling Group mantiene N instancias sanas y escala según métricas","Launch template: la receta de cada instancia","ALB (capa 7, HTTP) y NLB (capa 4, TCP/UDP) con health checks y target groups"],
 pasos:[
  {t:"info", eti:"Elasticidad", h:"ASG y ELB",
-  c:`<div class="diag">internet --&gt; ALB (subredes publicas, 2 AZ)
-               |  regla: /api/*  -&gt; target group "api"
-               |  regla: /*      -&gt; target group "web"
-               v
-         Auto Scaling Group (subredes privadas, 2 AZ)
-         min 2, deseado 3, max 10
-         politica: CPU media 60%</div>
+  c:`<div class="dg"><div class="dg-tit">balanceador y grupo de autoescalado</div>
+<div class="dg-vert">
+<div class="dg-caja base">internet</div>
+<div class="dg-caja acento doble">ALB<small>subredes públicas, 2 AZ</small></div>
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-fila"><div class="dg-caja doble">regla <code>/api/*</code><small>→ target group "api"</small></div><div class="dg-caja doble">regla <code>/*</code><small>→ target group "web"</small></div></div></div>
+<div class="dg-caja ok doble">Auto Scaling Group<small>subredes privadas, 2 AZ · mín. 2, deseado 3, máx. 10 · política: CPU media 60%</small></div>
+</div></div>
      <p>Si una instancia falla el health check, el ASG la sustituye. Si sube la carga, añade instancias y el ALB las incluye automáticamente.</p>`},
  {t:"par", p:"Empareja cada balanceador con su caso",
   pares:[["Application Load Balancer","HTTP/HTTPS con reglas por ruta o dominio y TLS"],["Network Load Balancer","TCP/UDP de altísimo rendimiento e IP fija"],["Gateway Load Balancer","Insertar appliances de red (cortafuegos)"],["Target group","Conjunto de destinos al que el balanceador envía tráfico"]],

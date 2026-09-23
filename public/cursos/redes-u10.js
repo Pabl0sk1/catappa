@@ -1,117 +1,130 @@
 window.CURSOS = window.CURSOS || {};
 (CURSOS.redes = CURSOS.redes || []).push({
-titulo: "Redes de contenedores y de la nube",
-resumen: "Namespaces de red, bridges y veth, redes de Docker, el modelo de Kubernetes, VPC y seguridad de red moderna",
-nivel: "Experto",
-color: "#2887b0",
+titulo: "Balanceo, proxies y CDN",
+resumen: "Proxy directo e inverso, PROXY protocol, balanceadores de capa 4 y 7, algoritmos y hashing consistente, health checks, alta disponibilidad, CDN y caché",
+nivel: "Avanzado",
+color: "#3a9fc6",
 lecciones: [
 
 {
-id:"rd10l1",
-titulo:"Cómo funciona la red de un contenedor",
-claves:["Cada contenedor tiene su propio namespace de red: interfaces, rutas y puertos propios","Un par veth une el contenedor con un bridge del host","La publicación de puertos y la salida a internet se hacen con NAT de iptables/nftables"],
+id:"rd8l1",
+titulo:"Proxy directo e inverso",
+claves:["Proxy directo: actúa en nombre de los clientes (salida)","Proxy inverso: actúa en nombre de los servidores (entrada)","Nginx, HAProxy, Envoy y Traefik son proxies inversos habituales"],
 pasos:[
- {t:"info", eti:"Por dentro", h:"Namespaces de red",
-  c:`<p>Un contenedor no es una máquina virtual: es un proceso con su propio <b>namespace de red</b>. Tiene sus interfaces, su tabla de rutas y sus puertos, separados de los del host.</p>
-     <div class="diag">host
- |- eth0 (192.168.1.50)             interfaz real
- |- docker0 (172.17.0.1)            bridge = switch virtual
- |    |- vethA  &lt;---&gt;  eth0 del contenedor 1 (172.17.0.2)
- |    '- vethB  &lt;---&gt;  eth0 del contenedor 2 (172.17.0.3)
- '- iptables: NAT de salida (masquerade) y DNAT de los puertos publicados</div>
-     <p>Un <b>par veth</b> es como un cable virtual con dos extremos: uno dentro del contenedor y otro enchufado al bridge.</p>`},
- {t:"par", p:"Empareja cada pieza con su equivalente físico",
-  pares:[["Namespace de red","Una máquina con su propia configuración de red"],["Par veth","Un cable con dos extremos"],["Bridge docker0","Un switch"],["Masquerade de iptables","El NAT del router de casa"]],
-  why:"Con estas cuatro piezas se construyen las redes de Docker y de muchos plugins de Kubernetes."},
- {t:"info", eti:"Modos de Docker", h:"Tipos de red en Docker",
-  c:`<ul><li><b>bridge</b> (por defecto y definidas por el usuario): red privada en el host con NAT. Las definidas por el usuario tienen DNS entre contenedores.</li>
-     <li><b>host</b>: el contenedor usa la red del host directamente, sin aislamiento ni NAT.</li>
-     <li><b>none</b>: sin red.</li>
-     <li><b>overlay</b>: une contenedores de varios hosts (Swarm) con túneles VXLAN.</li>
-     <li><b>macvlan</b>: el contenedor aparece en la red física con su propia MAC.</li></ul>`},
- {t:"opcion", p:"¿Qué modo de red elimina el NAT y el aislamiento de red de un contenedor?",
-  ops:["bridge","host","none","overlay"],
-  ok:1, why:"Con --network host el proceso ve las interfaces del host. Útil para rendimiento, peor para aislamiento."},
- {t:"vf", p:"Dos contenedores en redes bridge distintas definidas por el usuario pueden comunicarse directamente por defecto.",
-  ok:false, why:"Cada red es un bridge aislado. Para que se vean, conecta un contenedor a ambas redes."}
+ {t:"info", eti:"Intermediarios", h:"Dos tipos de proxy",
+  c:`<div class="dg"><div class="dg-tit">proxy directo y proxy inverso</div><div class="dg-cols">
+     <div class="dg-col"><div class="dg-col-tit">proxy directo (forward)</div><div class="dg-vert"><div class="dg-caja">empleados</div><div class="dg-caja acento">proxy de la empresa</div><div class="dg-caja base">internet</div></div><div class="dg-nota arriba">el servidor ve la IP del proxy, no la de cada empleado</div></div>
+     <div class="dg-col"><div class="dg-col-tit">proxy inverso (reverse)</div><div class="dg-vert"><div class="dg-caja base">internet</div><div class="dg-caja acento">nginx</div><div class="dg-caja ok">app-1 · app-2 · app-3</div></div><div class="dg-nota arriba">el cliente cree que habla con nginx; no ve los servidores de detrás</div></div>
+     </div></div>
+     <p>Un <b>proxy inverso</b> delante de tu aplicación puede: terminar TLS, balancear entre réplicas, comprimir, cachear, limitar peticiones, servir estáticos y ocultar la topología interna.</p>`},
+ {t:"info", eti:"Nginx", h:"Un proxy inverso mínimo",
+  c:`<div class="termbox">upstream api {
+    server 10.0.11.21:8080;
+    server 10.0.11.22:8080;
+}
+server {
+    listen 443 ssl;
+    server_name api.miempresa.com;
+    ssl_certificate     /etc/ssl/api.crt;
+    ssl_certificate_key /etc/ssl/api.key;
+
+    location / {
+        proxy_pass http://api;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</div>`},
+ {t:"par", p:"Empareja cada directiva de Nginx con su función",
+  pares:[["upstream","Grupo de servidores entre los que repartir"],["proxy_pass","Reenviar la petición al grupo"],["ssl_certificate","Certificado para terminar TLS"],["proxy_set_header Host","Conservar el dominio original"],["X-Forwarded-Proto","Contar a la app si el cliente usó HTTPS"]],
+  why:"Un proxy directo representa a los clientes; uno inverso, como este Nginx, a los servidores."},
+ {t:"opcion", p:"Tu aplicación, detrás de Nginx, genera enlaces con <code>http://</code> aunque el usuario entró por HTTPS. ¿Qué falta?",
+  ops:["Un certificado en la app","Pasar X-Forwarded-Proto y configurar la app para confiar en esas cabeceras (en Spring Boot: server.forward-headers-strategy)","Cambiar el puerto","Usar HTTP/2"],
+  ok:1, why:"La app solo ve HTTP desde el proxy; las cabeceras X-Forwarded-* le cuentan cómo llegó el cliente."},
+ {t:"vf", p:"Un proxy inverso puede ocultar a los clientes cuántos servidores hay detrás.",
+  ok:true, why:"El cliente solo ve el proxy. Esto permite cambiar, escalar o reemplazar servidores sin que se note."},
+ {t:"escribe", p:"En los servidores de la empresa, todo el tráfico saliente debe pasar por un proxy directo. ¿Qué variable de entorno leen curl, pip, npm y la mayoría de herramientas para usar un proxy en las URL https://?",
+  sol:["HTTPS_PROXY","https_proxy","HTTPS_PROXY=","export HTTPS_PROXY"], pista:"Es el nombre del protocolo seguido de _PROXY.",
+  why:"Se acompaña de <code>NO_PROXY</code> con los destinos internos (<code>localhost,10.0.0.0/8,.svc.cluster.local</code>). Olvidar NO_PROXY hace que el tráfico interno intente salir por el proxy y falle."},
+ {t:"opcion", p:"Tu servicio está detrás de un balanceador de <b>capa 4</b> que no termina TLS. En los logs todas las peticiones vienen de la IP del balanceador. ¿Cómo recuperas la IP real del cliente?",
+  ops:["Con la cabecera X-Forwarded-For, que el balanceador añade","Activando PROXY protocol en el balanceador y en el servidor, que antepone la IP original al inicio de la conexión","Con el TTL","No es posible"],
+  ok:1, why:"En capa 4 el balanceador no toca el HTTP (que además va cifrado), así que no puede añadir cabeceras. PROXY protocol (de HAProxy, soportado por NLB, Nginx y Envoy) envía los datos de origen en una línea previa. Si solo se activa en un lado, la conexión se rompe."}
 ]},
 
 {
-id:"rd10l2",
-titulo:"El modelo de red de Kubernetes",
-claves:["Cada pod tiene su IP y todos los pods se ven entre sí sin NAT","El plugin CNI (Calico, Cilium, Flannel) implementa esa red","Los Services dan una IP virtual estable; kube-proxy o eBPF la traducen a pods"],
+id:"rd8l2",
+titulo:"Balanceadores de carga",
+claves:["Capa 4 reparte conexiones TCP/UDP; capa 7 entiende HTTP","Algoritmos: round robin, menos conexiones, hash por IP o por clave","Health checks sacan de rotación a los destinos enfermos"],
 pasos:[
- {t:"info", eti:"Las reglas", h:"Lo que exige Kubernetes",
-  c:`<ul><li>Cada <b>pod tiene su propia IP</b>.</li>
-     <li>Todos los pods pueden comunicarse con todos los pods <b>sin NAT</b>, estén en el nodo que estén.</li>
-     <li>Los nodos pueden comunicarse con todos los pods.</li></ul>
-     <p>Kubernetes no implementa esto por sí mismo: lo hace el <b>plugin CNI</b>. Unos usan <b>overlay</b> (encapsulan con VXLAN o Geneve), otros <b>enrutan</b> directamente (BGP en Calico), y en la nube suelen dar a los pods IPs reales de la VPC (AWS VPC CNI).</p>`},
- {t:"info", eti:"IPs estables", h:"Services por dentro",
-  c:`<p>Un Service recibe una <b>ClusterIP</b> virtual que no pertenece a ninguna interfaz. Cuando un pod envía a esa IP, reglas en cada nodo la traducen (DNAT) a la IP de uno de los pods listos:</p>
-     <ul><li><b>kube-proxy</b> en modo iptables o IPVS escribe esas reglas.</li>
-     <li><b>Cilium</b> con <b>eBPF</b> lo hace en el kernel sin iptables, más rápido a gran escala y con visibilidad de flujos (Hubble).</li></ul>`},
- {t:"par", p:"Empareja cada componente con su función",
-  pares:[["CNI","Dar IP y conectividad a los pods"],["ClusterIP","IP virtual estable de un Service"],["kube-proxy","Traducir IPs de Service a IPs de pods"],["eBPF (Cilium)","Red y políticas programables en el kernel"],["CoreDNS","Nombres DNS de Services"]],
-  why:"Saber que la ClusterIP es virtual explica por qué no responde a ping."},
- {t:"opcion", p:"Haces <code>ping</code> a la ClusterIP de un Service y no responde, pero <code>curl</code> a su puerto funciona. ¿Es un problema?",
-  ops:["Sí, el Service está roto","No: la ClusterIP es virtual y solo se traducen los puertos definidos; ICMP no se reenvía","Hay que reiniciar CoreDNS","Falta un Ingress"],
-  ok:1, why:"Con kube-proxy en modo iptables el ping a una ClusterIP normalmente no responde. Se prueba siempre con el puerto."},
- {t:"vf", p:"En Kubernetes, un pod de un nodo puede llegar a la IP de un pod de otro nodo sin NAT.",
-  ok:true, why:"Es uno de los requisitos básicos del modelo de red de Kubernetes."}
+ {t:"info", eti:"Dos niveles", h:"Capa 4 frente a capa 7",
+  c:`<ul><li><b>Capa 4</b> (NLB de AWS, LoadBalancer de Kubernetes, HAProxy en modo TCP): reparte <b>conexiones</b> sin mirar su contenido. Muy rápido, sirve para cualquier protocolo (bases de datos, gRPC, MQTT).</li>
+     <li><b>Capa 7</b> (ALB de AWS, Nginx, Envoy, Ingress): entiende <b>HTTP</b>. Puede enrutar por dominio, ruta o cabecera, terminar TLS, reescribir, añadir cabeceras, reintentar.</li></ul>`},
+ {t:"par", p:"Empareja cada algoritmo con su comportamiento",
+  pares:[["Round robin","Por turnos: uno a cada servidor"],["Least connections","Al que tenga menos conexiones activas"],["Hash por IP de origen","El mismo cliente va siempre al mismo servidor"],["Ponderado","Más peticiones a los servidores con más peso"]],
+  why:"Least connections va mejor cuando las peticiones tienen duraciones muy distintas."},
+ {t:"info", eti:"Salud", h:"Health checks",
+  c:`<p>El balanceador comprueba periódicamente cada destino (por ejemplo <code>GET /actuator/health</code> cada 10 s). Tras varios fallos seguidos lo <b>saca de rotación</b>; cuando vuelve a responder, lo reincorpora.</p>
+     <p>Durante un despliegue, el <b>connection draining</b> (o deregistration delay) deja terminar las peticiones en curso de una instancia antes de retirarla.</p>`},
+ {t:"opcion", p:"Quieres enviar <code>/api/*</code> a un grupo de servidores y <code>/</code> a otro, detrás del mismo dominio. ¿Qué balanceador necesitas?",
+  ops:["De capa 4","De capa 7","Da igual","Ninguno: DNS"],
+  ok:1, why:"Para mirar la ruta hay que entender HTTP."},
+ {t:"opcion", p:"Una aplicación guarda la sesión en memoria y los usuarios «pierden la sesión» al azar tras escalar a 3 réplicas. ¿Qué pasa y cuál es la mejor solución?",
+  ops:["Un bug del balanceador","Cada petición puede ir a una réplica distinta; lo mejor es sacar la sesión a un almacén compartido (Redis) o usar tokens","Hay que usar capa 4","Bajar a una réplica"],
+  ok:1, why:"Las sesiones pegajosas (sticky sessions) lo parchean, pero una aplicación sin estado escala y se recupera mejor."},
+ {t:"vf", p:"Un balanceador de capa 4 puede enrutar según la cabecera Host de HTTP.",
+  ok:false, why:"Capa 4 no lee el contenido HTTP. Para enrutar por Host o ruta se necesita capa 7."},
+ {t:"info", eti:"Nivel sénior", h:"Hashing consistente, timeouts y alta disponibilidad del balanceador",
+  c:`<ul><li><b>Hashing consistente</b>: con un hash normal (<code>hash(clave) % N</code>), añadir un servidor cambia el destino de casi todas las claves y vacía todas las cachés. Con un anillo de hash consistente solo se mueve ~1/N de las claves. Lo usan las cachés distribuidas y los balanceadores para afinidad (Maglev, <code>hash … consistent</code> en Nginx).</li>
+     <li><b>Timeouts en cadena</b>: el del balanceador debe ser mayor que el de la aplicación, y el del cliente mayor que ambos. Si no, verás 504 mientras el backend sigue trabajando. Y el <i>keep-alive</i> del backend debe durar <b>más</b> que el del balanceador hacia él; si el backend cierra antes, aparecen 502 esporádicos.</li>
+     <li><b>Reintentos con presupuesto</b>: reintentar ayuda con fallos sueltos, pero en una caída multiplica la carga. Se limita el porcentaje de reintentos y se usa <i>outlier detection</i> (Envoy) para expulsar un destino que falla.</li>
+     <li><b>¿Y quién balancea al balanceador?</b> Dos equipos con una <b>IP virtual</b> que salta de uno a otro con VRRP (keepalived), varias IPs en el DNS o una IP <b>anycast</b> anunciada por BGP desde muchos sitios. En la nube, el balanceador gestionado ya es redundante entre zonas.</li></ul>`},
+ {t:"opcion", p:"Una capa de caché de 10 nodos reparte las claves con <code>hash(clave) % 10</code>. Añades un nodo y la base de datos se satura. ¿Por qué, y qué lo evita?",
+  ops:["El nodo nuevo es lento; hay que quitarlo","Con % 11 casi todas las claves cambian de nodo y fallan en caché a la vez; el hashing consistente solo mueve una pequeña parte","La base de datos no admite 11 conexiones","Hay que usar round robin"],
+  ok:1, why:"Es el clásico «rebalanceo en frío». Con hashing consistente, cada nodo nuevo se queda solo con la parte que le toca del anillo."},
+ {t:"hueco", p:"Completa el upstream de Nginx para enviar cada petición al servidor con menos conexiones activas y sacar un servidor tras 3 fallos durante 30 s",
+  tpl:"upstream api {\n    ___;\n    server 10.0.11.21:8080 max_fails=3 fail_timeout=___;\n    server 10.0.11.22:8080 ___=3 fail_timeout=30s;\n}",
+  banco:["least_conn","30s","max_fails","round_robin","ip_hash","3s"], sol:["least_conn","30s","max_fails"],
+  why:"Estos son chequeos <b>pasivos</b> (basados en peticiones reales que fallan). Los chequeos activos periódicos están en Nginx Plus, HAProxy, Envoy y los balanceadores de la nube."}
 ]},
 
 {
-id:"rd10l3",
-titulo:"Redes en la nube: VPC",
-claves:["Una VPC es tu red privada en la nube, dividida en subredes por zona","Subred pública = ruta a un Internet Gateway; privada = sale por NAT o no sale","Peering, Transit Gateway y endpoints privados conectan VPCs y servicios"],
+id:"rd8l3",
+titulo:"CDN y caché",
+claves:["Una CDN sirve contenido desde servidores cercanos al usuario","Cache-Control, ETag y versionado de ficheros controlan qué se cachea y cuánto","También protege el origen: absorbe picos y ataques"],
 pasos:[
- {t:"info", eti:"Tu centro de datos virtual", h:"Anatomía de una VPC",
-  c:`<div class="diag">VPC 10.0.0.0/16
- |- subred publica A 10.0.1.0/24   ruta 0.0.0.0/0 -> Internet Gateway
- |     balanceador, NAT Gateway
- |- subred privada A 10.0.11.0/24  ruta 0.0.0.0/0 -> NAT Gateway
- |     aplicaciones, nodos de Kubernetes
- '- subred de datos A 10.0.21.0/24 sin salida a internet
-       RDS, cache
-(y lo mismo repetido en la zona B y C para alta disponibilidad)</div>
-     <p>Lo que hace «pública» una subred es su <b>tabla de rutas</b>: tener una ruta al <b>Internet Gateway</b>.</p>`},
- {t:"par", p:"Empareja cada componente de VPC con su función",
-  pares:[["Internet Gateway","Conecta la VPC con internet en ambos sentidos"],["NAT Gateway","Salida a internet para subredes privadas"],["Grupo de seguridad","Cortafuegos con estado por recurso"],["VPC Peering","Conectar dos VPCs directamente"],["VPC Endpoint","Acceder a servicios de AWS (S3, ECR) sin salir a internet"]],
-  why:"Los endpoints ahorran costes de NAT y mantienen el tráfico dentro de la red del proveedor."},
- {t:"opcion", p:"Tus nodos privados descargan terabytes de imágenes de ECR y S3 y la factura del NAT Gateway se dispara. ¿Qué haces?",
-  ops:["Pasar los nodos a subredes públicas","Crear VPC Endpoints para S3 y ECR para que ese tráfico no pase por el NAT","Quitar el NAT","Cambiar de región"],
-  ok:1, why:"Los NAT Gateway cobran por GB procesado; los endpoints de tipo gateway para S3 son gratuitos."},
- {t:"opcion", p:"Tienes 15 VPCs que deben comunicarse entre sí y con la oficina. ¿Qué escala mejor que decenas de peerings?",
-  ops:["Más peerings","Un Transit Gateway como centro de conexiones","Poner todo en una VPC","IPs públicas en todo"],
-  ok:1, why:"El peering no es transitivo y crece de forma cuadrática; el Transit Gateway es un modelo de estrella."},
- {t:"vf", p:"Una instancia en una subred privada sin NAT ni endpoints no puede descargar actualizaciones de internet.",
-  ok:true, why:"No tiene ruta de salida. Es intencionado para bases de datos y cargas sensibles."}
-]},
-
-{
-id:"rd10l4",
-titulo:"Seguridad de red moderna",
-claves:["Defensa en profundidad: varias capas de filtrado","Zero trust: no confiar en la red, autenticar cada petición","Microsegmentación con NetworkPolicies y mTLS entre servicios"],
-pasos:[
- {t:"info", eti:"Más allá del perímetro", h:"De castillo y foso a zero trust",
-  c:`<p>El modelo clásico: un cortafuegos fuerte en el borde y confianza total dentro. Problema: si un atacante entra, se mueve libremente (<b>movimiento lateral</b>).</p>
-     <p><b>Zero trust</b>: la red no da confianza por sí misma. Cada petición se <b>autentica y autoriza</b>, venga de donde venga:</p>
-     <ul><li>mTLS entre servicios con identidades (SPIFFE).</li>
-     <li><b>Microsegmentación</b>: NetworkPolicies que solo permiten los flujos necesarios.</li>
-     <li>Acceso de personas por proxy con identidad (SSO, dispositivos gestionados) en lugar de VPN plana.</li></ul>`},
- {t:"par", p:"Empareja cada capa de defensa con su ejemplo",
-  pares:[["Borde","WAF y protección DDoS delante del balanceador"],["Red","Subredes privadas y grupos de seguridad"],["Clúster","NetworkPolicies por namespace y aplicación"],["Servicio","mTLS y autorización entre servicios"],["Aplicación","Validación de entrada y autenticación de usuarios"]],
-  why:"Si una capa falla, las demás siguen conteniendo el daño."},
- {t:"info", eti:"Ataques de red", h:"Lo que tienes que saber nombrar",
-  c:`<ul><li><b>DDoS</b>: saturar un servicio con tráfico masivo. Defensa: CDN, servicios anti-DDoS, límites de peticiones, autoescalado.</li>
-     <li><b>Man in the middle</b>: interceptar la comunicación. Defensa: TLS con verificación de certificados, HSTS.</li>
-     <li><b>DNS spoofing</b>: respuestas DNS falsas. Defensa: DNSSEC, resolvedores de confianza, TLS.</li>
-     <li><b>SSRF</b>: engañar a tu servidor para que haga peticiones internas (por ejemplo al servicio de metadatos 169.254.169.254). Defensa: validar URLs, IMDSv2, filtrar salidas.</li></ul>`},
- {t:"opcion", p:"Una función de «importar imagen desde URL» permite que un atacante obtenga credenciales llamando a <code>http://169.254.169.254/...</code>. ¿Qué ataque es?",
-  ops:["DDoS","SSRF (Server-Side Request Forgery)","XSS","Fuerza bruta"],
-  ok:1, why:"Defensas: lista de destinos permitidos, bloquear IPs internas y de metadatos, e IMDSv2 en AWS."},
- {t:"vf", p:"En un modelo zero trust, estar dentro de la red corporativa basta para acceder a los servicios internos.",
-  ok:false, why:"Justo lo contrario: la ubicación en la red no otorga confianza; cada acceso se verifica."}
+ {t:"info", eti:"Cerca del usuario", h:"¿Qué es una CDN?",
+  c:`<p>Una <b>CDN</b> (CloudFront, Cloudflare, Fastly, Akamai) tiene servidores en cientos de ciudades. El usuario se conecta al más cercano (el <b>edge</b>), que le sirve el contenido desde su caché. Si no lo tiene, lo pide al <b>origen</b> (tu servidor o tu bucket S3) y lo guarda.</p>
+     <ul><li>Menos latencia: el contenido está a pocos milisegundos.</li>
+     <li>Menos carga en el origen.</li>
+     <li>Protección frente a picos y ataques DDoS.</li></ul>`},
+ {t:"info", eti:"Controlar la caché", h:"Cabeceras de caché",
+  c:`<div class="termbox">Cache-Control: public, max-age=31536000, immutable   <span class="cm"># app.3f9a1c.js: un año</span>
+Cache-Control: no-cache                               <span class="cm"># index.html: revalidar siempre</span>
+Cache-Control: private, no-store                      <span class="cm"># datos de usuario: no cachear</span>
+ETag: "5f3a-19c"                                      <span class="cm"># versión del contenido</span></div>
+     <p>Patrón habitual en frontends: los ficheros llevan un <b>hash en el nombre</b> y se cachean para siempre; el <code>index.html</code> no se cachea, y al desplegar apunta a los nuevos nombres.</p>`},
+ {t:"par", p:"Empareja cada directiva con su efecto",
+  pares:[["max-age=3600","Se puede reutilizar durante una hora"],["no-cache","Se puede guardar pero hay que revalidar antes de usarlo"],["no-store","No guardar nunca"],["private","Solo el navegador, no cachés compartidas"],["ETag","Identificador de versión para revalidar (respuesta 304)"]],
+  why:"no-cache no significa «no cachear»: significa «pregunta antes de usarlo». Es una confusión clásica."},
+ {t:"opcion", p:"Despliegas un cambio en <code>estilos.css</code> (sin hash en el nombre, max-age de un año) y los usuarios siguen viendo el antiguo. ¿Solución duradera?",
+  ops:["Pedir a los usuarios que borren la caché","Añadir un hash de contenido al nombre del fichero en cada build","Quitar la CDN","Usar HTTP/1.1"],
+  ok:1, why:"Nombre nuevo = URL nueva = nada que invalidar. Invalidar la CDN a mano es el parche de emergencia."},
+ {t:"vf", p:"Cachear en la CDN respuestas de API con datos personales sin <code>private</code> puede mostrar datos de un usuario a otro.",
+  ok:true, why:"Un incidente real y grave. Las respuestas personalizadas deben ser private o no-store."},
+ {t:"term", p:"Pide solo las cabeceras de <code>https://cdn.miempresa.com/app.3f9a1c.js</code> para comprobar si la CDN lo sirve desde su caché",
+  prompt:"pablo@portatil:~$", sol:["curl -I https://cdn.miempresa.com/app.3f9a1c.js","curl --head https://cdn.miempresa.com/app.3f9a1c.js","curl -sI https://cdn.miempresa.com/app.3f9a1c.js","curl -Is https://cdn.miempresa.com/app.3f9a1c.js"],
+  salida:`HTTP/2 200
+content-type: application/javascript
+cache-control: public, max-age=31536000, immutable
+age: 5321
+x-cache: Hit from cloudfront
+via: 1.1 6b2e4c.cloudfront.net (CloudFront)
+x-amz-cf-pop: MAD53-P1`,
+  pista:"curl con -I, como para cualquier cabecera.",
+  why:"<code>x-cache: Hit</code> y <code>age: 5321</code> (segundos en caché) confirman que no llegó al origen. <code>x-amz-cf-pop</code> dice qué edge respondió: MAD es Madrid."},
+ {t:"opcion", p:"Tu API devuelve JSON o XML según la cabecera <code>Accept</code>, y a través de la CDN algunos clientes que piden JSON reciben XML. ¿Qué falta?",
+  ops:["Un certificado nuevo","Que la respuesta lleve Vary: Accept (o que la CDN incluya Accept en la clave de caché)","Bajar el TTL a 0","Usar HTTP/3"],
+  ok:1, why:"La caché guarda por URL; si la respuesta depende de una cabecera, hay que decírselo con <code>Vary</code>. Es el mismo problema con <code>Accept-Encoding</code> o el idioma."}
 ]}
 
 ]});

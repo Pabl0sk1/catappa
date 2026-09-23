@@ -50,19 +50,18 @@ titulo:"La arquitectura del clúster",
 claves:["Plano de control: kube-apiserver, etcd, kube-scheduler, kube-controller-manager","Nodos: kubelet, runtime (containerd) y kube-proxy","Todo, incluido kubectl, habla con el API server"],
 pasos:[
  {t:"info", eti:"El mapa", h:"Plano de control y nodos",
-  c:`<div class="diag">            +---------------- PLANO DE CONTROL ----------------+
-kubectl --> | kube-apiserver  <-> etcd                          |
-            | kube-scheduler     kube-controller-manager        |
-            | (cloud-controller-manager, en la nube)            |
-            +------------------------+--------------------------+
-                                     | (todo pasa por el API server)
-            +------------------------+--------------------------+
-            v                        v                          v
-        [ nodo 1 ]               [ nodo 2 ]                 [ nodo 3 ]
-        kubelet                  kubelet                    kubelet
-        containerd               containerd                 containerd
-        kube-proxy               kube-proxy                 kube-proxy
-        pods...                  pods...                    pods...</div>`},
+  c:`<div class="dg"><div class="dg-tit">plano de control y nodos de un clúster</div>
+       <div class="dg-vert">
+         <div class="dg-caja base">kubectl<small>tu herramienta: le habla al API server</small></div>
+         <div class="dg-caja acento">Plano de control
+           <div class="dg-pila" style="margin-top:8px"><div class="dg-caja">kube-apiserver ⇄ etcd</div><div class="dg-caja">kube-scheduler</div><div class="dg-caja">kube-controller-manager</div><div class="dg-caja">cloud-controller-manager<small>en la nube</small></div></div>
+         </div>
+         <div class="dg-caja base">Nodos<small>todo pasa por el API server</small>
+           <div class="dg-fila" style="margin-top:8px"><div class="dg-caja ok">nodo 1</div><div class="dg-caja ok">nodo 2</div><div class="dg-caja ok">nodo 3</div></div>
+           <div class="dg-caja" style="margin-top:6px">en cada nodo<small>kubelet · containerd · kube-proxy · pods...</small></div>
+         </div>
+       </div>
+     </div>`},
  {t:"info", eti:"El cerebro", h:"Los componentes del plano de control",
   c:`<ul><li><b>kube-apiserver</b>: la puerta de entrada. Recibe todas las peticiones (de kubectl, de los nodos, de los controladores), las valida y las guarda. Es el <b>único</b> que habla con etcd.</li>
      <li><b>etcd</b>: base de datos clave-valor distribuida con todo el estado del clúster. Si se pierde etcd sin backup, se pierde el clúster.</li>
@@ -75,7 +74,21 @@ kubectl --> | kube-apiserver  <-> etcd                          |
  {t:"info", eti:"En cada nodo", h:"kubelet, runtime y kube-proxy",
   c:`<ul><li><b>kubelet</b>: el agente del nodo. Pregunta al API server qué pods le tocan, pide al runtime que los arranque y comprueba que estén sanos.</li>
      <li><b>runtime de contenedores</b>: normalmente <b>containerd</b> (o CRI-O). Kubernetes habla con él a través de una interfaz estándar, la CRI.</li>
-     <li><b>kube-proxy</b>: traduce los Services a reglas de red (iptables o IPVS) para repartir el tráfico entre pods. Algunos plugins de red modernos, como Cilium, lo sustituyen.</li></ul>`},
+     <li><b>kube-proxy</b>: traduce los Services a reglas de red (iptables, IPVS o nftables) para repartir el tráfico entre pods. Algunos plugins de red modernos, como Cilium, lo sustituyen.</li></ul>
+     <p>En los clústeres montados con <b>kubeadm</b>, los componentes del plano de control son <b>pods estáticos</b>: el kubelet del nodo maestro los arranca directamente a partir de los ficheros de <code>/etc/kubernetes/manifests/</code>, sin pasar por el scheduler.</p>`},
+ {t:"term", p:"Mira los pods de sistema que forman el plano de control de tu clúster local", prompt:"pablo@portatil:~$",
+  sol:["kubectl get pods -n kube-system","kubectl get pods --namespace kube-system","kubectl get pods --namespace=kube-system","kubectl get po -n kube-system","kubectl -n kube-system get pods"],
+  pista:"kubectl get pods en el namespace kube-system.",
+  salida:`NAME                                         READY   STATUS    RESTARTS   AGE
+coredns-66bc5c9577-8xk2m                     1/1     Running   0          12m
+coredns-66bc5c9577-tq9fd                     1/1     Running   0          12m
+etcd-kind-control-plane                      1/1     Running   0          12m
+kindnet-4hv7c                                1/1     Running   0          12m
+kube-apiserver-kind-control-plane            1/1     Running   0          12m
+kube-controller-manager-kind-control-plane   1/1     Running   0          12m
+kube-proxy-8zmxl                             1/1     Running   0          12m
+kube-scheduler-kind-control-plane            1/1     Running   0          12m`,
+  why:"Los que acaban en el nombre del nodo (etcd-kind-control-plane…) son pods estáticos. coredns es el DNS interno, kindnet el plugin de red de kind y kube-proxy corre en cada nodo (es un DaemonSet)."},
  {t:"orden", p:"Ordena qué ocurre al crear un Deployment con <code>kubectl apply</code>",
   items:["kubectl envía el manifiesto al kube-apiserver","El API server lo valida y lo guarda en etcd","El controlador de Deployments crea un ReplicaSet y este, los pods","El scheduler asigna cada pod a un nodo","El kubelet de ese nodo pide a containerd que arranque los contenedores"],
   why:"Contar este flujo en una entrevista demuestra que entiendes cómo encajan las piezas."},
@@ -143,7 +156,7 @@ pasos:[
      <li><b>k3d / k3s</b>: una distribución ligera, ideal para máquinas modestas.</li></ul>`},
  {t:"term", p:"Crea un clúster local con kind", prompt:"PS C:\\>", sol:["kind create cluster","kind create cluster --name catappa"],
   pista:"kind, create, cluster.", salida:`Creating cluster "kind" ...
- ✓ Ensuring node image (kindest/node:v1.31.0)
+ ✓ Ensuring node image (kindest/node:v1.34.0)
  ✓ Preparing nodes
  ✓ Starting control-plane
  ✓ Installing CNI
@@ -173,6 +186,84 @@ kubectl config set-context --current --namespace=pagos   <span class="cm"># name
  {t:"escribe", p:"Escribe el comando que muestra la documentación del campo <code>spec.replicas</code> de un Deployment",
   sol:["kubectl explain deployment.spec.replicas","kubectl explain deploy.spec.replicas","kubectl explain deployments.spec.replicas"], ph:"kubectl explain ...",
   pista:"kubectl explain con la ruta del campo.", why:"kubectl explain deployment.spec.replicas."}
+]},
+
+{
+id:"k1n1",
+titulo:"kubectl a velocidad de examen",
+claves:["Generar YAML con comandos imperativos y --dry-run=client -o yaml","Formatos de salida: wide, yaml, jsonpath, custom-columns y --sort-by","Filtrar con -l, --field-selector y -A; comprobar antes con kubectl diff"],
+pasos:[
+ {t:"info", eti:"El truco de los profesionales", h:"Imperativo para generar, declarativo para aplicar",
+  c:`<p>Nadie escribe un Deployment desde cero de memoria. Se <b>genera</b> un esqueleto correcto con un comando imperativo y se retoca:</p>
+     <div class="termbox">kubectl create deployment web --image=nginx:1.27 --replicas=3 \\
+  --dry-run=client -o yaml &gt; web.yaml       <span class="cm"># no crea nada: solo imprime el YAML</span>
+kubectl run prueba --image=busybox:1.36 --dry-run=client -o yaml -- sleep 3600
+kubectl expose deployment web --port=80 --target-port=8080 --dry-run=client -o yaml
+kubectl create configmap app --from-literal=MODO=prod --dry-run=client -o yaml
+kubectl create job migrar --image=ghcr.io/pablo/api:1.3.0 --dry-run=client -o yaml
+kubectl create cronjob limpiar --image=busybox:1.36 --schedule="0 3 * * *" -- sh -c "echo hola"</div>
+     <p>En los exámenes CKA y CKAD (prácticos, con tiempo muy justo) esto marca la diferencia; en el trabajo diario, evita errores de sangría. Después, el fichero va a Git y se aplica con <code>kubectl apply -f</code>.</p>`},
+ {t:"term", p:"Genera, sin crear nada en el clúster, el YAML de un Deployment <code>web</code> con la imagen <code>nginx:1.27</code> y 3 réplicas", prompt:"pablo@portatil:~$",
+  sol:["kubectl create deployment web --image=nginx:1.27 --replicas=3 --dry-run=client -o yaml","kubectl create deploy web --image=nginx:1.27 --replicas=3 --dry-run=client -o yaml","kubectl create deployment web --image=nginx:1.27 --replicas=3 -o yaml --dry-run=client","kubectl create deployment web --replicas=3 --image=nginx:1.27 --dry-run=client -o yaml"],
+  pista:"kubectl create deployment, --image, --replicas, y termina con --dry-run=client -o yaml.",
+  salida:`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: web
+  name: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - image: nginx:1.27
+        name: nginx
+        resources: {}
+status: {}`,
+  why:"Fíjate en que ya trae selector y labels coherentes. Redirígelo a un fichero (&gt; web.yaml), añade requests, probes y lo que falte, y aplícalo."},
+ {t:"info", eti:"Ver lo que importa", h:"Formatos de salida y filtros",
+  c:`<div class="termbox">kubectl get pods -o wide                              <span class="cm"># IP y nodo</span>
+kubectl get pods -A                                   <span class="cm"># todos los namespaces</span>
+kubectl get pods --show-labels
+kubectl get pods -l app=api,entorno!=pruebas          <span class="cm"># selector de labels</span>
+kubectl get pods --field-selector status.phase=Pending   <span class="cm"># por campos</span>
+kubectl get pods --sort-by=.metadata.creationTimestamp
+kubectl get pods -w                                   <span class="cm"># seguir los cambios en vivo</span>
+kubectl get nodes -o jsonpath='{.items[*].metadata.name}'
+kubectl get pods -o custom-columns=POD:.metadata.name,NODO:.spec.nodeName
+kubectl diff -f web.yaml                              <span class="cm"># que cambiaria antes de aplicar</span>
+kubectl api-resources                                 <span class="cm"># tipos, nombres cortos y si llevan namespace</span></div>
+     <p><b>jsonpath</b> y <b>custom-columns</b> recorren el mismo JSON que ves con <code>-o json</code>: si no sabes la ruta, mira primero el objeto completo.</p>`},
+ {t:"term", p:"Imprime solo los nombres de todos los nodos usando jsonpath", prompt:"pablo@portatil:~$",
+  sol:["kubectl get nodes -o jsonpath='{.items[*].metadata.name}'","kubectl get nodes -o jsonpath={.items[*].metadata.name}","kubectl get nodes -o=jsonpath='{.items[*].metadata.name}'","kubectl get no -o jsonpath='{.items[*].metadata.name}'"],
+  pista:"-o jsonpath='{.items[*].metadata.name}'",
+  salida:`kind-control-plane kind-worker kind-worker2`,
+  why:"<code>.items[*]</code> recorre la lista que devuelve un get de varios objetos. Para una línea por nodo: <code>{range .items[*]}{.metadata.name}{\"\\n\"}{end}</code>."},
+ {t:"hueco", p:"Completa el comando que lista cada pod con el nodo donde corre, en dos columnas con nombre propio",
+  tpl:"kubectl get pods -o ___=POD:.metadata.name,NODO:.spec.___",
+  banco:["custom-columns","nodeName","jsonpath","node","hostIP","columns"], sol:["custom-columns","nodeName"],
+  why:"El nodo asignado está en <code>spec.nodeName</code> (lo escribe el scheduler). <code>status.hostIP</code> es la IP de ese nodo."},
+ {t:"par", p:"Empareja cada opción de kubectl con para qué sirve",
+  pares:[["--dry-run=client -o yaml","Generar un manifiesto sin crear nada"],["--field-selector status.phase=Pending","Filtrar por el valor de un campo"],["--sort-by=.metadata.creationTimestamp","Ordenar por fecha de creación"],["-w","Seguir los cambios en directo"],["kubectl diff -f","Ver qué cambiaría antes de aplicar"]],
+  why:"<code>kubectl diff</code> antes de <code>apply</code> en producción es el equivalente a <code>terraform plan</code>."},
+ {t:"opcion", p:"En mitad de un examen no recuerdas dónde van exactamente las <code>tolerations</code> de un pod. ¿Qué es lo más rápido?",
+  ops:["Buscarlo en un blog","kubectl explain pod.spec.tolerations (o kubectl explain pod.spec --recursive para ver todo el árbol)","Probar hasta que funcione","kubectl get tolerations"],
+  ok:1, why:"kubectl explain lee el esquema de la API del propio clúster: siempre coincide con su versión. En el examen también se puede consultar kubernetes.io/docs."},
+ {t:"vf", p:"<code>--dry-run=server</code> envía el objeto al API server, que lo valida y pasa por la admisión, pero no lo guarda.",
+  ok:true, why:"Detecta errores que el cliente no ve (una política de admisión que lo rechazaría, un campo inmutable). <code>--dry-run=client</code> ni siquiera contacta con el clúster."},
+ {t:"term", p:"Publica el Deployment <code>web</code> con un Service en el puerto 80 que reenvíe al 8080 de los contenedores", prompt:"pablo@portatil:~$",
+  sol:["kubectl expose deployment web --port=80 --target-port=8080","kubectl expose deploy web --port=80 --target-port=8080","kubectl expose deployment/web --port=80 --target-port=8080","kubectl expose deploy/web --port=80 --target-port=8080","kubectl expose deployment web --target-port=8080 --port=80"],
+  pista:"kubectl expose, el deployment, --port y --target-port.",
+  salida:`service/web exposed`,
+  why:"expose copia el selector del Deployment al Service, así que no puede equivocarse con las labels. Por defecto crea un ClusterIP."}
 ]}
 
 ]});

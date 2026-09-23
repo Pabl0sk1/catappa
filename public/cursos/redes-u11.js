@@ -1,96 +1,133 @@
 window.CURSOS = window.CURSOS || {};
 (CURSOS.redes = CURSOS.redes || []).push({
-titulo: "Maestría: casos reales y entrevista",
-resumen: "Qué pasa al escribir una URL, incidentes de red resueltos paso a paso y simulacro de entrevista",
-nivel: "Maestro",
-color: "#1f7aa3",
+titulo: "Diagnóstico de red",
+resumen: "Método por capas y las herramientas: ping, traceroute, mtr, ss, nc, curl, dig y tcpdump",
+nivel: "Avanzado",
+color: "#3094bb",
 lecciones: [
 
 {
-id:"rd11l1",
-titulo:"¿Qué pasa al escribir una URL?",
-claves:["DNS → TCP → TLS → HTTP → servidor → respuesta → renderizado","Cada fase tiene su latencia y sus posibles fallos","Es la pregunta de redes más famosa de las entrevistas"],
+id:"rd9l1",
+titulo:"Método por capas",
+claves:["Subir de capa en capa: interfaz, IP y ruta, DNS, puerto, aplicación","Cada comprobación descarta una causa","Probar desde el mismo sitio que falla (el pod, el contenedor, el servidor)"],
 pasos:[
- {t:"info", eti:"La pregunta estrella", h:"https://tienda.com/carrito, de principio a fin",
-  c:`<ol><li><b>URL</b>: el navegador separa esquema (https), dominio (tienda.com) y ruta (/carrito).</li>
-     <li><b>DNS</b>: busca en cachés; si no, el resolvedor recursivo recorre raíz → .com → autoritativo y obtiene la IP (quizá de una CDN o balanceador).</li>
-     <li><b>Ruta</b>: el sistema ve que la IP no es local y envía los paquetes a la puerta de enlace (ARP para su MAC). El router hace NAT y los paquetes cruzan internet salto a salto.</li>
-     <li><b>TCP</b>: saludo SYN, SYN-ACK, ACK al puerto 443.</li>
-     <li><b>TLS</b>: ClientHello con SNI, certificado verificado, claves de sesión.</li>
-     <li><b>HTTP</b>: GET /carrito con cabeceras y cookies.</li>
-     <li><b>Servidor</b>: CDN o balanceador → proxy inverso → aplicación → base de datos o caché → respuesta.</li>
-     <li><b>Navegador</b>: recibe el HTML, pide CSS, JS e imágenes (muchas desde caché o CDN) y pinta la página.</li></ol>`},
- {t:"orden", p:"Ordena las fases al abrir una URL nueva",
-  items:["Resolver el nombre con DNS","Establecer la conexión TCP","Negociar TLS","Enviar la petición HTTP","El servidor procesa y responde","El navegador pinta la página y pide los recursos"],
-  why:"Contarlo con este orden y con detalle en cada fase demuestra una base sólida."},
- {t:"opcion", p:"¿En qué fase interviene el SNI?",
-  ops:["DNS","TCP","TLS: en el ClientHello, para que el servidor elija el certificado","HTTP"],
-  ok:2, why:"Permite que una sola IP sirva certificados de muchos dominios."},
- {t:"par", p:"Empareja cada fase con un fallo típico",
-  pares:[["DNS","NXDOMAIN o IP antigua en caché"],["TCP","Timeout por cortafuegos"],["TLS","Certificado caducado o nombre que no coincide"],["HTTP","404, 401 o 5xx"],["Servidor","Base de datos lenta que provoca 504"]],
-  why:"Este mapa te permite ubicar cualquier error que te describan."}
+ {t:"info", eti:"No adivinar", h:"El método",
+  c:`<p>«La API no conecta con la base de datos». En lugar de cambiar cosas al azar, recorre las capas desde el origen:</p>
+     <div class="dg"><div class="dg-tit">diagnóstico de abajo arriba</div><div class="dg-vert">
+     <div class="dg-caja">1. ¿Tengo red?<small><code>ip addr</code>, <code>ip route</code></small></div>
+     <div class="dg-caja">2. ¿Llego a la máquina?<small><code>ping</code> (si ICMP está permitido), <code>traceroute</code></small></div>
+     <div class="dg-caja">3. ¿Resuelve el nombre?<small><code>dig</code> / <code>nslookup</code> / <code>getent hosts</code></small></div>
+     <div class="dg-caja">4. ¿El puerto está abierto?<small><code>nc -vz host puerto</code>, o <code>curl</code></small></div>
+     <div class="dg-caja">5. ¿Responde la aplicación?<small><code>curl -v</code>, logs del servicio</small></div>
+     <div class="dg-caja">6. ¿Y en el destino?<small><code>ss -tlnp</code> (¿escucha? ¿en qué IP?), cortafuegos</small></div>
+     </div></div>
+     <p>Y hazlo <b>desde el mismo lugar</b> que falla: si falla un pod, prueba desde ese pod (o uno igual en el mismo namespace y nodo).</p>`},
+ {t:"orden", p:"Ordena las comprobaciones de abajo arriba",
+  items:["¿La máquina tiene IP y ruta por defecto?","¿Resuelve el nombre del destino?","¿Se alcanza el puerto (nc -vz)?","¿La aplicación responde correctamente (curl -v)?"],
+  why:"Si el nombre no resuelve, no tiene sentido mirar el puerto ni la aplicación."},
+ {t:"opcion", p:"<code>dig db.interna</code> funciona, <code>nc -vz db.interna 5432</code> da timeout. ¿Dónde está el problema?",
+  ops:["En el DNS","En la red o el filtrado: cortafuegos, grupos de seguridad, NetworkPolicy o rutas","En la aplicación","En el certificado"],
+  ok:1, why:"DNS está descartado; el timeout apunta a paquetes descartados por el camino."},
+ {t:"vf", p:"Si <code>ping</code> a un servidor no responde, seguro que el servidor está caído.",
+  ok:false, why:"Muchas redes bloquean ICMP (ping). Comprueba el puerto real con nc o curl antes de concluir nada."}
 ]},
 
 {
-id:"rd11l2",
-titulo:"Incidentes de red reales",
-claves:["Aislar el problema por capa y por ubicación","Comparar lo que funciona con lo que no","Mitigar primero, causa raíz después"],
+id:"rd9l2",
+titulo:"ping, traceroute y mtr",
+claves:["ping mide si hay respuesta y la latencia (ICMP)","traceroute muestra los saltos hasta el destino","mtr combina ambos y muestra pérdidas por salto"],
 pasos:[
- {t:"info", eti:"Caso 1", h:"«Desde mi portátil funciona, desde el servidor no»",
-  c:`<p>La API llama a un proveedor externo. En local va bien; en producción, timeout.</p>
-     <ol><li><code>dig proveedor.com</code> en el servidor: resuelve. DNS descartado.</li>
-     <li><code>nc -vz proveedor.com 443</code>: timeout. Hay un bloqueo.</li>
-     <li>El servidor está en una subred privada: ¿tiene ruta 0.0.0.0/0 al NAT? Sí.</li>
-     <li>El proveedor tiene <b>lista blanca de IPs</b>: añadieron la IP de la oficina, no la IP pública del NAT Gateway.</li></ol>
-     <p>Solución: dar al proveedor la IP elástica del NAT.</p>`},
- {t:"opcion", p:"Caso 2: tras migrar la web a un nuevo servidor, la mitad de los usuarios sigue viendo la versión vieja durante horas. ¿Causa?",
-  ops:["Un bug del navegador","El TTL del registro DNS era alto y los resolvedores siguen con la IP antigua en caché","El certificado","El balanceador"],
-  ok:1, why:"Lección: bajar el TTL antes de migrar y mantener el servidor antiguo funcionando hasta que caduque."},
- {t:"opcion", p:"Caso 3: dentro de una VPN, las peticiones pequeñas funcionan pero las descargas grandes se cuelgan. ¿Qué sospechas?",
-  ops:["Falta de ancho de banda","Problema de MTU: los paquetes grandes, con la cabecera extra del túnel, no caben y se descartan","DNS","TLS"],
-  ok:1, why:"Se soluciona bajando la MTU del túnel o ajustando el MSS de TCP (MSS clamping)."},
- {t:"opcion", p:"Caso 4: un pod no puede llamar a <code>api.pagos</code> desde que se aplicó una NetworkPolicy de «denegar salida» en su namespace. La política permite el puerto 8080 hacia pagos. ¿Qué falta?",
-  ops:["Nada","Permitir la salida DNS (UDP y TCP 53) hacia kube-dns: sin ella el nombre no se resuelve","Un Ingress","Más réplicas"],
-  ok:1, why:"Olvidar el DNS en las políticas de salida es de los fallos más comunes."},
- {t:"opcion", p:"Caso 5: tu API detrás de un balanceador registra siempre la misma IP de cliente (10.0.1.37). ¿Por qué?",
-  ops:["Solo hay un usuario","Es la IP del balanceador; la real llega en X-Forwarded-For y hay que configurar la app para usarla","Un error de DNS","NAT del usuario"],
-  ok:1, why:"Importante para logs, límites de peticiones y seguridad. Confía solo en esa cabecera si viene de tu propio proxy."},
- {t:"par", p:"Empareja cada síntoma con su primera sospecha",
-  pares:[["Timeout al conectar","Cortafuegos, grupo de seguridad o ruta"],["Connection refused","Servicio caído o escuchando en otra IP o puerto"],["Nombre no resuelve","DNS o dominios de búsqueda"],["Funciona a ratos tras migrar","Cachés de DNS y TTL"],["Grandes cuelgan, pequeñas no","MTU"]],
-  why:"Este mapa es tu primer minuto de cualquier incidente de red."}
+ {t:"info", eti:"ICMP", h:"ping",
+  c:`<div class="termbox">pablo@servidor:~$ ping -c 4 10.0.21.5
+64 bytes from 10.0.21.5: icmp_seq=1 ttl=63 time=0.82 ms
+64 bytes from 10.0.21.5: icmp_seq=2 ttl=63 time=0.79 ms
+--- 10.0.21.5 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss
+rtt min/avg/max = 0.77/0.80/0.82 ms</div>
+     <p>Da <b>latencia</b> (rtt, ida y vuelta) y <b>pérdida</b> de paquetes. <code>-c 4</code> envía solo 4 (en Linux, sin -c no para).</p>`},
+ {t:"info", eti:"El camino", h:"traceroute y mtr",
+  c:`<div class="termbox">pablo@servidor:~$ traceroute api.externa.com
+ 1  10.0.0.1       0.4 ms
+ 2  100.64.3.1     1.2 ms
+ 3  * * *
+ 4  72.14.215.85   9.8 ms
+ 5  api.externa.com  10.3 ms</div>
+     <p>Cada línea es un router del camino. <code>* * *</code> significa que ese salto no responde a las sondas (habitual, no siempre es un problema). <b>mtr</b> repite la prueba continuamente y muestra la pérdida en cada salto: si la pérdida empieza en un salto y <b>continúa hasta el final</b>, el problema está ahí.</p>`},
+ {t:"term", p:"Envía exactamente 3 pings a <code>8.8.8.8</code>",
+  prompt:"pablo@servidor:~$", sol:["ping -c 3 8.8.8.8","ping -c3 8.8.8.8","ping 8.8.8.8 -c 3"],
+  pista:"ping con -c y el número de paquetes.",
+  salida:`64 bytes from 8.8.8.8: icmp_seq=1 ttl=117 time=12.1 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=117 time=11.8 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=117 time=12.0 ms
+3 packets transmitted, 3 received, 0% packet loss`, why:"Si pings a una IP funcionan pero a un nombre no, el problema es DNS."},
+ {t:"par", p:"Empareja cada herramienta con lo que responde",
+  pares:[["ping","¿Responde y con qué latencia?"],["traceroute","¿Por qué routers pasa?"],["mtr","¿En qué salto se pierden paquetes?"],["dig","¿A qué IP resuelve el nombre?"]],
+  why:"En Windows los equivalentes son ping, tracert y pathping."},
+ {t:"vf", p:"Un salto intermedio con <code>* * *</code> en traceroute indica siempre que el tráfico se pierde ahí.",
+  ok:false, why:"Muchos routers no responden a las sondas pero reenvían el tráfico sin problemas. Lo que importa es si el destino final responde."}
 ]},
 
 {
-id:"rd11l3",
-titulo:"Simulacro de entrevista de redes",
-claves:["Has repasado las preguntas de redes más frecuentes","Sabes explicar TCP, DNS, HTTP, TLS, subredes y balanceo","Estás preparado para preguntas de backend, DevOps y cloud"],
+id:"rd9l3",
+titulo:"Puertos y conexiones: nc, ss y curl",
+claves:["nc -vz host puerto comprueba si un puerto TCP acepta conexiones","ss muestra sockets en escucha y conexiones activas","curl -v y -w para medir cada fase de una petición HTTP"],
 pasos:[
- {t:"info", eti:"Último paso", h:"Preguntas mezcladas",
-  c:`<p>Responde en voz alta antes de elegir. Si fallas, repasa la unidad correspondiente.</p>`},
- {t:"opcion", p:"«¿Diferencia entre TCP y UDP?»",
-  ops:["Ninguna relevante","TCP: orientado a conexión, fiable y ordenado, con control de flujo. UDP: sin conexión, sin garantías, más ligero; DNS, streaming, QUIC","UDP es más seguro","TCP solo sirve para web"],
-  ok:1, why:"Añade ejemplos de uso de cada uno."},
- {t:"opcion", p:"«¿Cuántas direcciones tiene un /26 y cuántas son usables en una red clásica?»",
-  ops:["26 y 24","64 y 62","256 y 254","32 y 30"],
-  ok:1, why:"2⁽³²⁻²⁶⁾ = 64; menos red y broadcast, 62."},
- {t:"opcion", p:"«¿Qué es un registro CNAME y cuándo lo usarías?»",
-  ops:["Un registro de correo","Un alias de un nombre hacia otro; por ejemplo apuntar api.miempresa.com al nombre del balanceador de AWS, cuyas IPs cambian","Una IP fija","Un certificado"],
-  ok:1, why:"Los balanceadores de la nube cambian de IP: se apunta a su nombre, no a sus IPs."},
- {t:"opcion", p:"«¿Diferencia entre balanceador de capa 4 y de capa 7?»",
-  ops:["Solo el precio","Capa 4 reparte conexiones TCP/UDP sin mirar el contenido; capa 7 entiende HTTP y enruta por dominio, ruta o cabeceras, termina TLS y puede reintentar","Capa 7 es más rápida siempre","Capa 4 entiende HTTP"],
-  ok:1, why:"Ejemplos en AWS: NLB (capa 4) y ALB (capa 7)."},
- {t:"opcion", p:"«¿Qué diferencia hay entre 401 y 403?»",
-  ops:["Son iguales","401: no autenticado (falta o es inválida la credencial). 403: autenticado pero sin permiso","403 es de servidor","401 es de red"],
-  ok:1, why:"Pregunta sencilla que se falla a menudo."},
- {t:"opcion", p:"«¿Cómo harías que una base de datos no sea accesible desde internet pero sí desde tu aplicación?»",
-  ops:["Contraseña fuerte y ya","Subred privada sin ruta a internet, sin IP pública, grupo de seguridad que solo admite el puerto desde el grupo de la aplicación, y TLS en la conexión","Puerto no estándar","Una VPN para cada usuario"],
-  ok:1, why:"Defensa en profundidad: red, filtrado, identidad y cifrado."},
- {t:"opcion", p:"«Una llamada entre dos servicios da timeout. ¿Cómo lo diagnosticas?»",
-  ops:["Reinicio todo","Desde el origen: DNS con dig, puerto con nc, ruta y reglas (grupos de seguridad, NetworkPolicies), escucha en el destino con ss, y tcpdump si hace falta","Cambio el timeout a 10 minutos","Abro todos los puertos"],
-  ok:1, why:"Método por capas y desde el lugar que falla."},
- {t:"info", eti:"Terminado", h:"Has completado Redes de cero a experto",
-  c:`<p>Dominas modelos en capas, Ethernet y ARP, IP y subredes, TCP y UDP, DNS, HTTP y TLS, enrutamiento, NAT y cortafuegos, balanceo y CDN, diagnóstico con herramientas reales, y las redes de contenedores, Kubernetes y la nube.</p>
-     <p>Para consolidarlo: diseña en papel la VPC de un proyecto (subredes, rutas, grupos de seguridad), captura con tcpdump una petición HTTP de tu propia API en Docker y localiza el saludo TCP. Si te interesa certificarte: CompTIA Network+ o AWS Advanced Networking.</p>`}
+ {t:"info", eti:"¿Está abierto?", h:"nc (netcat)",
+  c:`<div class="termbox">pablo@servidor:~$ nc -vz db.interna 5432
+Connection to db.interna 5432 port [tcp/postgresql] succeeded!
+
+pablo@servidor:~$ nc -vz db.interna 5433
+nc: connect to db.interna port 5433 (tcp) failed: Connection refused</div>
+     <p>Sin nc, bash también sirve: <code>timeout 3 bash -c '&lt;/dev/tcp/db.interna/5432' &amp;&amp; echo abierto</code>.</p>`},
+ {t:"term", p:"Comprueba si el puerto 6379 de <code>redis.interno</code> acepta conexiones TCP",
+  prompt:"pablo@servidor:~$", sol:["nc -vz redis.interno 6379","nc -zv redis.interno 6379","nc -z -v redis.interno 6379","nc -v -z redis.interno 6379"],
+  pista:"nc con -v (verboso) y -z (solo comprobar), el host y el puerto.",
+  salida:`Connection to redis.interno 6379 port [tcp/redis] succeeded!`, why:"Conectividad confirmada. Si ahora la app falla, mira credenciales, TLS o la propia aplicación."},
+ {t:"info", eti:"Tiempos de HTTP", h:"¿Dónde se va el tiempo?",
+  c:`<div class="termbox">curl -s -o /dev/null https://api.miempresa.com/salud -w \\
+ "dns:%{time_namelookup} tcp:%{time_connect} tls:%{time_appconnect} primer_byte:%{time_starttransfer} total:%{time_total}\\n"
+
+dns:0.004 tcp:0.021 tls:0.058 primer_byte:1.912 total:1.915</div>
+     <p>Aquí la red es rápida (TLS listo a los 58 ms) y el servidor tarda casi 2 segundos en empezar a responder: el problema está en la aplicación o en lo que consulta.</p>`},
+ {t:"opcion", p:"Con la medición anterior, ¿dónde buscarías la lentitud?",
+  ops:["En el DNS","En la conexión TCP","En la aplicación: tarda casi 2 s en generar la respuesta","En el certificado"],
+  ok:2, why:"time_starttransfer menos time_appconnect es el tiempo de «pensar» del servidor."},
+ {t:"par", p:"Empareja cada comando con su uso",
+  pares:[["ss -tlnp","Qué escucha en esta máquina y en qué IP"],["ss -tnp state established","Conexiones activas y sus procesos"],["nc -vz host puerto","Si un puerto remoto acepta conexiones"],["curl -w","Tiempos de cada fase de una petición"]],
+  why:"ss sustituye a netstat en los Linux modernos."},
+ {t:"vf", p:"Si <code>ss -tlnp</code> muestra <code>127.0.0.1:8080</code>, el servicio es accesible desde otras máquinas.",
+  ok:false, why:"Solo escucha en la interfaz local. Para aceptar conexiones externas debe escuchar en 0.0.0.0 o en la IP de la interfaz."}
+]},
+
+{
+id:"rd9l4",
+titulo:"Capturar tráfico con tcpdump",
+claves:["tcpdump captura los paquetes que pasan por una interfaz","Filtros: host, port, net y combinaciones con and/or","-w guarda en .pcap para analizarlo en Wireshark"],
+pasos:[
+ {t:"info", eti:"Ver la verdad", h:"tcpdump",
+  c:`<p>Cuando todo lo demás falla, mira los paquetes reales:</p>
+     <div class="termbox">sudo tcpdump -i eth0 -n port 5432
+sudo tcpdump -i any -n host 10.0.21.5 and port 443
+sudo tcpdump -i eth0 -n 'tcp[tcpflags] &amp; tcp-syn != 0'   <span class="cm"># solo SYN</span>
+sudo tcpdump -i eth0 -n port 8080 -w captura.pcap        <span class="cm"># guardar para Wireshark</span></div>
+     <div class="termbox">10:04:01.112 IP 10.0.11.21.51234 &gt; 10.0.21.5.5432: Flags [S], seq 3021...
+10:04:02.114 IP 10.0.11.21.51234 &gt; 10.0.21.5.5432: Flags [S], seq 3021...
+10:04:04.118 IP 10.0.11.21.51234 &gt; 10.0.21.5.5432: Flags [S], seq 3021...</div>
+     <p>Tres SYN reenviados sin respuesta: los paquetes salen, pero nada vuelve. Casi seguro un filtrado en el camino o en el destino.</p>`},
+ {t:"par", p:"Empareja cada flag de tcpdump con su significado",
+  pares:[["[S]","SYN: inicio de conexión"],["[S.]","SYN-ACK: el servidor acepta"],["[R]","RST: conexión rechazada o cortada"],["[F.]","FIN: cierre ordenado"],["[P.]","PUSH: datos"]],
+  why:"Leer los flags permite distinguir un rechazo (R) de un descarte (SYN sin respuesta)."},
+ {t:"term", p:"Captura sin resolver nombres el tráfico del puerto 443 en cualquier interfaz",
+  prompt:"pablo@servidor:~$", sol:["sudo tcpdump -i any -n port 443","sudo tcpdump -n -i any port 443","sudo tcpdump -ni any port 443","sudo tcpdump -i any port 443 -n","tcpdump -i any -n port 443"],
+  pista:"sudo tcpdump, -i any, -n y el filtro port 443.",
+  salida:`listening on any, link-type LINUX_SLL2
+10:12:45.201 IP 203.0.113.9.60312 > 10.0.1.10.443: Flags [S], seq 1180...
+10:12:45.201 IP 10.0.1.10.443 > 203.0.113.9.60312: Flags [S.], seq 7731...`, why:"El contenido de HTTPS va cifrado, pero el saludo TCP y los tiempos siguen siendo visibles."},
+ {t:"opcion", p:"En la captura ves que al SYN del cliente el servidor responde con <code>[R.]</code>. ¿Qué significa?",
+  ops:["La conexión se estableció","Nada escucha en ese puerto (connection refused) o un cortafuegos rechaza activamente","Hay pérdida de paquetes","El DNS falla"],
+  ok:1, why:"RST es una respuesta activa: la máquina está ahí y dice que no."},
+ {t:"vf", p:"tcpdump permite leer el contenido de peticiones HTTPS sin más.",
+  ok:false, why:"El contenido va cifrado con TLS. Verás IPs, puertos, flags, tamaños y tiempos."}
 ]}
 
 ]});

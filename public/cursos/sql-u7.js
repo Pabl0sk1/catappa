@@ -13,9 +13,41 @@ claves:["Entidades (tablas), atributos (columnas) y relaciones (claves foráneas
 pasos:[
  {t:"info", eti:"Antes de escribir SQL", h:"Pensar el modelo",
   c:`<p>Diseñar la base de datos empieza con preguntas de negocio: ¿qué <b>cosas</b> existen (entidades)?, ¿qué <b>datos</b> tiene cada una (atributos)?, ¿cómo se <b>relacionan</b>?</p>
-     <div class="diag">CLIENTE 1 ---- N PEDIDO 1 ---- N LINEA_PEDIDO N ---- 1 PRODUCTO
-                                                          |
-                                               N ---- 1 CATEGORIA</div>
+     <div class="dg"><div class="dg-tit">diagrama entidad-relación de una tienda</div>
+       <svg viewBox="0 0 340 240" width="100%" style="max-width:460px;display:block;margin:auto" role="img" aria-label="CLIENTE 1 a N PEDIDO; PEDIDO 1 a N LINEA_PEDIDO; LINEA_PEDIDO N a 1 PRODUCTO; PRODUCTO N a 1 CATEGORIA">
+         <g stroke="var(--line-2)" stroke-width="2">
+           <line x1="140" y1="38" x2="200" y2="38"/>
+           <line x1="260" y1="56" x2="260" y2="110"/>
+           <line x1="260" y1="146" x2="260" y2="190"/>
+           <line x1="200" y1="208" x2="140" y2="208"/>
+         </g>
+         <g fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5">
+           <rect x="20" y="20" width="120" height="36" rx="6"/>
+           <rect x="200" y="20" width="120" height="36" rx="6"/>
+           <rect x="200" y="110" width="120" height="36" rx="6"/>
+           <rect x="200" y="190" width="120" height="36" rx="6"/>
+           <rect x="20" y="190" width="120" height="36" rx="6"/>
+         </g>
+         <g font-family="var(--mono)" font-size="13" fill="var(--ink)" text-anchor="middle">
+           <text x="80" y="43">CLIENTE</text>
+           <text x="260" y="43">PEDIDO</text>
+           <text x="260" y="133">LINEA_PEDIDO</text>
+           <text x="260" y="213">PRODUCTO</text>
+           <text x="80" y="213">CATEGORIA</text>
+         </g>
+         <g font-family="var(--mono)" font-size="13" font-weight="700" fill="var(--accent)">
+           <text x="146" y="32">1</text>
+           <text x="194" y="32" text-anchor="end">N</text>
+           <text x="268" y="72">1</text>
+           <text x="268" y="104">N</text>
+           <text x="268" y="162">N</text>
+           <text x="268" y="184">1</text>
+           <text x="194" y="202" text-anchor="end">N</text>
+           <text x="146" y="202">1</text>
+         </g>
+         <text x="20" y="120" font-family="var(--sans)" font-size="12" fill="var(--ink-3)">1 ─ N: uno a muchos</text>
+       </svg>
+     </div>
      <p>Esto es un diagrama <b>entidad-relación</b> (ER). Herramientas como dbdiagram.io o DBeaver lo dibujan a partir de las tablas.</p>`},
  {t:"par", p:"Empareja cada relación con su ejemplo y su implementación",
   pares:[["Uno a uno","Usuario y su perfil: clave foránea UNIQUE"],["Uno a muchos","Cliente y pedidos: clave foránea en el lado «muchos»"],["Muchos a muchos","Pedidos y productos: tabla intermedia con dos claves foráneas"],["Jerarquía","Categoría y subcategoría: clave foránea a la misma tabla"]],

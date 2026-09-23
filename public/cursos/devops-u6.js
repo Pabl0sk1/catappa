@@ -20,11 +20,13 @@ pasos:[
   c:`<ul><li><b>Logs</b>: registros de eventos concretos. «10:14:02 ERROR no se pudo conectar a la base de datos». Detalle máximo, pero mucho volumen.</li>
      <li><b>Métricas</b>: números medidos a lo largo del tiempo. Peticiones por segundo, latencia, % de CPU, errores por minuto. Poco volumen, perfectas para <b>gráficas y alertas</b>.</li>
      <li><b>Trazas</b>: el recorrido de <b>una petición</b> a través de varios servicios, con el tiempo que pasa en cada uno. Imprescindibles con microservicios.</li></ul>
-     <div class="diag">traza de GET /pedidos/42   (total 840 ms)
-|-- api-gateway          12 ms
-|-- servicio-pedidos     60 ms
-|   |-- postgres        710 ms   <- aqui esta el problema
-|-- servicio-usuarios    58 ms</div>`},
+     <div class="dg dg-arbol"><div class="dg-tit">traza de una petición</div>
+<div class="rama" style="--n:0"><span class="nom carpeta">GET /pedidos/42</span><span class="coment">total 840 ms</span></div>
+<div class="rama" style="--n:1"><span class="nom">api-gateway</span><span class="coment">12 ms</span></div>
+<div class="rama" style="--n:1"><span class="nom carpeta">servicio-pedidos</span><span class="coment">60 ms</span></div>
+<div class="rama" style="--n:2"><span class="nom">postgres</span><span class="coment"><b>710 ms ◄ aquí está el problema</b></span></div>
+<div class="rama" style="--n:1"><span class="nom">servicio-usuarios</span><span class="coment">58 ms</span></div>
+</div>`},
 
  {t:"par", p:"Empareja cada pilar con la pregunta que responde",
   pares:[["Métricas","¿Cuántos errores por minuto hay y desde cuándo subieron?"],
@@ -61,11 +63,12 @@ claves:["Prometheus recoge métricas haciendo scraping de un endpoint /metrics",
 pasos:[
  {t:"info", eti:"Prometheus", h:"El estándar de métricas",
   c:`<p><b>Prometheus</b> es la herramienta de métricas más usada en el mundo de los contenedores. Funciona con un modelo <b>pull</b>: cada X segundos, <b>va a pedir</b> las métricas a cada aplicación a un endpoint HTTP (normalmente <code>/metrics</code>).</p>
-     <div class="diag">[ Prometheus ] --cada 15s GET /metrics--> [ api-tareas ]
-      |                                  --> [ node-exporter ] (CPU, disco del servidor)
-      |                                  --> [ postgres-exporter ]
-      v
-[ Grafana ]  paneles     [ Alertmanager ]  avisos</div>
+     <div class="dg"><div class="dg-tit">Prometheus recoge, Grafana y Alertmanager usan</div>
+<div class="dg-vert">
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-pila"><div class="dg-caja">api-tareas</div><div class="dg-caja doble">node-exporter<small>CPU, disco del servidor</small></div><div class="dg-caja">postgres-exporter</div></div></div>
+<div class="dg-caja acento doble">Prometheus<small>cada 15 s hace <code>GET /metrics</code> a cada objetivo</small></div>
+<div class="dg-caja" style="border:0;background:none;padding:0"><div class="dg-fila"><div class="dg-caja ok doble">Grafana<small>paneles</small></div><div class="dg-caja aviso doble">Alertmanager<small>avisos</small></div></div></div>
+</div></div>
      <p>Spring Boot lo trae casi hecho: con Actuator y Micrometer, expone <code>/actuator/prometheus</code>.</p>`},
 
  {t:"opcion", p:"¿Cómo obtiene Prometheus las métricas de tu aplicación?",
@@ -173,9 +176,12 @@ pasos:[
   c:`<ul><li><b>SLI</b> (Service Level <b>Indicator</b>): la <b>medida</b>. «Porcentaje de peticiones que responden bien en menos de 300 ms».</li>
      <li><b>SLO</b> (Service Level <b>Objective</b>): el <b>objetivo interno</b> para ese indicador. «El 99,9% en una ventana de 30 días».</li>
      <li><b>SLA</b> (Service Level <b>Agreement</b>): un <b>contrato</b> con clientes, con consecuencias (reembolsos) si no se cumple. Siempre más laxo que el SLO: «99,5%».</li></ul>
-     <div class="diag">SLI  -> lo que mides           99,93% este mes
-SLO  -> lo que te propones       99,9%
-SLA  -> lo que prometes (contrato) 99,5%</div>`},
+     <div class="dg dg-tabla-caja"><div class="dg-tit">SLI, SLO y SLA</div>
+<table class="dg-tabla"><thead><tr><th>sigla</th><th>qué es</th><th>ejemplo</th></tr></thead><tbody>
+<tr><td>SLI</td><td>lo que mides</td><td>99,93% este mes</td></tr>
+<tr><td>SLO</td><td>lo que te propones</td><td>99,9%</td></tr>
+<tr><td>SLA</td><td>lo que prometes (contrato)</td><td>99,5%</td></tr>
+</tbody></table></div>`},
 
  {t:"par", p:"Empareja cada sigla con su definición",
   pares:[["SLI","La métrica que mide la calidad del servicio"],

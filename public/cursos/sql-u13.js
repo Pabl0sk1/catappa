@@ -90,7 +90,7 @@ pasos:[
  {t:"opcion", p:"«¿Normalizar o desnormalizar?»",
   ops:["Siempre desnormalizar","Normalizar por defecto (hasta 3FN) para evitar duplicados y anomalías; desnormalizar de forma puntual y medida para lecturas críticas, asumiendo el coste de mantener la coherencia","Nunca usar claves foráneas","Guardar todo en JSON"],
   ok:1, why:"Una respuesta con matices demuestra experiencia."},
- {t:"info", eti:"Terminado", h:"Has completado SQL y PostgreSQL de cero a experto",
+ {t:"info", eti:"Terminado", h:"Has completado PostgreSQL de cero a experto",
   c:`<p>Dominas consultas, filtros y agregaciones, JOINs, subconsultas y CTEs, diseño y normalización, funciones de ventana, índices y planes de ejecución, transacciones y concurrencia, PostgreSQL avanzado, SQL desde la aplicación y la operación en producción.</p>
      <p>Para consolidarlo: carga un conjunto de datos real (por ejemplo, la base de datos de ejemplo «pagila»), resuelve 20 preguntas de negocio con ventanas y CTEs, y optimiza la más lenta con EXPLAIN ANALYZE. Después conéctala a tu API de Spring Boot con Flyway y revisa el SQL que genera JPA.</p>`}
 ]}

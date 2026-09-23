@@ -113,7 +113,13 @@ pasos:[
   ops:["Escribir el pipeline en un cuadro de texto de Jenkins","Que Jenkins lea el pipeline del Jenkinsfile que está en el repositorio","Crear un job freestyle","Descargar plugins"],
   ok:1, why:"La otra opción, «Pipeline script», permite pegarlo en Jenkins; sirve para probar, pero pierdes las ventajas del pipeline as code."},
  {t:"info", eti:"Qué pasa al construir", h:"Del repositorio a las etapas",
-  c:`<div class="diag">Construir ─▶ Jenkins descarga el repo ─▶ lee el Jenkinsfile ─▶ ejecuta: Compilar ─▶ Probar ─▶ Empaquetar</div>
+  c:`<div class="dg"><div class="dg-tit">qué pasa al pulsar construir</div>
+<div class="dg-flujo" style="row-gap:8px">
+<div class="dg-caja acento">Construir</div>
+<div class="dg-caja">Jenkins descarga el repo</div>
+<div class="dg-caja">lee el <code>Jenkinsfile</code></div>
+<div class="dg-caja doble ok">ejecuta<small>Compilar ▸ Probar ▸ Empaquetar</small></div>
+</div></div>
      <p>Si mañana alguien añade una etapa nueva al Jenkinsfile y hace push, el siguiente build ya la ejecuta, <b>sin tocar Jenkins</b>.</p>`},
  {t:"vf", p:"Para añadir una etapa nueva al pipeline hay que entrar en la configuración del job en Jenkins.",
   ok:false, why:"Basta con editar el Jenkinsfile y hacer push: el siguiente build ya la incluye."},

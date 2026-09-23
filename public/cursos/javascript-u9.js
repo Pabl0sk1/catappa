@@ -12,17 +12,26 @@ titulo:"Pila, APIs y colas",
 claves:["La pila de llamadas ejecuta el código síncrono","El entorno (navegador o Node) hace el trabajo lento y encola los callbacks","El event loop pasa callbacks a la pila solo cuando está vacía"],
 pasos:[
  {t:"info", eti:"El mecanismo", h:"Cómo funciona el event loop",
-  c:`<div class="diag">  PILA DE LLAMADAS          APIs DEL ENTORNO             COLAS
-  (tu codigo)               (navegador / Node)
-  main()        --setTimeout--&gt; temporizador    --&gt;  cola de tareas (macrotareas):
-  ...           --fetch-------&gt; red                   setTimeout, eventos, E/S
-                                                   cola de microtareas:
-                                                      promesas (then, await), queueMicrotask
-
-  EVENT LOOP: cuando la pila queda vacia
-     1. ejecuta TODAS las microtareas pendientes
-     2. (el navegador puede repintar)
-     3. toma UNA macrotarea y vuelve al paso 1</div>`},
+  c:`<div class="dg"><div class="dg-tit">el event loop</div>
+<div class="dg-cols">
+<div class="dg-col"><div class="dg-col-tit">Pila de llamadas</div>
+<div class="dg-caja base"><small>tu código</small></div>
+<div class="dg-caja acento"><code>main()</code></div>
+<div class="dg-caja">...</div></div>
+<div class="dg-col"><div class="dg-col-tit">APIs del entorno</div>
+<div class="dg-caja base"><small>navegador / Node</small></div>
+<div class="dg-caja">temporizador<small>lo pide <code>setTimeout</code></small></div>
+<div class="dg-caja">red<small>la pide <code>fetch</code></small></div></div>
+<div class="dg-col"><div class="dg-col-tit">Colas</div>
+<div class="dg-caja doble">cola de tareas (macrotareas)<small>setTimeout, eventos, E/S</small></div>
+<div class="dg-caja doble ok">cola de microtareas<small>promesas (then, await), queueMicrotask</small></div></div>
+</div>
+<div style="margin:14px 0 8px;font-weight:700;font-size:13.5px;text-align:center">Event loop: cuando la pila queda vacía</div>
+<div class="dg-vert">
+<div class="dg-caja">1. ejecuta TODAS las microtareas pendientes</div>
+<div class="dg-caja base">2. (el navegador puede repintar)</div>
+<div class="dg-caja">3. toma UNA macrotarea y vuelve al paso 1</div>
+</div></div>`},
  {t:"par", p:"Empareja cada elemento con su papel",
   pares:[["Pila de llamadas","Ejecuta las funciones una a una"],["APIs del entorno","Temporizadores, red, DOM: trabajan fuera de la pila"],["Cola de macrotareas","setTimeout, eventos de usuario, E/S"],["Cola de microtareas","Callbacks de promesas y queueMicrotask"],["Event loop","Mueve trabajo de las colas a la pila cuando está vacía"]],
   why:"Explicar este diagrama es una pregunta frecuente en entrevistas de frontend y de Node."},

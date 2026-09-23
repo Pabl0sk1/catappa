@@ -12,15 +12,12 @@ titulo:"Diseñar una VPC",
 claves:["Una VPC es tu red privada en una región con un rango CIDR (10.0.0.0/16)","Subredes por AZ: públicas (ruta al Internet Gateway) y privadas (salida por NAT)","Balanceadores en públicas; aplicaciones y bases de datos en privadas"],
 pasos:[
  {t:"info", eti:"Tu red", h:"Arquitectura típica",
-  c:`<div class="diag">VPC 10.0.0.0/16 (eu-west-1)
-            AZ a                     AZ b
-publica     10.0.1.0/24  [ALB][NAT]   10.0.2.0/24  [ALB]
-privada     10.0.11.0/24 [app][app]   10.0.12.0/24 [app][app]
-datos       10.0.21.0/24 [RDS prim]   10.0.22.0/24 [RDS standby]
-
-tabla publica:  0.0.0.0/0 -&gt; Internet Gateway
-tabla privada:  0.0.0.0/0 -&gt; NAT Gateway
-tabla datos:    solo local</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">VPC 10.0.0.0/16 (eu-west-1)</div>
+<table class="dg-tabla"><thead><tr><th>subred</th><th>AZ a</th><th>AZ b</th><th>tabla de rutas</th></tr></thead><tbody>
+<tr><td>pública</td><td><code>10.0.1.0/24</code><br>ALB, NAT</td><td><code>10.0.2.0/24</code><br>ALB</td><td><code>0.0.0.0/0</code> → Internet Gateway</td></tr>
+<tr><td>privada</td><td><code>10.0.11.0/24</code><br>app, app</td><td><code>10.0.12.0/24</code><br>app, app</td><td><code>0.0.0.0/0</code> → NAT Gateway</td></tr>
+<tr><td>datos</td><td><code>10.0.21.0/24</code><br>RDS primaria</td><td><code>10.0.22.0/24</code><br>RDS standby</td><td>solo local</td></tr>
+</tbody></table></div>
      <p>Lo que hace «pública» una subred es su <b>tabla de rutas</b> con salida al Internet Gateway. Todo lo demás lo viste en el curso de Redes.</p>`},
  {t:"par", p:"Empareja cada componente con su función",
   pares:[["Internet Gateway","Conexión de la VPC con internet"],["NAT Gateway","Salida a internet para subredes privadas"],["Tabla de rutas","Decide a dónde va el tráfico de cada subred"],["Subred","Rango de IPs dentro de una AZ"],["Elastic IP","IP pública fija"]],
@@ -38,10 +35,14 @@ titulo:"Grupos de seguridad y NACL",
 claves:["Grupo de seguridad: cortafuegos con estado a nivel de instancia o interfaz","Se puede referenciar otro grupo como origen","NACL: sin estado, a nivel de subred, con reglas de permitir y denegar"],
 pasos:[
  {t:"info", eti:"Filtrar", h:"Dos capas",
-  c:`<div class="diag">sg-alb:   entrada 443 desde 0.0.0.0/0
-sg-app:   entrada 8080 SOLO desde sg-alb
-sg-bd:    entrada 5432 SOLO desde sg-app
-(salida: todo permitido por defecto)</div>
+  c:`<div class="dg"><div class="dg-tit">grupos de seguridad encadenados</div>
+<div class="dg-vert">
+<div class="dg-caja acento doble">sg-alb<small>entrada 443 desde <code>0.0.0.0/0</code></small></div>
+<div class="dg-caja doble">sg-app<small>entrada 8080 SOLO desde sg-alb</small></div>
+<div class="dg-caja ok doble">sg-bd<small>entrada 5432 SOLO desde sg-app</small></div>
+</div>
+<div class="dg-nota arriba" style="margin-top:8px">salida: todo permitido por defecto</div>
+</div>
      <p>Referenciar grupos en vez de IPs hace que las reglas sigan funcionando aunque las instancias cambien de IP con el autoescalado.</p>`},
  {t:"par", p:"Empareja cada característica con grupo de seguridad o NACL",
   pares:[["Grupo de seguridad","Con estado y solo reglas de permitir, por instancia"],["NACL","Sin estado, por subred, con reglas de permitir y denegar"],["Origen = otro grupo de seguridad","Permitir tráfico de cualquier recurso de ese grupo"],["Puertos efímeros en la NACL","Hay que abrirlos para que vuelvan las respuestas"]],
@@ -78,9 +79,12 @@ pasos:[
   c:`<ul><li><b>Zona pública</b>: los registros de <code>catappa.dev</code> visibles en internet.</li>
      <li><b>Zona privada</b>: nombres internos (<code>bd.interno</code>) solo dentro de tus VPC.</li>
      <li><b>Alias</b>: como un CNAME, pero permitido en el dominio raíz y apuntando a un ALB, CloudFront o S3; las consultas son gratuitas.</li></ul>
-     <div class="diag">api.catappa.dev   ALIAS  -&gt; ALB en eu-west-1   (failover primario, con health check)
-api.catappa.dev   ALIAS  -&gt; ALB en eu-central-1 (failover secundario)
-www.catappa.dev   ALIAS  -&gt; CloudFront</div>`},
+     <div class="dg dg-tabla-caja"><div class="dg-tit">registros alias con failover</div>
+<table class="dg-tabla"><thead><tr><th>nombre</th><th>tipo</th><th>destino</th></tr></thead><tbody>
+<tr><td>api.catappa.dev</td><td>ALIAS</td><td>ALB en eu-west-1<br><small>failover primario, con health check</small></td></tr>
+<tr><td>api.catappa.dev</td><td>ALIAS</td><td>ALB en eu-central-1<br><small>failover secundario</small></td></tr>
+<tr><td>www.catappa.dev</td><td>ALIAS</td><td>CloudFront</td></tr>
+</tbody></table></div>`},
  {t:"par", p:"Empareja cada política de enrutado con su uso",
   pares:[["Simple","Un registro, uno o varios valores"],["Ponderada","Repartir tráfico por porcentajes (canary entre entornos)"],["Latencia","Enviar a la región más rápida para cada usuario"],["Geolocalización","Responder según el país del usuario"],["Failover","Pasar a la región secundaria si falla el health check"]],
   why:"Failover con health checks es la base de una recuperación ante desastres entre regiones."},

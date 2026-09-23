@@ -52,13 +52,19 @@ titulo:"Comprobadas y no comprobadas",
 claves:["Checked (Exception): el compilador obliga a capturarlas o declararlas con throws","Unchecked (RuntimeException): errores de programación o de negocio, no obligan","Error: problemas graves de la JVM (OutOfMemoryError) que no se capturan"],
 pasos:[
  {t:"info", eti:"La jerarquía", h:"Tipos de excepciones",
-  c:`<div class="diag">Throwable
- |- Error                      problemas graves de la JVM (no capturar)
- |    '- OutOfMemoryError, StackOverflowError
- '- Exception                  COMPROBADAS: obligan a try/catch o throws
-      |- IOException, SQLException...
-      '- RuntimeException      NO COMPROBADAS
-           '- NullPointerException, IllegalArgumentException, IllegalStateException...</div>`},
+  c:`<div class="dg dg-arbol"><div class="dg-tit">jerarquía de excepciones</div>
+<div class="rama" style="--n:0"><span class="nom carpeta">Throwable</span></div>
+<div class="rama" style="--n:1"><span class="nom carpeta">Error</span><span class="coment">problemas graves de la JVM (no capturar)</span></div>
+<div class="rama" style="--n:2"><span class="nom">OutOfMemoryError</span></div>
+<div class="rama" style="--n:2"><span class="nom">StackOverflowError</span></div>
+<div class="rama" style="--n:1"><span class="nom carpeta">Exception</span><span class="coment">COMPROBADAS: obligan a try/catch o throws</span></div>
+<div class="rama" style="--n:2"><span class="nom">IOException</span></div>
+<div class="rama" style="--n:2"><span class="nom">SQLException...</span></div>
+<div class="rama" style="--n:2"><span class="nom carpeta">RuntimeException</span><span class="coment">NO COMPROBADAS</span></div>
+<div class="rama" style="--n:3"><span class="nom">NullPointerException</span></div>
+<div class="rama" style="--n:3"><span class="nom">IllegalArgumentException</span></div>
+<div class="rama" style="--n:3"><span class="nom">IllegalStateException...</span></div>
+</div>`},
  {t:"info", eti:"throws", h:"Declarar o capturar",
   c:`<div class="termbox">public String leerConfig(Path ruta) throws IOException {   <span class="cm">// la declara: que la gestione quien llame</span>
     return Files.readString(ruta);

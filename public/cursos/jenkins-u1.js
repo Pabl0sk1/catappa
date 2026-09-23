@@ -63,7 +63,14 @@ pasos:[
   c:`<p>La <b>integración continua</b> (en inglés <b>Continuous Integration</b>, CI) consiste en dos hábitos:</p>
      <ol><li>Integrar <b>a menudo</b>: varias veces al día, cambios pequeños.</li>
      <li>Que <b>cada integración se compruebe sola</b>: con cada push, una máquina descarga el código, lo compila y pasa todas las pruebas.</li></ol>
-     <div class="diag">tú haces push ─▶ la máquina descarga el código ─▶ compila ─▶ pasa las pruebas ─▶ ✔ o ✘ en minutos</div>
+     <div class="dg"><div class="dg-tit">integración continua</div>
+<div class="dg-flujo" style="row-gap:8px">
+<div class="dg-caja acento">tú haces push</div>
+<div class="dg-caja">la máquina descarga el código</div>
+<div class="dg-caja">compila</div>
+<div class="dg-caja">pasa las pruebas</div>
+<div class="dg-caja ok">✔ o ✘ en minutos</div>
+</div></div>
      <p>Esa «máquina» que lo hace todo sola es un <b>servidor de integración continua</b>. Jenkins es el más conocido.</p>`},
  {t:"orden", p:"Ordena lo que ocurre en integración continua cuando alguien sube un cambio",
   items:["Una persona hace push de su cambio","El servidor de CI descarga el código del repositorio","Lo compila","Pasa las pruebas automáticas","Avisa al equipo del resultado"],
@@ -108,9 +115,11 @@ pasos:[
  {t:"info", eti:"La idea", h:"Entrega continua y despliegue continuo",
   c:`<p>La <b>entrega continua</b> (<b>Continuous Delivery</b>, CD) lleva la CI un paso más allá: cada cambio que pasa las pruebas genera un artefacto y lo deja <b>listo para desplegar en producción con un solo clic</b>. La decisión de publicarlo la toma una persona.</p>
      <p>El <b>despliegue continuo</b> (<b>Continuous Deployment</b>, también CD) va aún más lejos: si todo está en verde, <b>se despliega en producción solo</b>, sin que nadie pulse nada.</p>
-     <div class="diag">CI                      compilar ─▶ probar
-ENTREGA CONTINUA        compilar ─▶ probar ─▶ artefacto ─▶ staging ─▶ [una persona decide] ─▶ producción
-DESPLIEGUE CONTINUO     compilar ─▶ probar ─▶ artefacto ─▶ staging ─▶ producción (automático)</div>`},
+     <div class="dg dg-tabla-caja"><div class="dg-tit">hasta dónde llega cada práctica</div><table class="dg-tabla"><thead><tr><th></th><th>compilar</th><th>probar</th><th>artefacto</th><th>staging</th><th>producción</th></tr></thead><tbody>
+<tr><td>CI</td><td>✔</td><td>✔</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>Entrega continua</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td><td><b>una persona decide</b></td></tr>
+<tr><td>Despliegue continuo</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td><td><b style="color:var(--ok)">automático</b></td></tr>
+</tbody></table></div>`},
  {t:"vf", p:"En la entrega continua, el paso final a producción lo decide una persona.",
   ok:true, why:"Todo está listo y automatizado, pero alguien pulsa el botón. En el despliegue continuo ni eso."},
  {t:"opcion", p:"En tu empresa, cada cambio aprobado llega a los clientes sin que nadie pulse nada. ¿Qué practican?",
@@ -129,7 +138,10 @@ claves:["Un pipeline es la cadena de pasos automáticos que recorre cada cambio"
 pasos:[
  {t:"info", eti:"La palabra", h:"Pipeline = tubería",
   c:`<p><b>Pipeline</b> significa «tubería». En CI/CD es la <b>cadena de pasos automáticos</b> que recorre cada cambio desde que se sube hasta que está listo (o desplegado).</p>
-     <div class="diag">[ Descargar ] ─▶ [ Compilar ] ─▶ [ Probar ] ─▶ [ Empaquetar ] ─▶ [ Desplegar en staging ]</div>
+     <div class="dg"><div class="dg-tit">un pipeline típico</div>
+<div class="dg-flujo" style="row-gap:8px">
+<div class="dg-caja">Descargar</div><div class="dg-caja">Compilar</div><div class="dg-caja">Probar</div><div class="dg-caja">Empaquetar</div><div class="dg-caja ok">Desplegar en staging</div>
+</div></div>
      <p>Cada caja es una <b>etapa</b> (en inglés, <b>stage</b>). Cada etapa tiene uno o varios <b>pasos</b> (steps), que son los comandos concretos.</p>
      <div class="nota"><b class="tit">La analogía</b>Una cadena de montaje de coches: el chasis pasa por la estación de motor, luego por la de pintura, luego por la de control de calidad. Si falla el control de calidad, el coche no sale de la fábrica.</div>`},
  {t:"par", p:"Empareja cada término con su significado",
@@ -140,7 +152,11 @@ pasos:[
   why:"No tiene sentido empaquetar algo que no pasa las pruebas, por eso las pruebas van antes."},
  {t:"info", eti:"Regla importante", h:"Si una etapa falla, el pipeline se detiene",
   c:`<p>Las etapas se ejecutan en orden y cada una depende de la anterior. Si la etapa <b>Probar</b> falla, el pipeline se detiene: <b>no se empaqueta ni se despliega</b> nada. Así un error nunca llega más lejos de donde se detectó.</p>
-     <div class="diag">[ Compilar ✔ ] ─▶ [ Probar ✘ ] ─▶ [ Empaquetar — ] ─▶ [ Desplegar — ]    (las dos últimas no se ejecutan)</div>`},
+     <div class="dg"><div class="dg-tit">si falla una etapa</div>
+<div class="dg-flujo" style="row-gap:8px">
+<div class="dg-caja ok">Compilar ✔</div><div class="dg-caja aviso">Probar ✘</div><div class="dg-caja base">Empaquetar —</div><div class="dg-caja base">Desplegar —</div>
+</div>
+<div class="dg-nota arriba" style="margin-top:8px">las dos últimas no se ejecutan</div></div>`},
  {t:"opcion", p:"En un pipeline, la etapa «Probar» falla. ¿Qué pasa con la etapa «Desplegar»?",
   ops:["Se ejecuta igualmente","No se ejecuta: el pipeline se detiene en la etapa que falló","Se ejecuta dos veces","Se salta solo la de empaquetar"],
   ok:1, why:"Es el mecanismo de seguridad del pipeline: lo que no pasa las pruebas no se despliega."},

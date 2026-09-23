@@ -100,13 +100,17 @@ pasos:[
  {t:"info", eti:"Concepto clave", h:"Git es distribuido",
   c:`<p>Antes de Git se usaban sistemas <b>centralizados</b> (como SVN): había un único servidor con el historial, y cada programador solo tenía la última versión. Si el servidor caía, nadie podía trabajar ni ver el historial.</p>
      <p>Git es <b>distribuido</b>: cuando descargas un repositorio, te bajas <b>el historial completo</b>. Cada copia es un repositorio entero y autónomo.</p>
-     <div class="diag">  CENTRALIZADO (SVN)             DISTRIBUIDO (Git)
-
-     [servidor]                    [GitHub]  <- una copia mas
-      /   |   \\                    /    |    \\
-    tu   ana  leo               [tu]  [ana]  [leo]
-  (solo la ultima            (cada uno tiene el
-   version)                   historial COMPLETO)</div>
+     <div class="dg"><div class="dg-tit">centralizado frente a distribuido</div>
+<div class="dg-cols">
+<div class="dg-col"><div class="dg-col-tit">Centralizado (SVN)</div>
+<div class="dg-caja acento">servidor</div>
+<div class="dg-fila"><div class="dg-caja">tú</div><div class="dg-caja">Ana</div><div class="dg-caja">Leo</div></div>
+<div class="dg-nota arriba">solo la última versión</div></div>
+<div class="dg-col"><div class="dg-col-tit">Distribuido (Git)</div>
+<div class="dg-caja base">GitHub<small>una copia más</small></div>
+<div class="dg-fila"><div class="dg-caja ok">tú</div><div class="dg-caja ok">Ana</div><div class="dg-caja ok">Leo</div></div>
+<div class="dg-nota arriba">cada uno tiene el historial COMPLETO</div></div>
+</div></div>
      <p>Consecuencias: puedes hacer commits, ver el historial y crear ramas <b>sin conexión</b>, todo es muy rápido porque es local, y si GitHub desapareciera mañana, cada copia tiene todo.</p>`},
 
  {t:"opcion", p:"¿Qué significa que Git sea «distribuido»?",
@@ -130,13 +134,8 @@ claves:["Directorio de trabajo: tus ficheros tal cual","Staging area: lo que has
 pasos:[
  {t:"info", eti:"Lo más importante del curso", h:"Si entiendes esto, entiendes Git",
   c:`<p>Casi toda la confusión con Git viene de no entender que tus cambios pasan por <b>tres zonas</b> antes de quedar guardados. Vamos despacio.</p>
-     <div class="diag"> DIRECTORIO DE       STAGING AREA         REPOSITORIO
- TRABAJO            (zona de preparacion)  (.git / historial)
-+-------------+     +-------------+      +-------------+
-| tus ficheros| --> | lo que vas  | -->  |  commits    |
-| tal cual    | add | a guardar   |commit| guardados   |
-| los editas  |     | en el commit|      | para siempre|
-+-------------+     +-------------+      +-------------+</div>`},
+     <div class="dg"><div class="dg-tit">las tres zonas de git</div>
+<svg viewBox="50 0 240 282" width="100%" style="max-width:320px;display:block;margin:auto" role="img" aria-label="Directorio de trabajo, con git add pasa al staging area, con git commit pasa al repositorio"><defs><marker id="fl-git1-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs><rect x="60" y="5" width="220" height="64" rx="8" fill="var(--bg)" stroke="var(--line-2)" stroke-width="1.5"/><text x="170" y="24" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink)" font-weight="700">Directorio de trabajo</text><text x="170" y="41" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">tus ficheros tal cual</text><text x="170" y="58" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">los editas</text><line x1="170" y1="73" x2="170" y2="105" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#fl-git1-0)"/><text x="182" y="94" text-anchor="start" font-size="12" font-family="var(--mono)" fill="var(--accent)" font-weight="700">git add</text><rect x="60" y="109" width="220" height="64" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><text x="170" y="128" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)" font-weight="700">Staging area</text><text x="170" y="145" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">(zona de preparación)</text><text x="170" y="162" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">lo que vas a guardar en el commit</text><line x1="170" y1="177" x2="170" y2="209" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#fl-git1-0)"/><text x="182" y="198" text-anchor="start" font-size="12" font-family="var(--mono)" fill="var(--accent)" font-weight="700">git commit</text><rect x="60" y="213" width="220" height="64" rx="8" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/><text x="170" y="232" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ok)" font-weight="700">Repositorio</text><text x="170" y="249" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink-2)">(.git / historial)</text><text x="170" y="266" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">commits guardados para siempre</text></svg></div>`},
 
  {t:"info", eti:"Zona 1", h:"El directorio de trabajo (working directory)",
   c:`<p>Son <b>tus ficheros</b>, los de la carpeta del proyecto, tal como los ves en tu editor. Aquí es donde programas.</p>
@@ -214,9 +213,8 @@ Date:   Mon Sep 21 10:14:02 2026
 
  {t:"info", eti:"El historial", h:"Una cadena de commits",
   c:`<p>Como cada commit apunta a su padre, el historial es una <b>cadena</b>:</p>
-     <div class="diag">  a1b2c3d  <----  e4f5a6b  <----  9f3c1a2   <- el mas reciente
- "Proyecto        "Añade la      "Añade endpoint
-  inicial"         entidad"       de tareas"</div>
+     <div class="dg"><div class="dg-tit">una cadena de commits</div>
+<svg viewBox="0 0 330 124" width="100%" style="max-width:460px;display:block;margin:auto" role="img" aria-label="Tres commits encadenados: 9f3c1a2 apunta a e4f5a6b y este a a1b2c3d"><defs><marker id="fl-git1-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs><line x1="146.0" y1="40.0" x2="76.0" y2="40.0" stroke="var(--line-2)" stroke-width="2" marker-end="url(#fl-git1-1)"/><line x1="256.0" y1="40.0" x2="186.0" y2="40.0" stroke="var(--line-2)" stroke-width="2" marker-end="url(#fl-git1-1)"/><circle cx="55" cy="40" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="55" y="78" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">a1b2c3d</text><text x="55" y="98" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">«Proyecto</text><text x="55" y="114" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">inicial»</text><circle cx="165" cy="40" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="165" y="78" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">e4f5a6b</text><text x="165" y="98" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">«Añade la</text><text x="165" y="114" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">entidad»</text><circle cx="275" cy="40" r="19" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="275" y="78" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">9f3c1a2</text><text x="275" y="98" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">«Añade endpoint</text><text x="275" y="114" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--ink-2)">de tareas»</text><text x="275" y="12" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)">el más reciente</text></svg></div>
      <p>Las flechas van hacia atrás: cada commit sabe quién es su padre, pero no quién vendrá después. Recorriendo esa cadena, Git reconstruye toda la historia.</p>`},
 
  {t:"vf", p:"Si modificas un commit antiguo, su hash se mantiene igual.",
@@ -225,9 +223,8 @@ Date:   Mon Sep 21 10:14:02 2026
 
  {t:"info", eti:"HEAD", h:"¿Dónde estás ahora mismo?",
   c:`<p>Git tiene un puntero especial llamado <b>HEAD</b> que indica <b>en qué commit estás</b> en este momento. Normalmente apunta al último commit de la rama en la que trabajas.</p>
-     <div class="diag">  a1b2c3d  <----  e4f5a6b  <----  9f3c1a2
-                                     ^
-                                    HEAD  (estas aqui)</div>
+     <div class="dg"><div class="dg-tit">head: el commit en el que estás</div>
+<svg viewBox="0 0 330 160" width="100%" style="max-width:460px;display:block;margin:auto" role="img" aria-label="HEAD apunta al último commit, 9f3c1a2"><defs><marker id="fl-git1-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs><line x1="146.0" y1="30.0" x2="76.0" y2="30.0" stroke="var(--line-2)" stroke-width="2" marker-end="url(#fl-git1-2)"/><line x1="256.0" y1="30.0" x2="186.0" y2="30.0" stroke="var(--line-2)" stroke-width="2" marker-end="url(#fl-git1-2)"/><circle cx="55" cy="30" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="55" y="68" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">a1b2c3d</text><circle cx="165" cy="30" r="19" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><text x="165" y="68" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">e4f5a6b</text><circle cx="275" cy="30" r="19" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="275" y="68" text-anchor="middle" font-size="12" font-family="var(--mono)" fill="var(--ink)" font-weight="700">9f3c1a2</text><rect x="252.5" y="107" width="45" height="22" rx="11" fill="var(--bg-3)" stroke="var(--ink-2)" stroke-width="1.5"/><text x="275" y="122" text-anchor="middle" font-size="12" font-family="var(--mono)" font-weight="700" fill="var(--ink)">HEAD</text><line x1="275" y1="105" x2="275" y2="76" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#fl-git1-2)"/><text x="275" y="150" text-anchor="middle" font-size="12" font-family="var(--sans)" fill="var(--accent)">(estás aquí)</text></svg></div>
      <p>Verás expresiones como <code>HEAD~1</code>, que significa "el commit anterior a HEAD", o <code>HEAD~3</code>, "tres commits atrás". Las usarás para deshacer cosas.</p>`},
 
  {t:"opcion", p:"¿Qué significa <code>HEAD~2</code>?",

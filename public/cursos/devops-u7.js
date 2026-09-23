@@ -13,12 +13,13 @@ titulo:"La nube en lo esencial",
 claves:["IaaS, PaaS y SaaS: cuánto gestionas tú y cuánto el proveedor","Regiones y zonas de disponibilidad para la alta disponibilidad","Los servicios básicos: cómputo, almacenamiento, bases de datos, red e identidades"],
 pasos:[
  {t:"info", eti:"Los modelos", h:"¿Cuánto gestionas tú?",
-  c:`<div class="diag">                 tu gestionas                 el proveedor gestiona
-On-premise       todo                         nada
-IaaS (EC2)       SO, runtime, app, datos      hardware, red, virtualizacion
-PaaS (App Engine,
-  Elastic Beanstalk) app y datos              todo lo demas
-SaaS (Gmail)     solo lo usas                 todo</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">quién gestiona qué en cada modelo</div>
+<table class="dg-tabla"><thead><tr><th>modelo</th><th>tú gestionas</th><th>el proveedor gestiona</th></tr></thead><tbody>
+<tr><td>On-premise</td><td>todo</td><td>nada</td></tr>
+<tr><td>IaaS<br><small>EC2</small></td><td>SO, runtime, app, datos</td><td>hardware, red, virtualización</td></tr>
+<tr><td>PaaS<br><small>App Engine, Elastic Beanstalk</small></td><td>app y datos</td><td>todo lo demás</td></tr>
+<tr><td>SaaS<br><small>Gmail</small></td><td>solo lo usas</td><td>todo</td></tr>
+</tbody></table></div>
      <p>Cuanto más subes, <b>menos control</b> pero <b>menos trabajo</b>. Los contenedores gestionados (EKS, Cloud Run, ECS Fargate) están a medio camino entre IaaS y PaaS.</p>`},
 
  {t:"par", p:"Empareja cada modelo con un ejemplo",
@@ -122,10 +123,14 @@ pasos:[
  {t:"info", eti:"La idea", h:"Shift left",
   c:`<p>Tradicionalmente, la seguridad era una auditoría <b>al final</b>, justo antes de publicar. Encontrar un problema ahí es caro: hay que rehacer trabajo, y retrasa todo.</p>
      <p><b>DevSecOps</b> propone <b>desplazar la seguridad a la izquierda</b> (shift left) en el ciclo: comprobarla <b>automáticamente en cada cambio</b>, como los tests.</p>
-     <div class="diag">code --> build --> test --> release --> deploy --> operate
- ^         ^          ^         ^
- secretos  SAST       SCA       escaneo de imagen,     DAST, monitorizacion
- (hooks)   (codigo)   (deps)    firma, SBOM</div>`},
+     <div class="dg"><div class="dg-tit">seguridad en cada fase del pipeline</div>
+<div class="dg-flujo">
+<div class="dg-caja doble">code<small>secretos (hooks)</small></div>
+<div class="dg-caja doble">build<small>SAST (código)</small></div>
+<div class="dg-caja doble">test<small>SCA (dependencias)</small></div>
+<div class="dg-caja doble">release<small>escaneo de imagen, firma, SBOM</small></div>
+<div class="dg-caja doble">deploy → operate<small>DAST, monitorización</small></div>
+</div></div>`},
 
  {t:"info", eti:"Las herramientas", h:"Qué se analiza y cuándo",
   c:`<ul><li><b>Escaneo de secretos</b>: busca contraseñas y tokens en el código (gitleaks, GitHub secret scanning).</li>

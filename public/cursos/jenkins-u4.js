@@ -139,10 +139,11 @@ pasos:[
   ok:1, why:"Si GitHub no puede avisar a Jenkins, es Jenkins quien pregunta."},
  {t:"info", eti:"Horarios", h:"La sintaxis cron, campo por campo",
   c:`<p>Poll SCM y «Ejecutar periódicamente» usan la sintaxis <b>cron</b>: cinco campos separados por espacios.</p>
-     <div class="diag">MINUTO   HORA   DÍA-DEL-MES   MES   DÍA-DE-LA-SEMANA
-  H       2          *        *          1-5          ─▶ de lunes (1) a viernes (5), hacia las 2:00
-  H/15    *          *        *          *            ─▶ cada 15 minutos
-  0       *          *        *          *            ─▶ al minuto 0 de cada hora</div>
+     <div class="dg dg-tabla-caja"><div class="dg-tit">los cinco campos de cron</div><table class="dg-tabla"><thead><tr><th>minuto</th><th>hora</th><th>día del mes</th><th>mes</th><th>día de la semana</th><th>significa</th></tr></thead><tbody>
+<tr><td><code>H</code></td><td><code>2</code></td><td><code>*</code></td><td><code>*</code></td><td><code>1-5</code></td><td>de lunes (1) a viernes (5), hacia las 2:00</td></tr>
+<tr><td><code>H/15</code></td><td><code>*</code></td><td><code>*</code></td><td><code>*</code></td><td><code>*</code></td><td>cada 15 minutos</td></tr>
+<tr><td><code>0</code></td><td><code>*</code></td><td><code>*</code></td><td><code>*</code></td><td><code>*</code></td><td>al minuto 0 de cada hora</td></tr>
+</tbody></table></div>
      <ul><li><code>*</code> significa «cualquiera».</li>
      <li><code>H/15</code> significa «cada 15 minutos».</li>
      <li>La <b>H</b> es propia de Jenkins: elige un minuto concreto según el nombre del job, para que cien jobs «cada 15 minutos» no arranquen todos en el mismo segundo.</li></ul>`},

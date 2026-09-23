@@ -21,7 +21,7 @@ var FICHEROS = [
   "cursos/_proyectos.js",
   "iconos/icono-192.png", "iconos/icono-512.png", "iconos/icono.svg", "iconos/favicon-32.png", "iconos/favicon-16.png", "favicon.ico",
   "marca/cata-96.png", "marca/cata-256.png",
-  "logos/ansible.svg", "logos/aws.svg", "logos/devops.svg", "logos/docker.svg", "logos/git.svg", "logos/go.svg", "logos/htmlcss.svg", "logos/java.svg", "logos/jenkins.svg", "logos/javascript.svg", "logos/kafka.svg", "logos/kubernetes.svg", "logos/linux.svg", "logos/mongodb.svg", "logos/nodejs.svg", "logos/observabilidad.svg", "logos/python.svg", "logos/react.svg", "logos/redis.svg", "logos/seguridad.svg", "logos/spring.svg", "logos/sql.svg", "logos/terraform.svg", "logos/typescript.svg"
+  "logos/ansible.svg", "logos/aws.svg", "logos/devops.svg", "logos/docker.svg", "logos/git.svg", "logos/go.svg", "logos/html.svg", "logos/css.svg", "logos/java.svg", "logos/jenkins.svg", "logos/javascript.svg", "logos/kafka.svg", "logos/kubernetes.svg", "logos/linux.svg", "logos/mongodb.svg", "logos/nodejs.svg", "logos/observabilidad.svg", "logos/python.svg", "logos/react.svg", "logos/redis.svg", "logos/seguridad.svg", "logos/spring.svg", "logos/sql.svg", "logos/terraform.svg", "logos/typescript.svg"
 ];
 
 self.addEventListener("install", function (e) {

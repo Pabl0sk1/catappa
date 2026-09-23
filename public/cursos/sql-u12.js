@@ -61,8 +61,13 @@ titulo:"Replicación y alta disponibilidad",
 claves:["Replicación en streaming: réplicas que aplican el WAL del primario","Réplicas para leer y para conmutar si cae el primario (failover)","Síncrona (sin pérdida, más latencia) o asíncrona (posible pequeña pérdida)"],
 pasos:[
  {t:"info", eti:"Copias vivas", h:"Primario y réplicas",
-  c:`<div class="diag">aplicacion --escrituras--> PRIMARIO --WAL--> REPLICA 1 (lecturas, informes)
-                                    \\--WAL--> REPLICA 2 (en otra zona, lista para failover)</div>
+  c:`<div class="dg"><div class="dg-tit">replicación en streaming</div>
+       <div class="dg-vert">
+         <div class="dg-caja base">aplicación<small>envía las escrituras</small></div>
+         <div class="dg-caja acento doble">PRIMARIO<small>envía el WAL a cada réplica</small></div>
+         <div class="dg-caja">réplicas<div class="dg-fila" style="margin-top:8px"><div class="dg-caja ok">RÉPLICA 1<small>lecturas, informes</small></div><div class="dg-caja ok">RÉPLICA 2<small>en otra zona, lista para failover</small></div></div></div>
+       </div>
+     </div>
      <ul><li><b>Asíncrona</b>: el primario confirma sin esperar a la réplica. Si cae, se pueden perder los últimos segundos.</li>
      <li><b>Síncrona</b>: espera a que al menos una réplica lo tenga. Sin pérdida, a cambio de latencia.</li></ul>
      <p>El <b>failover</b> (promocionar una réplica a primario) lo automatizan Patroni, los operadores de Kubernetes (CloudNativePG) o los servicios gestionados (RDS Multi-AZ).</p>`},

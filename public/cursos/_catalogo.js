@@ -71,7 +71,7 @@ window.CURSOS_META = [
     temas: ["tcp", "ip", "dns", "http", "tls", "subred", "cidr", "osi"]
   },
   {
-    id: "sql", titulo: "SQL y PostgreSQL", categoria: "Datos",
+    id: "sql", titulo: "PostgreSQL", categoria: "Datos",
     lema: "Bases de datos relacionales, de SELECT a tuning",
     descripcion: "Consultas, joins, agregaciones, subconsultas y CTEs, funciones de ventana, diseño y normalización, índices, transacciones, planes de ejecución, rendimiento y operación de PostgreSQL.",
     nivel: "Desde cero · hasta maestro", horas: 20, color: "#5b9bd5", glifo: "datos", logo: "logos/sql.svg",
@@ -99,11 +99,18 @@ window.CURSOS_META = [
     temas: ["py", "scripting", "automatizacion", "pip", "venv", "asyncio"]
   },
   {
-    id: "htmlcss", titulo: "HTML y CSS", categoria: "Frontend",
-    lema: "La base de toda interfaz web",
-    descripcion: "Estructura y HTML semántico, formularios, CSS desde cero, cascada y especificidad, modelo de caja, Flexbox y Grid, diseño responsive, CSS moderno, animaciones, accesibilidad y rendimiento web.",
-    nivel: "Desde cero · hasta maestro", horas: 12, color: "#f0875a", glifo: "pagina", logo: "logos/htmlcss.svg",
-    temas: ["html", "css", "flexbox", "grid", "responsive", "accesibilidad", "frontend"]
+    id: "html", titulo: "HTML", categoria: "Frontend",
+    lema: "La estructura de toda página web",
+    descripcion: "Cómo convierte el navegador el HTML en DOM, estructura del documento y head, texto semántico, enlaces y rutas, imágenes responsive (srcset, sizes, picture), audio, vídeo e iframes, SVG, landmarks y tablas accesibles, formularios completos con validación nativa y Constraint Validation API, details, dialog y popover, accesibilidad a fondo (WCAG 2.2, ARIA, teclado, lectores de pantalla), SEO técnico, Open Graph y JSON-LD, carga de recursos y Core Web Vitals, template y Web Components.",
+    nivel: "Desde cero · hasta maestro", horas: 16, color: "#f0875a", glifo: "pagina", logo: "logos/html.svg",
+    temas: ["html", "semantico", "formulario", "accesibilidad", "seo", "frontend"]
+  },
+  {
+    id: "css", titulo: "CSS", categoria: "Frontend",
+    lema: "El aspecto de la web, de los selectores a las interfaces modernas",
+    descripcion: "Cascada completa con @layer, todos los selectores (:is, :where, :has), color moderno (oklch, color-mix), unidades y tipografía fluida, modelo de caja y flujo, posicionamiento y apilamiento, Flexbox y Grid a fondo con subgrid, responsive con container queries, variables y temas, animaciones y view transitions, arquitectura, rendimiento y depuración.",
+    nivel: "Desde cero · hasta maestro", horas: 24, color: "#5b8def", glifo: "pagina", logo: "logos/css.svg",
+    temas: ["css", "flexbox", "grid", "responsive", "animacion", "frontend"]
   },
   {
     id: "javascript", titulo: "JavaScript", categoria: "Lenguajes",
@@ -150,22 +157,22 @@ window.CURSOS_META = [
   {
     id: "diseno", titulo: "Diseño de sistemas", categoria: "Ingeniería",
     lema: "Arquitecturas que escalan, explicadas paso a paso",
-    descripcion: "Requisitos y estimaciones, escalado horizontal, balanceo, cachés, bases de datos, replicación y particionado, colas y eventos, consistencia, disponibilidad, APIs, observabilidad y casos clásicos de entrevista.",
-    nivel: "Desde cero · hasta maestro", horas: 14, color: "#e3a86b", glifo: "plano",
+    descripcion: "Requisitos y estimaciones, latencia y percentiles, escalado y balanceo, DNS y CDN, cachés, bases de datos e índices, transacciones, replicación, particionado y hashing consistente, CAP y PACELC, quórums y consenso (Raft), colas y streaming, idempotencia, sagas y outbox, diseño de APIs, microservicios, almacenamiento de objetos, búsqueda, tiempo real, fiabilidad y SLOs, seguridad de arquitectura, limitación de tasa, casos clásicos de entrevista (acortador, feed, chat, notificaciones, ficheros, pagos, reservas, autocompletado) y simulacro final.",
+    nivel: "Desde cero · hasta maestro", horas: 30, color: "#e3a86b", glifo: "plano",
     temas: ["system design", "escalabilidad", "cache", "sharding", "cap", "microservicios", "entrevista"]
   },
   {
     id: "observabilidad", titulo: "Observabilidad", categoria: "Infraestructura",
     lema: "Saber qué pasa dentro de tus sistemas",
-    descripcion: "Métricas, logs y trazas, Prometheus y PromQL, Grafana, Loki, OpenTelemetry, alertas, SLOs y diagnóstico de incidentes con datos.",
-    nivel: "Desde cero · hasta maestro", horas: 10, color: "#e46a6a", glifo: "grafica", logo: "logos/observabilidad.svg",
+    descripcion: "Monitorizar frente a observar, RED, USE y percentiles, logs estructurados con Loki y OpenSearch, Prometheus y PromQL a fondo, Alertmanager y Grafana, trazas con OpenTelemetry y Tempo, profiling continuo, SLOs con burn rate, Kubernetes, costes, guardias, incidentes y postmortems.",
+    nivel: "Desde cero · hasta maestro", horas: 28, color: "#e46a6a", glifo: "grafica", logo: "logos/observabilidad.svg",
     temas: ["prometheus", "grafana", "loki", "opentelemetry", "metricas", "alertas", "slo"]
   },
   {
     id: "ansible", titulo: "Ansible", categoria: "Infraestructura",
     lema: "Configurar cien servidores como si fuera uno",
-    descripcion: "Inventarios, módulos, playbooks, variables, plantillas, handlers, roles, colecciones, secretos con Vault, pruebas con Molecule y automatización a escala.",
-    nivel: "Desde cero · hasta maestro", horas: 10, color: "#ee6b6b", glifo: "engranaje", logo: "logos/ansible.svg",
+    descripcion: "Arquitectura sin agentes, inventarios estáticos y dinámicos, ad hoc, playbooks y módulos, variables y precedencia, facts, condicionales, bucles, handlers, Jinja2, roles y colecciones, Vault, check y tags, errores, delegación, rendimiento, despliegues rodantes, ansible-lint, Molecule, CI/CD, execution environments, AWX y Terraform.",
+    nivel: "Desde cero · hasta maestro", horas: 20, color: "#ee6b6b", glifo: "engranaje", logo: "logos/ansible.svg",
     temas: ["playbook", "yaml", "roles", "inventario", "configuracion", "automatizacion"]
   },
   {
@@ -192,8 +199,8 @@ window.CURSOS_META = [
   {
     id: "go", titulo: "Go", categoria: "Lenguajes",
     lema: "El lenguaje de la nube",
-    descripcion: "Sintaxis, tipos y structs, interfaces, errores, slices y mapas, goroutines y canales, paquetes y módulos, pruebas, servicios HTTP y herramientas de línea de comandos.",
-    nivel: "Desde cero · hasta maestro", horas: 10, color: "#4fc3dc", glifo: "velocidad", logo: "logos/go.svg",
+    descripcion: "Toolchain y módulos, tipos, constantes e iota, funciones, closures y punteros, slices, mapas y strings por dentro, structs, métodos e interfaces, errores con wrapping, panic y recover, genéricos e iteradores, paquetes, goroutines, canales, select, sync, atomic y context, patrones de concurrencia, pruebas con fuzzing y benchmarks, net/http, JSON, database/sql, slog, pprof, GC, compilación cruzada e imágenes mínimas.",
+    nivel: "Desde cero · hasta maestro", horas: 24, color: "#4fc3dc", glifo: "velocidad", logo: "logos/go.svg",
     temas: ["golang", "goroutines", "canales", "concurrencia", "cli", "microservicios"]
   }
 ];
@@ -202,7 +209,7 @@ window.CURSOS_META = [
 window.CURSOS_RUTAS = [
   { id: "devops", titulo: "Ingeniería DevOps", descripcion: "Del sistema operativo a operar plataformas en la nube.", cursos: ["linux", "redes", "git", "docker", "kubernetes", "devops", "jenkins", "terraform", "ansible", "aws", "observabilidad"] },
   { id: "backend-java", titulo: "Backend con Java", descripcion: "Construir, persistir y desplegar APIs profesionales.", cursos: ["git", "java", "sql", "spring", "docker", "jenkins", "seguridad"] },
-  { id: "fullstack-js", titulo: "Full stack JavaScript", descripcion: "De la web en el navegador al servidor con Node.", cursos: ["git", "htmlcss", "javascript", "typescript", "react", "nodejs", "sql", "docker"] },
+  { id: "fullstack-js", titulo: "Full stack JavaScript", descripcion: "De la web en el navegador al servidor con Node.", cursos: ["git", "html", "css", "javascript", "typescript", "react", "nodejs", "sql", "docker"] },
   { id: "python", titulo: "Python y automatización", descripcion: "Scripting, datos y automatización de sistemas.", cursos: ["linux", "git", "python", "sql", "docker"] },
   { id: "entrevistas", titulo: "Preparar entrevistas técnicas", descripcion: "Lo que se pregunta en una entrevista de backend.", cursos: ["java", "spring", "sql", "algoritmos", "diseno", "docker", "redes"] }
 ];

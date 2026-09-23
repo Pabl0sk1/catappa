@@ -70,9 +70,33 @@ COMMIT;                                                 <span class="cm">-- libe
 SELECT id FROM trabajos WHERE estado = 'pendiente'
 ORDER BY id LIMIT 10 FOR UPDATE SKIP LOCKED;</div>`},
  {t:"info", eti:"Abrazo mortal", h:"Deadlock",
-  c:`<div class="diag">T1: bloquea cuenta 1 ........ quiere cuenta 2 (espera a T2)
-T2: bloquea cuenta 2 ........ quiere cuenta 1 (espera a T1)
-PostgreSQL lo detecta (~1 s) y aborta una: "deadlock detected"</div>
+  c:`<div class="dg"><div class="dg-tit">un interbloqueo entre dos transacciones</div>
+       <svg viewBox="0 0 340 196" width="100%" style="max-width:440px;display:block;margin:auto" role="img" aria-label="T1 bloquea la cuenta 1 y quiere la cuenta 2; T2 bloquea la cuenta 2 y quiere la cuenta 1: cada una espera a la otra">
+         <defs>
+           <marker id="fl-sql10-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker>
+           <marker id="fl-sql10-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker>
+         </defs>
+         <rect x="20" y="24" width="96" height="36" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+         <text x="68" y="47" text-anchor="middle" font-family="var(--mono)" font-size="14" fill="var(--ink)">T1</text>
+         <rect x="224" y="24" width="96" height="36" rx="8" fill="var(--bg)" stroke="var(--line-2)" stroke-width="1.5"/>
+         <text x="272" y="47" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">cuenta 2</text>
+         <rect x="20" y="136" width="96" height="36" rx="8" fill="var(--bg)" stroke="var(--line-2)" stroke-width="1.5"/>
+         <text x="68" y="159" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">cuenta 1</text>
+         <rect x="224" y="136" width="96" height="36" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+         <text x="272" y="159" text-anchor="middle" font-family="var(--mono)" font-size="14" fill="var(--ink)">T2</text>
+         <line x1="68" y1="60" x2="68" y2="132" stroke="var(--accent)" stroke-width="2" marker-end="url(#fl-sql10-a)"/>
+         <text x="76" y="102" font-family="var(--sans)" font-size="12" fill="var(--ink-2)">bloquea</text>
+         <line x1="272" y1="136" x2="272" y2="64" stroke="var(--accent)" stroke-width="2" marker-end="url(#fl-sql10-a)"/>
+         <text x="264" y="102" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink-2)">bloquea</text>
+         <line x1="116" y1="42" x2="220" y2="42" stroke="var(--bad)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#fl-sql10-b)"/>
+         <text x="168" y="34" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--bad)">quiere</text>
+         <text x="168" y="58" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink-3)">espera a T2</text>
+         <line x1="224" y1="154" x2="120" y2="154" stroke="var(--bad)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#fl-sql10-b)"/>
+         <text x="172" y="146" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--bad)">quiere</text>
+         <text x="172" y="170" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink-3)">espera a T1</text>
+       </svg>
+       <div class="dg-caja aviso" style="margin-top:10px">PostgreSQL lo detecta (~1 s) y aborta una: <code>deadlock detected</code></div>
+     </div>
      <p>Prevención: acceder a las filas siempre en el <b>mismo orden</b> (por ejemplo, por id ascendente), mantener las transacciones <b>cortas</b> y <b>reintentar</b> la que falle.</p>`},
  {t:"par", p:"Empareja cada técnica con su uso",
   pares:[["FOR UPDATE","Bloquear filas que vas a modificar"],["SKIP LOCKED","Colas de trabajo con varios consumidores"],["NOWAIT","Fallar al instante si la fila está bloqueada"],["Columna version","Bloqueo optimista: detectar cambios concurrentes al guardar"]],

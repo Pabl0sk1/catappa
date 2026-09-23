@@ -120,13 +120,14 @@ claves:["LVM agrupa discos físicos (PV) en grupos (VG) y reparte volúmenes ló
 pasos:[
  {t:"info", eti:"El problema", h:"Las particiones son rígidas",
   c:`<p>Si <code>/var</code> es una partición de 50 GB y se llena, ampliarla es complicado: el espacio de al lado puede estar ocupado. <b>LVM</b> (Logical Volume Manager) añade una capa que hace el almacenamiento flexible:</p>
-     <div class="diag">discos fisicos:   /dev/sdb  /dev/sdc          (PV: physical volumes)
-                        \\      /
-grupo:               vg_datos  (300 GB)        (VG: volume group)
-                    /         \\
-volumenes:      lv_bd (200G)  lv_logs (50G)    (LV: logical volumes)
-                   |             |
-montados en:  /var/lib/postgresql  /var/log</div>`},
+     <div class="dg"><div class="dg-tit">de discos físicos a carpetas montadas con lvm</div>
+       <div class="dg-vert">
+         <div class="dg-caja base">Discos físicos<small>PV: physical volumes</small><div class="dg-fila" style="margin-top:8px"><div class="dg-caja"><code>/dev/sdb</code></div><div class="dg-caja"><code>/dev/sdc</code></div></div></div>
+         <div class="dg-caja acento doble">Grupo <code>vg_datos</code> (300 GB)<small>VG: volume group</small></div>
+         <div class="dg-caja">Volúmenes<small>LV: logical volumes</small><div class="dg-fila" style="margin-top:8px"><div class="dg-caja"><code>lv_bd</code> (200G)</div><div class="dg-caja"><code>lv_logs</code> (50G)</div></div></div>
+         <div class="dg-caja ok">Montados en<div class="dg-fila" style="margin-top:8px"><div class="dg-caja" style="word-break:break-all">/var/lib/postgresql</div><div class="dg-caja">/var/log</div></div></div>
+       </div>
+     </div>`},
  {t:"par", p:"Empareja cada nivel de LVM con su papel",
   pares:[["PV (physical volume)","Un disco o partición entregado a LVM"],["VG (volume group)","La bolsa común de espacio de varios PV"],["LV (logical volume)","El «disco virtual» que se formatea y monta"]],
   why:"PV, VG, LV: de abajo arriba. Así se piensa el almacenamiento en casi todos los servidores empresariales."},
