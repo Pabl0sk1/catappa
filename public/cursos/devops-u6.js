@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "Observabilidad y fiabilidad",
 resumen: "Logs, métricas y trazas, Prometheus y Grafana, alertas, SLOs e incidentes",
+nivel: "Experto",
 color: "#f26d6d",
 lecciones: [
 

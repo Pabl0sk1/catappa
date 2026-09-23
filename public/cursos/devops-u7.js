@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "Cloud, seguridad y entrevista",
 resumen: "Modelos cloud, IAM, DevSecOps, gestión de secretos y simulacro final",
+nivel: "Maestro",
 color: "#6dd3f2",
 lecciones: [
 

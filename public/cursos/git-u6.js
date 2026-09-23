@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "Trabajar en equipo en GitHub",
 resumen: "Pull Requests, code review, flujos de trabajo, issues, forks y releases",
+nivel: "Experto",
 color: "#6dd3f2",
 lecciones: [
 

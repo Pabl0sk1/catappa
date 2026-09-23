@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "Nivel pro y entrevista",
 resumen: "cherry-pick, bisect, historial limpio, secretos filtrados y simulacro",
+nivel: "Maestro",
 color: "#f5b642",
 lecciones: [
 

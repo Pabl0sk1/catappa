@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "Qué es Git y por qué lo usa todo el mundo",
 resumen: "Control de versiones, Git contra GitHub, las tres zonas y qué es un commit",
+nivel: "Fundamentos",
 color: "#f26d6d",
 lecciones: [
 

@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "Infraestructura como código",
 resumen: "Terraform, estado, módulos, Ansible e idempotencia",
+nivel: "Intermedio",
 color: "#c49bf2",
 lecciones: [
 

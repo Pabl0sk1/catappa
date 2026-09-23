@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "Qué es DevOps de verdad",
 resumen: "La cultura, el ciclo, las métricas DORA y los roles del sector",
+nivel: "Fundamentos",
 color: "#7fd1b9",
 lecciones: [
 

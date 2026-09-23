@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "Linux de servidor",
 resumen: "systemd, redes, SSH, scripts bash, logs, disco y cortafuegos",
+nivel: "Fundamentos",
 color: "#8fd16a",
 lecciones: [
 

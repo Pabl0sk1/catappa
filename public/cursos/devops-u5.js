@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "Kubernetes",
 resumen: "Por qué un orquestador, Pods, Deployments, Services, configuración y kubectl",
+nivel: "Avanzado",
 color: "#7aa2f7",
 lecciones: [
 

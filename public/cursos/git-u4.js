@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "Ramas",
 resumen: "Crear, cambiar, fusionar, resolver conflictos y rebase",
+nivel: "Intermedio",
 color: "#8fd16a",
 lecciones: [
 

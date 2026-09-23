@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "Tu primer repositorio",
 resumen: "init, status, add, commit, log, diff y .gitignore, paso a paso",
+nivel: "Fundamentos",
 color: "#f29e6d",
 lecciones: [
 

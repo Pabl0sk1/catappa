@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "Deshacer cosas sin miedo",
 resumen: "restore, amend, reset, revert, stash y reflog: saber volver atrás",
+nivel: "Intermedio",
 color: "#c49bf2",
 lecciones: [
 

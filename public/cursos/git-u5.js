@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.git = CURSOS.git || []).push({
 titulo: "GitHub y los remotos",
 resumen: "clone, push, pull, fetch, autenticación y el push rechazado",
+nivel: "Avanzado",
 color: "#7aa2f7",
 lecciones: [
 

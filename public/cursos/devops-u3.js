@@ -2,6 +2,7 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.devops = CURSOS.devops || []).push({
 titulo: "CI/CD",
 resumen: "Pipelines, GitHub Actions a fondo, secretos, caché y estrategias de despliegue",
+nivel: "Intermedio",
 color: "#f5b642",
 lecciones: [
 
