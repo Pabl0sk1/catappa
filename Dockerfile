@@ -20,11 +20,10 @@ WORKDIR /app
 
 # Solo lo necesario (ver .dockerignore)
 COPY server ./server
-COPY herramientas ./herramientas
 COPY public ./public
 
 # índice ligero de cursos + versión del service worker (falla el build si algún curso tiene errores)
-RUN node herramientas/indice.js \
+RUN node server/indice.js \
     && addgroup -S catappa && adduser -S catappa -G catappa \
     && mkdir -p /data && chown catappa:catappa /data
 

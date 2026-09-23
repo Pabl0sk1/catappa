@@ -6,7 +6,7 @@
    pero no los pasos: así la app arranca rápido aunque haya muchos cursos,
    y el contenido completo de un curso se descarga solo al abrirlo.
 
-   Uso:  node herramientas/indice.js
+   Uso:  node server/indice.js
    (el Dockerfile lo ejecuta en cada build)
    ===================================================================== */
 const fs = require("fs");
@@ -46,7 +46,7 @@ for (const f of ficheros) {
 
 if (errores.length) { console.error("ERRORES:\n" + errores.join("\n")); process.exit(1); }
 
-const salida = "/* Generado por herramientas/indice.js — no editar a mano */\nwindow.CURSOS_INDICE = " + JSON.stringify(indice) + ";\n";
+const salida = "/* Generado por server/indice.js — no editar a mano */\nwindow.CURSOS_INDICE = " + JSON.stringify(indice) + ";\n";
 fs.writeFileSync(path.join(DIR, "_indice.js"), salida);
 let totL = 0, totP = 0;
 for (const [cid, c] of Object.entries(indice)) {

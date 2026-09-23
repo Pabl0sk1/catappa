@@ -204,10 +204,9 @@ docker run hello-world    # debe imprimir "Hello from Docker!"
 .
 ├── Dockerfile            node:22-alpine, usuario sin root, healthcheck
 ├── compose.yml           puerto 8090 -> 3000, volumen catappa-datos
-├── herramientas/
-│   └── indice.js         genera el índice ligero de cursos y la versión del service worker
 ├── server/
 │   ├── server.js         API REST + servidor de ficheros (Node sin dependencias)
+│   ├── indice.js         genera el índice ligero de cursos y la versión del service worker
 │   ├── db.js             almacén JSON con escritura atómica
 │   └── semilla.js        comunidad inicial (se crea una sola vez)
 ├── public/
@@ -227,7 +226,7 @@ docker run hello-world    # debe imprimir "Hello from Docker!"
 La portada solo descarga el índice (unos 270 KB); el contenido de cada curso se
 carga al abrirlo. El servidor no tiene dependencias de npm y lee el mismo
 contenido que el navegador para validar el progreso (no se puede marcar una
-lección que no existe ni inflar la XP). La imagen solo lleva `server`, `herramientas` y `public`.
+lección que no existe ni inflar la XP). La imagen solo lleva `server` y `public`.
 
 **Stack actual:** Node.js sin framework, datos en ficheros JSON y JavaScript sin
 framework en el navegador. Está prevista una migración a **Node.js +
@@ -309,11 +308,11 @@ ficheros de unidades y, si tiene logo, el SVG en `public/logos/` y en la lista
 `FICHEROS` de `public/sw.js`. Después, regenera el índice y reconstruye:
 
 ```powershell
-node herramientas/indice.js
+node server/indice.js
 docker compose up -d --build
 ```
 
-(El `Dockerfile` también ejecuta `herramientas/indice.js` al construir la imagen.)
+(El `Dockerfile` también ejecuta `server/indice.js` al construir la imagen.)
 
 ---
 

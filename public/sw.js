@@ -3,10 +3,10 @@
    - Instala la "carcasa" de la app para que abra sin conexión.
    - Los cursos que abres se guardan en caché y quedan disponibles offline.
    - La API siempre va a la red (la app gestiona el modo sin conexión).
-   La línea VERSION la reescribe herramientas/indice.js en cada build: si
+   La línea VERSION la reescribe server/indice.js en cada build: si
    cambia cualquier fichero, cambia la versión y el navegador ofrece actualizar.
    ===================================================================== */
-var VERSION = "catappa-351b94e990";
+var VERSION = "catappa-77c64e5d52";
 var CARCASA = "carcasa-" + VERSION;
 var CONTENIDO = "contenido-" + VERSION;
 var FUENTES = "fuentes-v1";
