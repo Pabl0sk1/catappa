@@ -10,11 +10,12 @@ const vm = require("vm");
 const crypto = require("crypto");
 const db = require("./db");
 const runner = require("./ejecutar");
+const correo = require("./correo");
 const semilla = require("./semilla");
 
 const PUERTO = +process.env.PORT || 3000;
 const PUBLICO = path.join(__dirname, "..", "public");
-const MAX_BODY = 64 * 1024;
+const MAX_BODY = 2 * 1024 * 1024;   // las fotos de perfil viajan en el cuerpo, ya reducidas por el navegador
 
 /* ---------------- catálogo de cursos (leído de los mismos ficheros que usa el navegador) ---------------- */
 const CATALOGO = {};   // {cursoId: {lecciones: Set, unidades: [[ids]], total, titulo}}
@@ -162,6 +163,7 @@ function perfilPublico(u, completo) {
   const r = resumenUsuario(u.id);
   const out = {
     usuario: u.usuario, nombre: u.nombre, color: u.color, bio: u.bio || "", rol: u.rol || "alumno",
+    avatar: u.avatar || "", pais: u.pais || "",
     creado: u.creado, xp: r.xp, racha: r.racha, lecciones: r.hechas,
     insignias: INSIGNIAS.filter(i => i.ok(r)).map(i => i.id),
     certificados: certificadosDe(u.id).map(({ codigo, curso, titulo, fecha, lecciones }) => ({ codigo, curso, titulo, fecha, lecciones }))
@@ -169,6 +171,9 @@ function perfilPublico(u, completo) {
   if (completo) {
     out.tema = u.tema || "sistema";       // preferencia privada: solo en el perfil propio
     out.stacks = u.stacks || {};          // lenguaje elegido en los cursos de infraestructura
+    out.correo = u.correo || "";          // privados: solo en el perfil propio
+    out.correoVerificado = !!u.correoVerificado;
+    out.nacimiento = u.nacimiento || "";
     out.examenes = db.get("examenes")[u.id] || {};
     out.proyectos = db.get("proyectos")[u.id] || {};
     const p = db.get("progreso")[u.id] || {};
@@ -221,10 +226,17 @@ function leerCuerpo(req) {
 const MIME = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
   ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".woff2": "font/woff2",
-  ".webmanifest": "application/manifest+json"
+  ".webmanifest": "application/manifest+json", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"
 };
 function estatico(req, res, url) {
   let rel = decodeURIComponent(url.pathname);
+  // las fotos de perfil viven fuera de public/, junto a los datos
+  if (rel.startsWith("/avatares/")) {
+    const f = path.normalize(path.join(DIR_AVATARES, rel.slice("/avatares/".length)));
+    if (!f.startsWith(DIR_AVATARES) || !fs.existsSync(f)) { res.writeHead(404); return res.end(); }
+    res.writeHead(200, { "Content-Type": MIME[path.extname(f)] || "image/png", "Cache-Control": "no-cache" });
+    return fs.createReadStream(f).pipe(res);
+  }
   if (rel === "/") rel = "/index.html";
   const fichero = path.normalize(path.join(PUBLICO, rel));
   if (!fichero.startsWith(PUBLICO)) { res.writeHead(403); return res.end(); }
@@ -240,6 +252,87 @@ function estatico(req, res, url) {
   });
 }
 
+/* ---------------- cuentas: correo, códigos y avatares ---------------- */
+const DIR_DATOS = process.env.DATA_DIR || path.join(__dirname, "..", "data");
+const DIR_AVATARES = path.join(DIR_DATOS, "avatares");
+const RE_CORREO = /^[^@\s]{1,64}@[^@\s.]+(\.[^@\s.]+)+$/;
+const VIDA_CODIGO = 15 * 60 * 1000;   // 15 minutos
+
+function nuevoCodigoCorto() {
+  return String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+}
+function guardarCodigo(clave, datos) {
+  const v = db.get("verificaciones");
+  v[clave] = Object.assign({ creado: Date.now(), expira: Date.now() + VIDA_CODIGO, intentos: 0 }, datos);
+  db.guardar("verificaciones");
+}
+function leerCodigo(clave) {
+  const v = db.get("verificaciones")[clave];
+  if (!v) return null;
+  if (v.expira < Date.now()) { delete db.get("verificaciones")[clave]; db.guardar("verificaciones"); return null; }
+  return v;
+}
+function borrarCodigo(clave) { delete db.get("verificaciones")[clave]; db.guardar("verificaciones"); }
+
+async function mandarCodigo(para, asunto, intro, codigo) {
+  const texto = intro + "\n\n    " + codigo + "\n\n" +
+    "El código caduca en 15 minutos. Si no has sido tú, puedes ignorar este mensaje.\n\n— Catappa";
+  try {
+    const r = await correo.enviar({ para, asunto, texto, dirDatos: DIR_DATOS });
+    // sin SMTP configurado se devuelve el código a la propia interfaz: es una
+    // instalación personal y de otro modo no habría forma de continuar
+    return { enviado: r.enviado, local: r.local, codigo: r.local ? codigo : undefined };
+  } catch (e) {
+    console.log("[correo] fallo al enviar:", e.message);
+    return { enviado: false, local: false, error: e.message };
+  }
+}
+
+/* la foto llega como data URL ya reducida por el navegador; se guarda en disco */
+function guardarAvatar(u, dataUrl) {
+  const m = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || ""));
+  if (!m) return null;
+  const datos = Buffer.from(m[2], "base64");
+  if (datos.length > 1024 * 1024) return null;
+  if (!fs.existsSync(DIR_AVATARES)) fs.mkdirSync(DIR_AVATARES, { recursive: true });
+  for (const ext of ["png", "jpg", "webp"]) {
+    const viejo = path.join(DIR_AVATARES, u.id + "." + ext);
+    if (fs.existsSync(viejo)) { try { fs.unlinkSync(viejo); } catch (e) {} }
+  }
+  const ext = m[1] === "jpeg" ? "jpg" : m[1];
+  fs.writeFileSync(path.join(DIR_AVATARES, u.id + "." + ext), datos);
+  return "/avatares/" + u.id + "." + ext + "?v=" + Date.now().toString(36);
+}
+function borrarAvatar(u) {
+  for (const ext of ["png", "jpg", "webp"]) {
+    const f = path.join(DIR_AVATARES, u.id + "." + ext);
+    if (fs.existsSync(f)) { try { fs.unlinkSync(f); } catch (e) {} }
+  }
+}
+
+/* borrar la cuenta: se va todo, incluidas las publicaciones y los votos */
+function borrarCuenta(u) {
+  const us = db.get("usuarios");
+  const i = us.findIndex(x => x.id === u.id);
+  if (i >= 0) us.splice(i, 1);
+  for (const col of ["progreso", "actividad", "actividadCursos", "certificados", "examenes", "proyectos"]) {
+    const c = db.get(col);
+    if (c[u.id]) { delete c[u.id]; db.guardar(col); }
+  }
+  const posts = db.get("posts");
+  for (let j = posts.length - 1; j >= 0; j--) {
+    const p = posts[j];
+    if (p.autor === u.usuario) { posts.splice(j, 1); continue; }
+    p.votos = (p.votos || []).filter(x => x !== u.usuario);
+    p.respuestas = (p.respuestas || []).filter(r => r.autor !== u.usuario);
+  }
+  const ses = db.get("sesiones");
+  for (const t of Object.keys(ses)) if (ses[t].uid === u.id) delete ses[t];
+  borrarCodigo(u.id);
+  borrarAvatar(u);
+  db.guardar("usuarios"); db.guardar("posts"); db.guardar("sesiones");
+}
+
 /* ---------------- API ---------------- */
 const RUTAS = [];
 const ruta = (metodo, patron, fn, auth) => RUTAS.push({ metodo, re: new RegExp("^" + patron.replace(/:(\w+)/g, "(?<$1>[^/]+)") + "$"), fn, auth });
@@ -252,6 +345,7 @@ ruta("POST", "/api/registro", async (req, res, b) => {
   const clave = String(b.clave || "");
   if (!/^[a-z0-9_-]{3,20}$/.test(usuario)) return error(res, 400, "El usuario debe tener entre 3 y 20 caracteres: letras minúsculas, números, - o _.");
   if (clave.length < 6) return error(res, 400, "La contraseña debe tener al menos 6 caracteres.");
+  if (b.clave2 !== undefined && String(b.clave2) !== clave) return error(res, 400, "Las dos contraseñas no coinciden.");
   const us = db.get("usuarios");
   if (us.some(u => u.usuario === usuario)) return error(res, 409, "Ese nombre de usuario ya existe.");
   const salt = crypto.randomBytes(16).toString("hex");
@@ -263,8 +357,9 @@ ruta("POST", "/api/registro", async (req, res, b) => {
 });
 
 ruta("POST", "/api/login", async (req, res, b) => {
-  const usuario = limpiarTexto(b.usuario, 20).toLowerCase();
-  const u = db.get("usuarios").find(x => x.usuario === usuario);
+  // se acepta el nombre de usuario o el correo verificado
+  const id = limpiarTexto(b.identificador !== undefined ? b.identificador : b.usuario, 120).toLowerCase();
+  const u = db.get("usuarios").find(x => x.usuario === id || (x.correo && x.correo.toLowerCase() === id));
   if (!u || u.hash !== hashClave(String(b.clave || ""), u.salt)) return error(res, 401, "Usuario o contraseña incorrectos.");
   enviar(res, 200, { token: crearSesion(u.id), perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
 });
@@ -285,6 +380,21 @@ ruta("POST", "/api/perfil", (req, res, b, u) => {
   if (b.bio !== undefined) u.bio = limpiarTexto(b.bio, 240);
   if (b.color && /^#[0-9a-fA-F]{6}$/.test(b.color)) u.color = b.color;
   if (b.tema !== undefined && ["sistema", "claro", "oscuro"].includes(b.tema)) u.tema = b.tema;
+  if (b.nacimiento !== undefined) {
+    const f = limpiarTexto(b.nacimiento, 10);
+    if (!f) u.nacimiento = "";
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(f) && new Date(f) < new Date() && +f.slice(0, 4) > 1900) u.nacimiento = f;
+    else return error(res, 400, "Esa fecha de nacimiento no es válida.");
+  }
+  if (b.pais !== undefined) u.pais = /^[a-z]{2}$/i.test(String(b.pais)) ? String(b.pais).toLowerCase() : "";
+  if (b.avatar !== undefined) {
+    if (!b.avatar) { borrarAvatar(u); u.avatar = ""; }
+    else {
+      const ruta2 = guardarAvatar(u, b.avatar);
+      if (!ruta2) return error(res, 400, "Esa imagen no vale: usa PNG, JPG o WEBP de menos de 1 MB.");
+      u.avatar = ruta2;
+    }
+  }
   if (b.stacks && typeof b.stacks === "object") {
     u.stacks = u.stacks || {};
     for (const [curso, id] of Object.entries(b.stacks)) {
@@ -311,6 +421,100 @@ function importarProgreso(uid, datos) {
   db.guardar("progreso");
   return n;
 }
+/* pedir el código para añadir o cambiar el correo */
+ruta("POST", "/api/correo/codigo", async (req, res, b, u) => {
+  const dir = limpiarTexto(b.correo, 120).toLowerCase();
+  if (!RE_CORREO.test(dir)) return error(res, 400, "Ese correo no tiene buena pinta.");
+  if (db.get("usuarios").some(x => x.id !== u.id && (x.correo || "").toLowerCase() === dir)) {
+    return error(res, 409, "Ese correo ya está en otra cuenta.");
+  }
+  const codigo = nuevoCodigoCorto();
+  guardarCodigo(u.id, { codigo, tipo: "correo", correo: dir });
+  const r = await mandarCodigo(dir, "Tu código de Catappa",
+    "Hola " + u.nombre + ", este es el código para confirmar tu correo en Catappa:", codigo);
+  enviar(res, 200, Object.assign({ correo: dir }, r));
+}, true);
+
+/* confirmar el código y guardar el correo */
+ruta("POST", "/api/correo/verificar", (req, res, b, u) => {
+  const v = leerCodigo(u.id);
+  if (!v || v.tipo !== "correo") return error(res, 400, "No hay ningún código pendiente. Pide uno nuevo.");
+  if (v.intentos >= 5) { borrarCodigo(u.id); return error(res, 429, "Demasiados intentos. Pide un código nuevo."); }
+  v.intentos++; db.guardar("verificaciones");
+  if (limpiarTexto(b.codigo, 10) !== v.codigo) return error(res, 400, "Ese código no es.");
+  u.correo = v.correo;
+  u.correoVerificado = true;
+  borrarCodigo(u.id);
+  db.guardar("usuarios");
+  enviar(res, 200, { perfil: perfilPublico(u, true) });
+}, true);
+
+/* desvincular el correo de la cuenta */
+ruta("POST", "/api/correo/quitar", (req, res, b, u) => {
+  u.correo = ""; u.correoVerificado = false;
+  borrarCodigo(u.id);
+  db.guardar("usuarios");
+  enviar(res, 200, { perfil: perfilPublico(u, true) });
+}, true);
+
+/* he olvidado la contraseña: siempre responde igual, exista o no la cuenta */
+ruta("POST", "/api/clave/olvidada", async (req, res, b) => {
+  const dir = limpiarTexto(b.correo, 120).toLowerCase();
+  const u = db.get("usuarios").find(x => (x.correo || "").toLowerCase() === dir && x.correoVerificado);
+  if (!RE_CORREO.test(dir) || !u) return enviar(res, 200, { ok: true, enviado: false });
+  const codigo = nuevoCodigoCorto();
+  guardarCodigo("clave:" + u.id, { codigo, tipo: "clave", correo: dir });
+  const r = await mandarCodigo(dir, "Recupera tu contraseña de Catappa",
+    "Hola " + u.nombre + ", usa este código para poner una contraseña nueva en Catappa:", codigo);
+  enviar(res, 200, Object.assign({ ok: true }, r));
+});
+
+/* poner la contraseña nueva con el código recibido */
+ruta("POST", "/api/clave/restablecer", (req, res, b) => {
+  const dir = limpiarTexto(b.correo, 120).toLowerCase();
+  const u = db.get("usuarios").find(x => (x.correo || "").toLowerCase() === dir);
+  if (!u) return error(res, 400, "Ese código ya no vale. Pide uno nuevo.");
+  const v = leerCodigo("clave:" + u.id);
+  if (!v || v.tipo !== "clave") return error(res, 400, "Ese código ya no vale. Pide uno nuevo.");
+  if (v.intentos >= 5) { borrarCodigo("clave:" + u.id); return error(res, 429, "Demasiados intentos. Pide un código nuevo."); }
+  v.intentos++; db.guardar("verificaciones");
+  if (limpiarTexto(b.codigo, 10) !== v.codigo) return error(res, 400, "Ese código no es.");
+  const clave = String(b.clave || "");
+  if (clave.length < 6) return error(res, 400, "La contraseña debe tener al menos 6 caracteres.");
+  if (String(b.clave2 || clave) !== clave) return error(res, 400, "Las dos contraseñas no coinciden.");
+  u.salt = crypto.randomBytes(16).toString("hex");
+  u.hash = hashClave(clave, u.salt);
+  borrarCodigo("clave:" + u.id);
+  // al cambiar la contraseña se cierran las demás sesiones
+  const ses = db.get("sesiones");
+  for (const t of Object.keys(ses)) if (ses[t].uid === u.id) delete ses[t];
+  db.guardar("usuarios"); db.guardar("sesiones");
+  enviar(res, 200, { ok: true });
+});
+
+/* cambiar la contraseña desde dentro */
+ruta("POST", "/api/clave/cambiar", (req, res, b, u) => {
+  if (u.hash !== hashClave(String(b.actual || ""), u.salt)) return error(res, 401, "La contraseña actual no es correcta.");
+  const clave = String(b.nueva || "");
+  if (clave.length < 6) return error(res, 400, "La contraseña nueva debe tener al menos 6 caracteres.");
+  if (String(b.nueva2 || clave) !== clave) return error(res, 400, "Las dos contraseñas no coinciden.");
+  u.salt = crypto.randomBytes(16).toString("hex");
+  u.hash = hashClave(clave, u.salt);
+  db.guardar("usuarios");
+  enviar(res, 200, { ok: true });
+}, true);
+
+/* borrar la cuenta entera */
+ruta("POST", "/api/cuenta/borrar", (req, res, b, u) => {
+  if (u.hash !== hashClave(String(b.clave || ""), u.salt)) return error(res, 401, "La contraseña no es correcta.");
+  if (limpiarTexto(b.confirmacion, 40).toLowerCase() !== u.usuario) return error(res, 400, "Escribe tu nombre de usuario para confirmar.");
+  borrarCuenta(u);
+  enviar(res, 200, { ok: true });
+}, true);
+
+/* si el servidor puede mandar correos (para avisar en la interfaz cuando no) */
+ruta("GET", "/api/correo/estado", (req, res) => enviar(res, 200, { smtp: correo.hayServidor() }));
+
 ruta("POST", "/api/importar", (req, res, b, u) => {
   const n = importarProgreso(u.id, b.progreso || {});
   emitirCertificados(u);
@@ -585,7 +789,8 @@ ruta("GET", "/api/perfil/:usuario", (req, res, b, u, q, p) => {
   const x = db.get("usuarios").find(y => y.usuario === p.usuario);
   if (!x) return error(res, 404, "No existe ese usuario.");
   const out = perfilPublico(x, true);
-  delete out.tema;   // preferencia privada
+  // lo privado no sale del perfil propio: tema, correo, fecha de nacimiento y stack elegido
+  for (const campo of ["tema", "correo", "correoVerificado", "nacimiento", "stacks"]) delete out[campo];
   out.posts = db.get("posts").filter(y => y.autor === x.id).slice(-20).reverse().map(y => resumenPost(y));
   enviar(res, 200, out);
 });

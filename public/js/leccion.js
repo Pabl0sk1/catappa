@@ -106,7 +106,14 @@ function montar(cursoId, info, l, extra) {
     var it = S.cola.shift(); S.cola.push({ p: it.p, i: it.i, reintento: true }); siguiente();
   });
   $("#lec-salir").addEventListener("click", function () {
-    if (S && S.hechos > 2 && !confirm("¿Salir de la lección? Se perderá lo que llevas de esta lección.")) return;
+    if (S && S.hechos > 2) {
+      F.confirmar({
+        titulo: "¿Salir de la lección?",
+        texto: "Llevas " + S.hechos + " paso" + (S.hechos === 1 ? "" : "s") + " de esta lección. Si sales ahora, se pierde lo que llevas hecho <b>de esta lección</b>; lo anterior sigue guardado.",
+        aceptar: "Salir igualmente", cancelar: "Seguir aprendiendo", peligro: true
+      }).then(function (si) { if (si) { cerrarPantalla(); F.ir("/curso/" + cursoId); } });
+      return;
+    }
     cerrarPantalla(); F.ir("/curso/" + cursoId);
   });
   siguiente();
@@ -504,10 +511,12 @@ function accion() {
   if (!S) return;
   var item = S.cola[0]; if (!item) return;
   var paso = item.p;
-  if (paso.t === "info") { S.cola.shift(); S.hechos++; return siguiente(); }
+  // los dos caminos por los que se avanza de paso suenan igual
+  if (paso.t === "info") { F.sonido.tocar("continuar"); S.cola.shift(); S.hechos++; return siguiente(); }
   if (S.estado === "corregido") {
     // un doble clic o un Enter rápido no debe ocultar la corrección
     if (Date.now() - S.corregidoEn < ESPERA_MIN) return;
+    F.sonido.tocar("continuar");
     S.cola.shift(); S.hechos++; return siguiente();
   }
   if (S.estado !== "responder") return;

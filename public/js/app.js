@@ -83,9 +83,14 @@ function arrancar() {
         E.progreso = F.leerLocal("catappa-progreso-local", { progreso: {} }).progreso || {};
       });
   }).then(function () {
-    // primera visita con servidor y sin sesión: pantalla de bienvenida
+    // sin sesión, a la pantalla de acceso; con sesión, al sitio al que iba
     var r = F.rutaActual().camino;
-    if (E.modo === "servidor" && !E.perfil && !F.leerLocal("catappa-visto-acceso", false) && r === "/") location.hash = "#/entrar?modo=registro";
+    if (!E.perfil && !F.rutaAbierta(r)) location.hash = "#/entrar";
+    else if (E.perfil && /^\/entrar/.test(r)) {
+      var destino = F.leerLocal("catappa-destino", "");
+      try { localStorage.removeItem("catappa-destino"); } catch (x) {}
+      location.hash = "#" + (destino || "/");
+    }
     F.navegar();
     if (importadas) setTimeout(function () { F.toast("Recuperadas " + importadas + " lecciones de Docker que ya habías completado"); }, 700);
     registrarSW();

@@ -78,26 +78,19 @@ F.conectarStack = function (cursoId, alCambiar) {
 
 F.dialogoStack = function (cursoId, alCambiar) {
   var actual = F.stackDe(cursoId);
-  var html = '<div class="modal-fondo" id="stack-modal"><div class="modal" role="dialog" aria-label="Elegir stack">' +
-    '<div class="modal-cab"><b>¿Con qué trabajas?</b><button class="icono-btn" id="stack-cerrar" aria-label="Cerrar">' + F.icono("x") + "</button></div>" +
-    '<p class="subtitulo" style="margin:0 0 14px">Lo que aprendes es lo mismo para todos, pero los ejemplos se escribirán en el que elijas: Dockerfiles, comandos de prueba, puertos y rutas de salud.</p>' +
+  var m = F.modal("¿Con qué trabajas?",
+    "<p>Lo que aprendes es lo mismo para todos, pero los ejemplos se escribirán en el que elijas: Dockerfiles, comandos de prueba, puertos y rutas de salud.</p>" +
     '<div class="stack-lista">' + Object.keys(F.STACKS).map(function (id) {
-      var s = F.STACKS[id];
+      var s2 = F.STACKS[id];
       return '<button class="stack-op' + (id === actual ? " sel" : "") + '" data-stack="' + id + '">' +
-        '<span class="stack-punto" style="background:' + F.esc(s.color || "#888") + '"></span>' +
-        "<span><b>" + F.esc(s.nombre) + "</b><span>" + F.esc(s.lenguaje + " · " + s.gestor) + "</span></span>" +
+        '<span class="stack-punto" style="background:' + F.esc(s2.color || "#888") + '"></span>' +
+        "<span><b>" + F.esc(s2.nombre) + "</b><span>" + F.esc(s2.lenguaje + " · " + s2.gestor) + "</span></span>" +
         (id === actual ? '<span class="mono">actual</span>' : "") + "</button>";
-    }).join("") + "</div></div></div>";
-  var caja = document.createElement("div");
-  caja.innerHTML = html;
-  document.body.appendChild(caja.firstChild);
-  var cerrar = function () { var m = $("#stack-modal"); if (m) m.remove(); };
-  $("#stack-cerrar").addEventListener("click", cerrar);
-  $("#stack-modal").addEventListener("click", function (e) { if (e.target.id === "stack-modal") cerrar(); });
-  F.$$("#stack-modal [data-stack]").forEach(function (b) {
+    }).join("") + "</div>");
+  F.$$("[data-stack]", m.el).forEach(function (b) {
     b.addEventListener("click", function () {
       F.elegirStack(cursoId, b.dataset.stack, function (id) {
-        cerrar();
+        m.cerrar();
         F.toast("Ejemplos en " + F.STACKS[id].nombre);
         if (alCambiar) alCambiar(id);
       });

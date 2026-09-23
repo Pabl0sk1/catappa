@@ -36,7 +36,9 @@ F.iniciales = function (nombre) {
   return ((p[0] || "?")[0] + (p[1] ? p[1][0] : (p[0][1] || ""))).toUpperCase();
 };
 F.avatar = function (u, tam) {
-  return '<span class="avatar ' + (tam || "") + '" style="background:' + F.esc(u.color || "#179493") + '">' + F.esc(F.iniciales(u.nombre || u.usuario)) + "</span>";
+  // con foto de perfil se enseña la foto; si no, las iniciales sobre el color elegido
+  if (u && u.avatar) return '<img class="avatar foto ' + (tam || "") + '" src="' + F.esc(u.avatar) + '" alt="" loading="lazy">';
+  return '<span class="avatar ' + (tam || "") + '" style="background:' + F.esc((u && u.color) || "#179493") + '">' + F.esc(F.iniciales((u && (u.nombre || u.usuario)) || "?")) + "</span>";
 };
 F.guardarLocal = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 F.leerLocal = function (k, def) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } };
@@ -589,6 +591,28 @@ F.toast = function (texto, icono) {
 };
 
 /* ---------------- modal ---------------- */
+/* confirmación con el diálogo de la casa, no con el del navegador.
+   Devuelve una promesa que se resuelve con true o false. */
+F.confirmar = function (opciones) {
+  var o = opciones || {};
+  return new Promise(function (resolver) {
+    var decidido = false;
+    var m = F.modal(o.titulo || "¿Seguro?",
+      "<p>" + (o.texto || "") + "</p>",
+      '<button class="btn btn-suave" data-cerrar>' + F.esc(o.cancelar || "Cancelar") + "</button>" +
+      '<button class="btn ' + (o.peligro ? "btn-peligro" : "btn-primario") + '" data-confirmar>' + F.esc(o.aceptar || "Aceptar") + "</button>");
+    m.el.querySelector("[data-confirmar]").addEventListener("click", function () {
+      decidido = true; m.cerrar(); resolver(true);
+    });
+    // cerrar por la X, por Escape o pulsando fuera cuenta como cancelar
+    var obs = new MutationObserver(function () {
+      if (!document.body.contains(m.el)) { obs.disconnect(); if (!decidido) resolver(false); }
+    });
+    obs.observe(document.body, { childList: true });
+    setTimeout(function () { var b = m.el.querySelector("[data-confirmar]"); if (b) b.focus(); }, 40);
+  });
+};
+
 F.modal = function (titulo, cuerpoHTML, pieHTML) {
   var v = document.createElement("div");
   v.className = "velo";
@@ -642,8 +666,27 @@ F.rutaActual = function () {
   var partes = h.split("?");
   return { camino: partes[0] || "/", query: new URLSearchParams(partes[1] || "") };
 };
+/* lo único que se puede ver sin cuenta: la propia pantalla de acceso y la
+   comprobación de un certificado, que es pública a propósito */
+var RUTAS_ABIERTAS = [/^\/entrar/, /^\/certificado\//];
+F.rutaAbierta = function (camino) {
+  return RUTAS_ABIERTAS.some(function (re) { return re.test(camino); });
+};
+
+/* el que se desplaza ahora es el contenido, no la ventana */
+F.arriba = function () {
+  var v = F.$("#vista");
+  if (v) v.scrollTop = 0;
+  else window.scrollTo(0, 0);
+};
+
 F.navegar = function () {
   var r = F.rutaActual();
+  if (!E.perfil && !F.rutaAbierta(r.camino)) {
+    // sin sesión no hay plataforma; se recuerda a dónde iba para volver después de entrar
+    if (r.camino && r.camino !== "/") F.guardarLocal("catappa-destino", r.camino);
+    if (!/^\/entrar/.test(r.camino)) { location.hash = "#/entrar"; return; }
+  }
   for (var i = 0; i < RUTAS.length; i++) {
     var m = r.camino.match(RUTAS[i].re);
     if (m) {
@@ -652,7 +695,7 @@ F.navegar = function () {
       params.query = r.query;
       var def = RUTAS[i];
       if (!def.op.sinLayout) F.layout(def.op.seccion || "", def.op.migas ? def.op.migas(params) : null);
-      window.scrollTo(0, 0);
+      F.arriba();
       try { def.vista(params); } catch (e) { console.error(e); F.pintar('<div class="vacio"><b>Algo ha fallado al mostrar esta página.</b>' + F.esc(e.message) + "</div>"); }
       return;
     }
@@ -690,6 +733,7 @@ F.layout = function (seccion, migas) {
               '<span class="chip racha" title="Días seguidos aprendiendo">' + F.icono("fuego") + '<span id="st-racha">0</span></span>' +
               '<span class="chip xp" title="Puntos de experiencia">' + F.icono("rayo") + '<span id="st-xp">0</span></span>' +
               '<span class="tema-envoltorio"><button class="boton-icono" id="boton-tema" aria-label="Tema" aria-haspopup="menu" aria-expanded="false"></button></span>' +
+              '<span class="cuenta-sup" id="cuenta-sup"></span>' +
             "</div>" +
           "</header>" +
           '<main class="contenido" id="vista"></main>' +
@@ -729,6 +773,18 @@ F.layout = function (seccion, migas) {
   F.$("#migas").innerHTML = migas || "~/" + (seccion || "");
   F.pintarStats();
   F.pintarBotonTema();
+  F.pintarCuentaSup();
+};
+
+/* atajo de la barra superior: ir al perfil y cerrar sesión sin dar vueltas */
+F.pintarCuentaSup = function () {
+  var z = F.$("#cuenta-sup");
+  if (!z) return;
+  if (!E.perfil) { z.innerHTML = ""; return; }
+  z.innerHTML = '<a class="cuenta-btn" href="#/perfil" title="' + F.esc(E.perfil.nombre) + '" aria-label="Tu perfil">' + F.avatar(E.perfil, "mini") + "</a>" +
+    '<button class="boton-icono" id="salir-rapido" title="Cerrar sesión" aria-label="Cerrar sesión">' + F.icono("salir") + "</button>";
+  var b = F.$("#salir-rapido");
+  if (b) b.addEventListener("click", function () { F.dialogoSalir(); });
 };
 
 /* ---------------- web app instalable (PWA) ---------------- */

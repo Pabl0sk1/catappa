@@ -9,7 +9,8 @@ const path = require("path");
 const DIR = process.env.DATA_DIR || path.join(__dirname, "..", "data");
 
 const ESQUEMA = {
-  usuarios: [],      // {id, usuario, nombre, hash, salt, color, bio, creado, rol}
+  usuarios: [],      // {id, usuario, nombre, hash, salt, color, bio, creado, rol, correo, correoVerificado, nacimiento, pais, avatar}
+  verificaciones: {}, // {usuarioId|"correo:x": {codigo, tipo, correo, expira, intentos}}
   progreso: {},      // {usuarioId: {cursoId: {lecciones:{}, xp, aciertos, intentos}}}
   actividad: {},     // {usuarioId: {"2026-09-21": xpDelDia}}
   actividadCursos: {}, // {usuarioId: {cursoId: {"2026-09-21": xpDelDia}}}: permite reiniciar un curso sin dejar rastro

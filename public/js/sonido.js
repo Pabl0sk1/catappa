@@ -51,6 +51,8 @@ var SONIDOS = {
   parMal: function () { nota(196, 0, 0.14, "square", 0.12, 170); nota(98, 0, 0.18, "sine", 0.3); },
   // tocar una opción o una ficha
   toque: function () { nota(1400, 0, 0.035, "sine", 0.12); },
+  // pasar al siguiente paso: un toque breve y suave, para que no canse al repetirse
+  continuar: function () { nota(587.33, 0, 0.07, "triangle", 0.26); nota(880, 0.045, 0.1, "sine", 0.14); },
   // lección terminada: arpegio
   fin: function () {
     [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) { nota(f, i * 0.11, 0.3, "triangle", 0.45); });

@@ -242,7 +242,7 @@ F.vistaCurso = function (prm) {
   F.pintar(html);
   F.conectarStack(c.id, function () { F.navegar(); });
   var br = $("#reiniciar-curso");
-  if (br) br.addEventListener("click", function () { F.confirmarReinicio(c.id, function () { F.navegar(); window.scrollTo(0, 0); }); });
+  if (br) br.addEventListener("click", function () { F.confirmarReinicio(c.id, function () { F.navegar(); F.arriba(); }); });
 
   // plegar y desplegar etapas (se recuerda por curso)
   F.$$(".stage-cab").forEach(function (cab) {

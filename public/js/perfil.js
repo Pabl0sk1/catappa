@@ -61,7 +61,7 @@ function pintarPerfil(p) {
     '<div class="ancho">' +
       '<div class="perfil-cab">' + F.avatar(p, "l") +
         '<div class="datos-p"><h1>' + F.esc(p.nombre) + (p.rol === "mentor" ? ' <span class="badge mentor" style="vertical-align:middle">mentor</span>' : "") + "</h1>" +
-        '<div class="usuario-p">@' + F.esc(p.usuario) + " · en " + F.esc(F.MARCA.nombre) + " desde " + new Date(p.creado).toLocaleDateString("es-ES", { month: "long", year: "numeric" }) + "</div>" +
+        '<div class="usuario-p">@' + F.esc(p.usuario) + (p.pais ? " · " + F.bandera(p.pais, 13) + " " + F.esc(F.nombrePais(p.pais)) : "") + " · en " + F.esc(F.MARCA.nombre) + " desde " + new Date(p.creado).toLocaleDateString("es-ES", { month: "long", year: "numeric" }) + "</div>" +
         (p.bio ? '<p class="bio">' + F.esc(p.bio) + "</p>" : mio ? '<p class="bio" style="color:var(--ink-3)">Aún no has escrito nada sobre ti.</p>' : "") + "</div>" +
         (mio ? '<button class="btn" id="editar-perfil">Editar perfil</button>' : "") +
       "</div>" +
@@ -81,9 +81,11 @@ function pintarPerfil(p) {
       '<section class="seccion"><div class="seccion-cab"><h2>Insignias</h2><span class="mono">' + p.insignias.length + " conseguidas</span></div>" + bloqueInsignias(p.insignias) + "</section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Publicaciones</h2><span class="mono">' + (p.posts || []).length + "</span></div>" +
         ((p.posts || []).length ? '<div class="panel" style="padding:0 18px"><div class="posts">' + p.posts.map(F.filaPost).join("") + "</div></div>" : '<div class="panel vacio">Todavía no ha publicado nada.</div>') + "</section>" +
+      (mio ? F.bloqueCuenta() : "") +
     "</div>"
   );
   var be = $("#editar-perfil"); if (be) be.addEventListener("click", editarPerfil);
+  if (mio) F.conectarCuenta();
 }
 
 function perfilInvitado() {
@@ -112,21 +114,115 @@ function perfilInvitado() {
 }
 
 function editarPerfil() {
-  var p = E.perfil, colores = ["#179493", "#f5b642", "#7fd1b9", "#7aa2f7", "#f26d6d", "#c49bf2", "#8fd16a", "#f29e6d", "#6dd3f2"], elegido = p.color;
+  var p = E.perfil;
+  var colores = ["#179493", "#f5b642", "#7fd1b9", "#7aa2f7", "#f26d6d", "#c49bf2", "#8fd16a", "#f29e6d", "#6dd3f2"];
+  var estado = { color: p.color, pais: p.pais || "", avatar: undefined };   // avatar undefined = no se toca
+
   var m = F.modal("Editar perfil",
-    '<div class="campo"><label for="ep-nombre">Nombre visible</label><input class="entrada" id="ep-nombre" maxlength="40" value="' + F.esc(p.nombre) + '"></div>' +
+    '<div class="ep-foto">' +
+      '<div id="ep-vista">' + F.avatar({ nombre: p.nombre, usuario: p.usuario, color: p.color, avatar: p.avatar }, "l") + "</div>" +
+      '<div class="ep-foto-acc">' +
+        '<button class="btn btn-suave" id="ep-subir">' + F.icono("descargar").replace("<svg", '<svg style="transform:rotate(180deg)"') + "Subir foto</button>" +
+        (p.avatar ? '<button class="btn btn-suave" id="ep-quitar-foto">Quitar foto</button>' : "") +
+        '<input type="file" id="ep-archivo" accept="image/png,image/jpeg,image/webp" hidden>' +
+        '<small>Cuadrada, se reduce a 256 px. PNG, JPG o WEBP.</small>' +
+      "</div>" +
+    "</div>" +
+    '<div class="campo"><label for="ep-nombre">Nombre</label><input class="entrada" id="ep-nombre" maxlength="40" value="' + F.esc(p.nombre) + '"></div>' +
+    '<div class="campo"><label>Usuario</label><input class="entrada" value="@' + F.esc(p.usuario) + '" disabled><small>El nombre de usuario no se puede cambiar.</small></div>' +
+    '<div class="campo"><label for="ep-nac">Fecha de nacimiento</label><input class="entrada" id="ep-nac" type="date" max="' + new Date().toISOString().slice(0, 10) + '" value="' + F.esc(p.nacimiento || "") + '"><small>No se enseña a nadie.</small></div>' +
+    '<div class="campo"><label>País de origen</label>' +
+      '<button type="button" class="entrada selector-pais" id="ep-pais">' + pintaPais(estado.pais) + "</button></div>" +
     '<div class="campo"><label for="ep-bio">Sobre ti</label><textarea class="area" id="ep-bio" maxlength="240" style="min-height:90px" placeholder="Qué haces, qué estás aprendiendo, qué buscas…">' + F.esc(p.bio || "") + "</textarea><small>Máximo 240 caracteres.</small></div>" +
-    '<div class="campo"><label>Color del avatar</label><div class="colores">' + colores.map(function (c) { return '<button type="button" style="background:' + c + '" data-color="' + c + '" aria-label="Color ' + c + '" aria-pressed="' + (c === elegido) + '"></button>'; }).join("") + "</div></div>",
+    '<div class="campo"><label>Color del avatar</label><div class="colores">' +
+      colores.map(function (c) { return '<button type="button" style="background:' + c + '" data-color="' + c + '" aria-label="Color ' + c + '" aria-pressed="' + (c === estado.color) + '"></button>'; }).join("") + "</div></div>" +
+    '<p class="error-form" hidden></p>',
     '<button class="btn" data-cerrar>Cancelar</button><button class="btn btn-primario" id="ep-guardar">Guardar</button>');
+
+  function refrescarFoto() {
+    var vista = m.el.querySelector("#ep-vista");
+    var foto = estado.avatar === undefined ? p.avatar : estado.avatar;
+    vista.innerHTML = F.avatar({ nombre: m.el.querySelector("#ep-nombre").value || p.nombre, usuario: p.usuario, color: estado.color, avatar: foto }, "l");
+  }
   $$("[data-color]", m.el).forEach(function (b) {
-    b.addEventListener("click", function () { elegido = b.dataset.color; $$("[data-color]", m.el).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
+    b.addEventListener("click", function () {
+      estado.color = b.dataset.color;
+      $$("[data-color]", m.el).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      refrescarFoto();
+    });
   });
-  $("#ep-guardar").addEventListener("click", function () {
-    F.api("POST", "/api/perfil", { nombre: $("#ep-nombre").value, bio: $("#ep-bio").value, color: elegido }).then(function (d) {
-      E.perfil = d.perfil; m.cerrar(); F.toast("Perfil actualizado"); F.navegar();
-    }).catch(function (e) { F.toast(e.message, "!"); });
+  m.el.querySelector("#ep-nombre").addEventListener("input", refrescarFoto);
+  m.el.querySelector("#ep-subir").addEventListener("click", function () { m.el.querySelector("#ep-archivo").click(); });
+  m.el.querySelector("#ep-archivo").addEventListener("change", function () {
+    var archivo = this.files && this.files[0];
+    if (!archivo) return;
+    F.reducirImagen(archivo).then(function (dataUrl) {
+      estado.avatar = dataUrl; refrescarFoto();
+    }).catch(function (e) {
+      var err = m.el.querySelector(".error-form"); err.textContent = e.message; err.hidden = false;
+    });
+  });
+  var bq = m.el.querySelector("#ep-quitar-foto");
+  if (bq) bq.addEventListener("click", function () { estado.avatar = ""; refrescarFoto(); });
+  m.el.querySelector("#ep-pais").addEventListener("click", function () {
+    var boton = this;
+    F.dialogoPais(function (codigo) { estado.pais = codigo; boton.innerHTML = pintaPais(codigo); });
+  });
+
+  m.el.querySelector("#ep-guardar").addEventListener("click", function () {
+    var b = this; b.disabled = true;
+    var datos = {
+      nombre: m.el.querySelector("#ep-nombre").value,
+      bio: m.el.querySelector("#ep-bio").value,
+      color: estado.color,
+      pais: estado.pais,
+      nacimiento: m.el.querySelector("#ep-nac").value
+    };
+    if (estado.avatar !== undefined) datos.avatar = estado.avatar;
+    F.api("POST", "/api/perfil", datos).then(function (d) {
+      E.perfil = d.perfil; F.guardarSesionCache();
+      m.cerrar(); F.toast("Perfil actualizado"); F.navegar();
+    }).catch(function (e) {
+      var err = m.el.querySelector(".error-form"); err.textContent = e.message; err.hidden = false;
+      b.disabled = false;
+    });
   });
 }
+
+function pintaPais(codigo) {
+  return codigo
+    ? F.bandera(codigo, 16) + "<span>" + F.esc(F.nombrePais(codigo)) + "</span>"
+    : '<span style="color:var(--ink-3)">Sin especificar</span>';
+}
+
+/* bloque de cuenta del perfil propio: correo, contraseña y borrado */
+F.bloqueCuenta = function () {
+  var p = E.perfil;
+  if (!p) return "";
+  return '<section class="seccion"><div class="seccion-cab"><h2>Tu cuenta</h2><span class="mono">solo lo ves tú</span></div>' +
+    '<div class="panel panel-pad filas-cuenta">' +
+      '<div class="fila-cuenta"><div><b>Correo electrónico</b>' +
+        (p.correo
+          ? '<span>' + F.esc(p.correo) + (p.correoVerificado ? ' <span class="badge ok">verificado</span>' : "") + "</span>"
+          : "<span>Sin correo. Añádelo para poder recuperar la contraseña si la olvidas.</span>") + "</div>" +
+        '<div class="fila-acc"><button class="btn btn-suave" id="cu-correo">' + (p.correo ? "Cambiar" : "Añadir correo") + "</button>" +
+        (p.correo ? '<button class="btn btn-suave" id="cu-quitar">Quitar</button>' : "") + "</div></div>" +
+      '<div class="fila-cuenta"><div><b>Contraseña</b><span>Cámbiala cuando quieras. Se cerrarán las demás sesiones.</span></div>' +
+        '<div class="fila-acc"><button class="btn btn-suave" id="cu-clave">Cambiar contraseña</button></div></div>' +
+      '<div class="fila-cuenta"><div><b>Cerrar sesión</b><span>En este dispositivo.</span></div>' +
+        '<div class="fila-acc"><button class="btn btn-suave" id="cu-salir">' + F.icono("salir") + "Cerrar sesión</button></div></div>" +
+      '<div class="fila-cuenta peligro"><div><b>Borrar la cuenta</b><span>Se borra todo tu progreso y se desvincula tu correo. No se puede deshacer.</span></div>' +
+        '<div class="fila-acc"><button class="btn btn-peligro" id="cu-borrar">Borrar mi cuenta</button></div></div>' +
+    "</div></section>";
+};
+
+F.conectarCuenta = function () {
+  var c = $("#cu-correo"); if (c) c.addEventListener("click", function () { F.dialogoCorreo(function () { F.navegar(); }); });
+  var q = $("#cu-quitar"); if (q) q.addEventListener("click", function () { F.dialogoQuitarCorreo(function () { F.navegar(); }); });
+  var k = $("#cu-clave"); if (k) k.addEventListener("click", F.dialogoClave);
+  var s2 = $("#cu-salir"); if (s2) s2.addEventListener("click", F.dialogoSalir);
+  var b = $("#cu-borrar"); if (b) b.addEventListener("click", F.dialogoBorrarCuenta);
+};
 
 /* ---------------- ranking ---------------- */
 F.vistaRanking = function (prm) {
@@ -149,7 +245,7 @@ F.vistaRanking = function (prm) {
     }).join("");
     var cuerpo = (lista.length >= 3 ? '<div class="podio">' + podio + "</div>" : "") +
       '<div class="panel scroll"><table class="tabla-rank"><thead><tr><th>#</th><th>Persona</th><th class="num">Racha</th><th class="num">Lecciones</th><th class="num">XP</th></tr></thead><tbody>' + filas + "</tbody></table></div>" +
-      (!E.perfil ? '<p style="margin-top:14px;color:var(--ink-3);font-size:14px">Como invitado no apareces en el ranking. <a href="#/entrar?modo=registro">Crea una cuenta</a> para entrar en la tabla.</p>' : "");
+      "";
     F.pintar(cab + cuerpo + "</div>");
     $$("[data-r]").forEach(function (b) { b.addEventListener("click", function () { F.ir("/ranking?rango=" + b.dataset.r); }); });
   }).catch(function (e) { F.pintar(cab + '<div class="vacio"><b>' + F.esc(e.message) + "</b></div></div>"); });
@@ -181,9 +277,9 @@ F.vistaAjustes = function () {
         '<p style="color:var(--ink-3);font-size:13.5px">Sin conexión: los cursos que ya has abierto quedan guardados en el dispositivo. Las lecciones que completes sin red se sincronizan solas al volver.</p>' +
       "</div></section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Cuenta</h2></div><div class="panel panel-pad" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">' +
-        (E.perfil ? "<span>Sesión iniciada como <b>@" + F.esc(E.perfil.usuario) + '</b></span><button class="btn" id="salir">' + F.icono("salir") + "Cerrar sesión</button>"
-          : E.modo === "servidor" ? "<span>Estás como invitado. Tu progreso vive solo en este navegador.</span><a class=\"btn btn-primario\" href=\"#/entrar?modo=registro\">Crear cuenta</a>"
-          : "<span>Modo sin conexión: sin cuentas ni comunidad. Arranca el servidor con <code>docker compose up -d</code>.</span>") +
+        (E.perfil ? "<span>Sesión iniciada como <b>@" + F.esc(E.perfil.usuario) + "</b>. Tus datos, correo y contraseña están en <a href=\"#/perfil\">tu perfil</a>.</span>" +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-suave" href="#/perfil">Ver mi perfil</a><button class="btn" id="salir">' + F.icono("salir") + "Cerrar sesión</button></div>"
+          : "<span>Modo sin conexión: se está usando la última copia guardada. Arranca el servidor con <code>docker compose up -d</code>.</span>") +
       "</div></section>" +
       (function () {
         var empezados = F.cursos().filter(function (c) { return F.contarHechas(c.id) > 0; });
@@ -200,7 +296,7 @@ F.vistaAjustes = function () {
       "</div></section>" +
       '<section class="seccion"><div class="seccion-cab"><h2>Atajos de teclado</h2></div><div class="panel panel-pad" style="display:grid;gap:10px;font-size:14px">' +
         "<div><kbd>Ctrl</kbd> + <kbd>K</kbd> &nbsp;buscar cualquier lección o página</div><div><kbd>1</kbd>–<kbd>5</kbd> &nbsp;elegir una opción en la lección</div><div><kbd>Enter</kbd> &nbsp;comprobar y continuar</div><div><kbd>Esc</kbd> &nbsp;salir de la lección o cerrar ventanas</div></div></section>" +
-      (!E.perfil ? '<section class="seccion"><div class="seccion-cab"><h2>Zona de peligro</h2></div><div class="panel panel-pad" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><span>Borrar el progreso de invitado de este navegador.</span><button class="btn btn-peligro" id="reset-local">Borrar progreso local</button></div></section>' : "") +
+
       '<p class="mono" style="margin-top:30px;font-size:12px;color:var(--ink-3)">' + F.esc(F.MARCA.nombre) + " · modo " + E.modo + " · " + F.cursos().map(function (c) { return c.id + ":" + F.lecciones(c.id).length; }).join(" ") + "</p>" +
     "</div>"
   );
@@ -222,7 +318,7 @@ F.vistaAjustes = function () {
   $$("#seg-tema button").forEach(function (b) {
     b.addEventListener("click", function () { if (F.tema.aplicar(b.dataset.t)) $$("#seg-tema button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
   });
-  var bs = $("#salir"); if (bs) bs.addEventListener("click", function () { F.cerrarSesion(); });
+  var bs = $("#salir"); if (bs) bs.addEventListener("click", F.dialogoSalir);
   $$("[data-reiniciar]").forEach(function (b) { b.addEventListener("click", function () { F.confirmarReinicio(b.dataset.reiniciar); }); });
   var importar = function (ids) {
     if (E.perfil) {
@@ -239,92 +335,192 @@ F.vistaAjustes = function () {
   };
   var ba = $("#imp-antiguo"); if (ba) ba.addEventListener("click", function () { importar(antiguo); });
   $("#imp-declarado").addEventListener("click", function () { importar(F.PROGRESO_DECLARADO); });
-  var br = $("#reset-local");
-  if (br) br.addEventListener("click", function () {
-    if (!confirm("Se borrará todo tu progreso de invitado en este navegador. ¿Seguro?")) return;
-    F.guardarLocal("catappa-progreso-local", { progreso: {}, actividad: {} }); E.progreso = {}; F.toast("Progreso local borrado"); F.navegar();
-  });
 };
 
-/* ---------------- acceso ---------------- */
+/* ---------------- acceso ----------------
+   Pantalla de entrada y de registro. Una sola animación de terminal viva
+   a la vez (antes se acumulaban al cambiar de modo y parpadeaba), y el
+   prompt es root@ hasta que hay sesión, momento en el que pasa a ser el
+   nombre de quien entra. */
 var DEMO = [
-  ["pr", "pablo@catappa:~$ ", "docker run -d -p 8080:80 nginx:alpine"],
+  ["pr", "", "docker run -d -p 8080:80 nginx:alpine"],
   ["dim", "", "a7c3e1f9b2d8…  contenedor en marcha"],
-  ["pr", "pablo@catappa:~$ ", "git switch -c feature/login"],
+  ["pr", "", "git switch -c feature/login"],
   ["dim", "", "Switched to a new branch 'feature/login'"],
-  ["pr", "pablo@catappa:~$ ", "kubectl rollout status deploy/api"],
+  ["pr", "", "kubectl rollout status deploy/api"],
   ["acc", "", "deployment \"api\" successfully rolled out ✓"]
 ];
+var demoGen = 0;                      // cada animación lleva su número: si cambia, la vieja se calla
+F.usuarioTerminal = function () {
+  return (E.perfil && E.perfil.usuario) ? E.perfil.usuario : "root";
+};
 function animarDemo() {
   var z = $("#term-demo"); if (!z) return;
+  var gen = ++demoGen;                // invalida cualquier animación anterior
+  var prompt = F.usuarioTerminal() + "@catappa:~$ ";
   var li = 0, ci = 0, html = "";
   (function paso() {
+    if (gen !== demoGen) return;      // se ha repintado la pantalla: esta animación ya no manda
     z = $("#term-demo"); if (!z) return;
-    if (li >= DEMO.length) { setTimeout(function () { html = ""; li = 0; ci = 0; paso(); }, 2600); return; }
+    if (li >= DEMO.length) { setTimeout(function () { if (gen !== demoGen) return; html = ""; li = 0; ci = 0; paso(); }, 2600); return; }
     var d = DEMO[li];
     if (d[0] !== "pr") { html += '<span class="' + d[0] + '">' + F.esc(d[2]) + "</span>\n"; li++; z.innerHTML = html; return setTimeout(paso, 500); }
     ci++;
-    z.innerHTML = html + '<span class="pr">' + F.esc(d[1]) + "</span>" + F.esc(d[2].slice(0, ci)) + '<span class="cursor"></span>';
-    if (ci >= d[2].length) { html += '<span class="pr">' + F.esc(d[1]) + "</span>" + F.esc(d[2]) + "\n"; li++; ci = 0; return setTimeout(paso, 420); }
+    z.innerHTML = html + '<span class="pr">' + F.esc(prompt) + "</span>" + F.esc(d[2].slice(0, ci)) + '<span class="cursor"></span>';
+    if (ci >= d[2].length) { html += '<span class="pr">' + F.esc(prompt) + "</span>" + F.esc(d[2]) + "\n"; li++; ci = 0; return setTimeout(paso, 420); }
     setTimeout(paso, 38 + Math.random() * 40);
   })();
 }
 
+/* los tres modos de la pantalla: entrar, crear cuenta y recuperar contraseña */
+function formulario(modo, hayAntiguo) {
+  var c = {
+    login: {
+      titulo: "Entra en tu cuenta", sub: "Continúa donde lo dejaste.", boton: "Entrar",
+      campos:
+        '<div class="campo"><label for="f-id">Usuario o correo</label>' +
+          '<input class="entrada" id="f-id" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="pablo" required></div>' +
+        '<div class="campo"><label for="f-clave">Contraseña</label>' +
+          '<input class="entrada" id="f-clave" type="password" autocomplete="current-password" required>' +
+          '<button type="button" class="enlace-sutil" id="f-olvide">¿Has olvidado la contraseña?</button></div>',
+      pie: '¿Primera vez? <button id="cambiar-modo" data-a="registro">Crea una cuenta</button>'
+    },
+    registro: {
+      titulo: "Crea tu cuenta", sub: "Solo cuatro datos. El correo puedes añadirlo después.", boton: "Crear cuenta",
+      campos:
+        '<div class="campo"><label for="f-nombre">Nombre</label>' +
+          '<input class="entrada" id="f-nombre" autocomplete="name" maxlength="40" placeholder="Pablo Ocampos" required></div>' +
+        '<div class="campo"><label for="f-usuario">Usuario</label>' +
+          '<input class="entrada" id="f-usuario" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="pablo" required>' +
+          "<small>3–20 caracteres: minúsculas, números, guion o guion bajo.</small></div>" +
+        '<div class="campo"><label for="f-clave">Contraseña</label>' +
+          '<input class="entrada" id="f-clave" type="password" autocomplete="new-password" minlength="6" required><small>Mínimo 6 caracteres.</small></div>' +
+        '<div class="campo"><label for="f-clave2">Repite la contraseña</label>' +
+          '<input class="entrada" id="f-clave2" type="password" autocomplete="new-password" minlength="6" required></div>' +
+        (hayAntiguo ? '<div class="aviso-local">Hemos encontrado <b>' + hayAntiguo + " lecciones</b> de Docker que completaste antes en este navegador. Se añadirán a tu cuenta.</div>" : ""),
+      pie: '¿Ya tienes cuenta? <button id="cambiar-modo" data-a="login">Entra</button>'
+    },
+    recuperar: {
+      titulo: "Recupera tu contraseña", sub: "Te mandamos un código al correo de tu cuenta.", boton: "Enviar código",
+      campos:
+        '<div class="campo"><label for="f-correo">Correo de tu cuenta</label>' +
+          '<input class="entrada" id="f-correo" type="email" autocomplete="email" inputmode="email" maxlength="120" required></div>' +
+        '<div id="f-paso2" hidden>' +
+          '<div class="campo"><label for="f-codigo">Código recibido</label>' +
+            '<input class="entrada" id="f-codigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>' +
+          '<div class="campo"><label for="f-nueva">Contraseña nueva</label>' +
+            '<input class="entrada" id="f-nueva" type="password" autocomplete="new-password" minlength="6"></div>' +
+          '<div class="campo"><label for="f-nueva2">Repite la nueva</label>' +
+            '<input class="entrada" id="f-nueva2" type="password" autocomplete="new-password" minlength="6"></div>' +
+          '<p class="nota-suave" id="f-local" hidden></p></div>',
+      pie: '<button id="cambiar-modo" data-a="login">Volver a entrar</button>'
+    }
+  };
+  return c[modo];
+}
+
 F.vistaEntrar = function (prm) {
-  var modo = prm.query.get("modo") === "registro" ? "registro" : "login";
+  var q = prm.query.get("modo");
+  var modo = q === "registro" ? "registro" : q === "recuperar" ? "recuperar" : "login";
   var raiz = $("#raiz");
   var hayAntiguo = F.progresoAntiguo().length;
+  var cfg = formulario(modo, hayAntiguo);
+
   raiz.innerHTML =
     '<div class="acceso">' +
       '<div class="acceso-lado">' +
-        '<a class="marca" href="#/" style="padding:0">' + F.MARCA.logo + '<span class="marca-nombre">' + F.esc(F.MARCA.nombre) + "</span></a>" +
-        '<img class="acceso-cata" src="' + F.MARCA.mascota + '" width="232" height="256" alt="Cata, la mascota de Catappa">' +
-        "<h1>Aprende tecnología <em>practicando</em>, no leyendo diapositivas.</h1>" +
-        "<p>" + F.cursos().length + " cursos completos, de cero a nivel maestro: Linux, Docker, Kubernetes, AWS, Java, Spring Boot, SQL, Python, JavaScript, React y más. Cada concepto se explica y se practica al momento, con comunidad para resolver dudas.</p>" +
-        '<div class="term-demo" id="term-demo"></div>' +
-        '<div class="puntos-a"><span>' + F.icono("terminal").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>" + F.totalLecciones() + " lecciones</b> con ejercicios y terminal simulada</span>" +
-        "<span>" + F.icono("comunidad").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>Comunidad</b> de preguntas y respuestas por lección</span>" +
-        "<span>" + F.icono("fuego").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>Rachas, XP e insignias</b> sin límite de intentos</span></div>" +
+        '<div class="acceso-lado-int">' +
+          '<a class="marca" href="#/entrar" style="padding:0">' + F.MARCA.logo + '<span class="marca-nombre">' + F.esc(F.MARCA.nombre) + "</span></a>" +
+          '<img class="acceso-cata" src="' + F.MARCA.mascota + '" width="232" height="256" alt="Cata, la mascota de Catappa">' +
+          "<h1>Aprende tecnología <em>practicando</em>, no leyendo diapositivas.</h1>" +
+          "<p>" + F.cursos().length + " cursos completos, de cero a nivel maestro: Linux, Docker, Kubernetes, AWS, Java, Spring Boot, SQL, Python, JavaScript, React y más. Cada concepto se explica y se practica al momento.</p>" +
+          '<div class="term-demo" id="term-demo"></div>' +
+          '<div class="puntos-a"><span>' + F.icono("terminal").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>" + F.totalLecciones() + " lecciones</b> con ejercicios y terminal</span>" +
+          "<span>" + F.icono("carpeta").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>Proyectos</b> que se comprueban de verdad</span>" +
+          "<span>" + F.icono("fuego").replace("<svg", '<svg style="width:18px;height:18px;flex:none"') + "<b>Rachas, XP e insignias</b> sin límite de intentos</span></div>" +
+        "</div>" +
       "</div>" +
       '<div class="acceso-form"><div class="caja">' +
-
-        "<div><h2>" + (modo === "registro" ? "Crea tu cuenta" : "Entra en tu cuenta") + '</h2><p style="color:var(--ink-2);margin-top:4px">' + (modo === "registro" ? "Gratis, sin correo: solo un usuario y una contraseña." : "Continúa donde lo dejaste.") + "</p></div>" +
-        (E.modo !== "servidor" ? '<div class="aviso-local">Estás abriendo la plataforma sin servidor: las cuentas no están disponibles. Puedes seguir como invitado.</div>' : "") +
-        '<form id="form-acc" style="display:grid;gap:14px">' +
-          (modo === "registro" ? '<div class="campo"><label for="f-nombre">Nombre</label><input class="entrada" id="f-nombre" autocomplete="name" maxlength="40" placeholder="Pablo Ocampos"></div>' : "") +
-          '<div class="campo"><label for="f-usuario">Usuario</label><input class="entrada" id="f-usuario" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="pablo">' + (modo === "registro" ? "<small>3–20 caracteres: minúsculas, números, guion o guion bajo.</small>" : "") + "</div>" +
-          '<div class="campo"><label for="f-clave">Contraseña</label><input class="entrada" id="f-clave" type="password" autocomplete="' + (modo === "registro" ? "new-password" : "current-password") + '" minlength="6">' + (modo === "registro" ? "<small>Mínimo 6 caracteres.</small>" : "") + "</div>" +
-          (modo === "registro" && hayAntiguo ? '<div class="aviso-local">Hemos encontrado <b>' + hayAntiguo + " lecciones</b> de Docker que completaste en el curso anterior. Se añadirán a tu cuenta.</div>" : "") +
+        '<a class="marca solo-movil" href="#/entrar">' + F.MARCA.logo + '<span class="marca-nombre">' + F.esc(F.MARCA.nombre) + "</span></a>" +
+        "<div><h2>" + cfg.titulo + '</h2><p class="caja-sub">' + cfg.sub + "</p></div>" +
+        (E.modo !== "servidor" ? '<div class="aviso-local">No hay conexión con el servidor de Catappa, así que no se puede entrar ahora mismo. Comprueba que está levantado y recarga.</div>' : "") +
+        '<form id="form-acc">' + cfg.campos +
           '<p class="error-form" id="f-error" hidden></p>' +
-          '<button class="btn btn-primario btn-grande" type="submit"' + (E.modo !== "servidor" ? " disabled" : "") + ">" + (modo === "registro" ? "Crear cuenta" : "Entrar") + "</button>" +
+          '<button class="btn btn-primario btn-grande" type="submit"' + (E.modo !== "servidor" ? " disabled" : "") + ">" + cfg.boton + "</button>" +
         "</form>" +
-        '<p class="alt">' + (modo === "registro" ? '¿Ya tienes cuenta? <button id="cambiar-modo">Entra</button>' : '¿Primera vez? <button id="cambiar-modo">Crea una cuenta</button>') + "</p>" +
-        '<div class="separador">o</div>' +
-        '<a class="btn" href="#/" id="invitado">Seguir como invitado</a>' +
+        '<p class="alt">' + cfg.pie + "</p>" +
       "</div></div>" +
     "</div>";
-  $("#cambiar-modo").addEventListener("click", function () { F.ir("/entrar?modo=" + (modo === "registro" ? "login" : "registro")); });
-  $("#invitado").addEventListener("click", function () { F.guardarLocal("catappa-visto-acceso", true); });
+
+  F.mejorarClaves(raiz);
   animarDemo();
+  var err = $("#f-error");
+  var mostrarError = function (t) { err.textContent = t; err.hidden = !t; };
+
+  $("#cambiar-modo").addEventListener("click", function () { F.ir("/entrar?modo=" + this.dataset.a); });
+  var olvide = $("#f-olvide");
+  if (olvide) olvide.addEventListener("click", function () { F.ir("/entrar?modo=recuperar"); });
+
+  var paso = 1;
   $("#form-acc").addEventListener("submit", function (e) {
     e.preventDefault();
-    var boton = this.querySelector("button[type=submit]"), err = $("#f-error");
-    err.hidden = true; boton.disabled = true;
-    var datos = { usuario: $("#f-usuario").value.trim().toLowerCase(), clave: $("#f-clave").value };
-    if (modo === "registro") { datos.nombre = $("#f-nombre").value.trim(); datos.importar = F.progresoParaImportar(); }
+    var boton = this.querySelector("button[type=submit]");
+    mostrarError(""); boton.disabled = true;
+
+    if (modo === "recuperar") return recuperar(boton, mostrarError);
+
+    var datos = modo === "registro"
+      ? { usuario: $("#f-usuario").value.trim().toLowerCase(), nombre: $("#f-nombre").value.trim(),
+          clave: $("#f-clave").value, clave2: $("#f-clave2").value, importar: F.progresoParaImportar() }
+      : { identificador: $("#f-id").value.trim(), clave: $("#f-clave").value };
+
+    if (modo === "registro" && datos.clave !== datos.clave2) {
+      mostrarError("Las dos contraseñas no coinciden."); boton.disabled = false; return;
+    }
+
     F.api("POST", modo === "registro" ? "/api/registro" : "/api/login", datos).then(function (d) {
       F.aplicarSesion(d);
       F.guardarLocal("catappa-visto-acceso", true);
-      // al entrar en una cuenta existente, subir también lo hecho como invitado
       var pendiente = modo === "login" ? F.progresoParaImportar() : null;
       var hayPendiente = pendiente && Object.keys(pendiente).some(function (k) { return pendiente[k].length; });
       return (hayPendiente ? F.api("POST", "/api/importar", { progreso: pendiente }).then(function (r) { E.perfil = r.perfil; E.progreso = r.progreso; return r.importadas; }) : Promise.resolve(0)).then(function (n) {
         F.toast(modo === "registro" ? "Cuenta creada. ¡Bienvenido, " + E.perfil.nombre.split(" ")[0] + "!" : "Hola de nuevo, " + E.perfil.nombre.split(" ")[0]);
         if (n) setTimeout(function () { F.toast(n + " lecciones de tu progreso anterior añadidas a tu cuenta"); }, 600);
-        location.hash = "#/";
+        var destino = F.leerLocal("catappa-destino", "");
+        try { localStorage.removeItem("catappa-destino"); } catch (x) {}
+        location.hash = "#" + (destino || "/");
       });
-    }).catch(function (e2) { err.textContent = e2.message; err.hidden = false; boton.disabled = false; });
+    }).catch(function (e2) { mostrarError(e2.message); boton.disabled = false; });
   });
+
+  function recuperar(boton, mostrarError) {
+    if (paso === 1) {
+      F.api("POST", "/api/clave/olvidada", { correo: $("#f-correo").value.trim() }).then(function (d) {
+        paso = 2;
+        $("#f-paso2").hidden = false;
+        $("#f-correo").readOnly = true;
+        boton.textContent = "Cambiar la contraseña"; boton.disabled = false;
+        F.mejorarClaves(raiz);
+        $("#f-codigo").focus();
+        if (d.local && d.codigo) {
+          var n = $("#f-local");
+          n.innerHTML = "Este servidor no tiene correo configurado, así que el código es: <b>" + F.esc(d.codigo) + "</b>";
+          n.hidden = false;
+        } else {
+          F.toast("Si esa cuenta existe, ya tiene un código en el correo");
+        }
+      }).catch(function (e) { mostrarError(e.message); boton.disabled = false; });
+      return;
+    }
+    var nueva = $("#f-nueva").value, nueva2 = $("#f-nueva2").value;
+    if (nueva !== nueva2) { mostrarError("Las dos contraseñas no coinciden."); boton.disabled = false; return; }
+    F.api("POST", "/api/clave/restablecer", {
+      correo: $("#f-correo").value.trim(), codigo: $("#f-codigo").value.trim(), clave: nueva, clave2: nueva2
+    }).then(function () {
+      F.toast("Contraseña cambiada. Ya puedes entrar.");
+      F.ir("/entrar?modo=login");
+    }).catch(function (e) { mostrarError(e.message); boton.disabled = false; });
+  }
 };
 
 })();

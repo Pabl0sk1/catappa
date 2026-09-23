@@ -65,7 +65,7 @@
 
 /* ---------------- base ---------------- */
 *, *::before, *::after { box-sizing: border-box; }
-html, body { height: 100%; }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
@@ -85,9 +85,12 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
 .scroll { overflow-x: auto; }
 
 /* ---------------- estructura ---------------- */
-.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100%; }
+/* La ventana no se desplaza: lo hace el contenido. Así la cabecera queda fija
+   arriba y, en móvil, la barra de navegación fija abajo, con el desplazamiento
+   justo entre las dos. */
+.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); height: 100dvh; overflow: hidden; }
 .lateral {
-  position: sticky; top: 0; height: 100vh; height: 100dvh;
+  position: sticky; top: 0; height: 100dvh; overflow-y: auto;
   background: var(--bg-2); border-right: 1px solid var(--line);
   display: flex; flex-direction: column; padding: 18px 12px 14px; gap: 18px;
 }
@@ -117,9 +120,9 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
 .usuario-chip .nombre { font-weight: 600; font-size: 14px; line-height: 1.2; }
 .usuario-chip .sub { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 
-.principal { min-width: 0; display: flex; flex-direction: column; }
+.principal { min-width: 0; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
 .barra-sup {
-  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px;
+  flex: none; z-index: 20; display: flex; align-items: center; gap: 12px;
   padding: 12px clamp(16px, 3vw, 36px); background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
 }
@@ -141,7 +144,8 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
 .buscador kbd { margin-left: auto; }
 
 .contenido {
-  flex: 1; padding: clamp(20px, 3.4vw, 40px) clamp(16px, 3vw, 36px) 80px;
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+  scroll-behavior: smooth; padding: clamp(20px, 3.4vw, 40px) clamp(16px, 3vw, 36px) 80px;
   background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size: 28px 28px; background-position: -1px -1px;
 }
@@ -608,8 +612,9 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
 
 /* ---------------- acceso ---------------- */
 #raiz { min-height: 100%; }
-.acceso { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.acceso-lado { background: var(--term); color: var(--term-ink); padding: clamp(24px, 5vw, 56px); display: flex; flex-direction: column; gap: 28px; position: relative; overflow: hidden; }
+.acceso { height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; }
+.acceso-lado { background: var(--term); color: var(--term-ink); position: relative; overflow: hidden; display: flex; }
+.acceso-lado-int { flex: 1; min-height: 0; overflow-y: auto; padding: clamp(24px, 5vw, 56px); display: flex; flex-direction: column; gap: clamp(16px, 2.6vh, 28px); }
 .acceso-lado .marca-nombre { color: #fff; }
 .acceso-cata { position: absolute; top: clamp(20px, 4vw, 44px); right: clamp(16px, 4vw, 48px); width: clamp(96px, 11vw, 150px); height: auto; filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .35)); }
 .acceso-lado h1 { font-size: clamp(28px, 3.8vw, 44px); font-weight: 700; color: #fff; letter-spacing: -.04em; max-width: 14ch; }
@@ -622,7 +627,7 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
 .acceso-lado .puntos-a { display: grid; gap: 10px; margin-top: auto; font-size: 14px; color: var(--term-dim); }
 .acceso-lado .puntos-a span { display: flex; gap: 10px; align-items: center; }
 .acceso-lado .puntos-a b { color: var(--term-ink); font-weight: 500; }
-.acceso-form { display: grid; place-items: center; padding: 32px 20px; }
+.acceso-form { display: grid; place-items: center; padding: 32px 20px; overflow-y: auto; min-height: 0; }
 .acceso-form .caja { width: min(400px, 100%); display: grid; gap: 18px; }
 .acceso-form h2 { font-size: 24px; font-weight: 700; }
 .acceso-form .alt { font-size: 14px; color: var(--ink-2); text-align: center; }
@@ -640,14 +645,15 @@ kbd { font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px
 @media (max-width: 860px) {
   .app { grid-template-columns: 1fr; }
   .lateral { display: none; }
+  .app { grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
   .tabbar {
-    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); z-index: 40; flex: none;
     background: var(--bg-2); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
   }
   .tabbar a { display: grid; justify-items: center; gap: 2px; padding: 6px 4px; border-radius: 8px; font-size: 11px; text-decoration: none; color: var(--ink-3); }
   .tabbar a svg { width: 20px; height: 20px; }
   .tabbar a[aria-current="page"] { color: var(--accent); }
-  .contenido { padding-bottom: 96px; }
+  .contenido { padding-bottom: 28px; }
   .buscador { min-width: 0; width: 32px; padding: 0; justify-content: center; }
   .buscador span, .buscador kbd { display: none; }
   .barra-sup .marca-movil { display: flex; }
@@ -953,11 +959,6 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 .stack-info .mono { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .stack-info b { font-size: 15px; }
 .stack-info span:last-child { font-size: 13.5px; color: var(--ink-2); }
-.modal-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 20px; z-index: 60; }
-.modal { width: min(560px, 100%); max-height: 86vh; overflow-y: auto; background: var(--bg); border: 1px solid var(--line-2);
-  border-radius: var(--r-lg); padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
-.modal-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.modal-cab b { font-size: 18px; }
 .stack-lista { display: grid; gap: 8px; }
 .stack-op { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; cursor: pointer;
   border: 1px solid var(--line); border-radius: 10px; background: var(--bg-2); color: var(--ink); font: inherit; }
@@ -969,3 +970,89 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 .stack-op .mono { font-size: 11px; color: var(--accent); }
 .stack-punto { width: 12px; height: 12px; border-radius: 50%; flex: none; }
 @media (max-width: 640px) { .stack-caja { flex-direction: column; align-items: stretch; } .stack-caja .btn { justify-content: center; } }
+
+/* ---------------- barra de desplazamiento ----------------
+   Fina, con los colores del tema y siempre visible donde importa. */
+* { scrollbar-width: thin; scrollbar-color: var(--scroll) transparent; }
+:root { --scroll: color-mix(in srgb, var(--ink-3) 55%, transparent); --scroll-hover: var(--accent); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scroll); border-radius: 99px;
+  border: 3px solid transparent; background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); background-clip: content-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+.mini-term ::-webkit-scrollbar-thumb, .editor-codigo ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.22); background-clip: content-box; }
+
+/* ---------------- cuenta en la barra superior ---------------- */
+.cuenta-sup { display: flex; align-items: center; gap: 6px; }
+.cuenta-btn { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 99px; text-decoration: none; }
+.cuenta-btn:hover { box-shadow: 0 0 0 2px var(--accent-soft); }
+.avatar.foto { object-fit: cover; border-radius: 99px; display: block; }
+.avatar.mini { width: 28px; height: 28px; font-size: 11px; }
+.bandera { border-radius: 2px; vertical-align: -2px; box-shadow: 0 0 0 1px var(--line); }
+
+/* ---------------- cuenta y acceso ---------------- */
+.acceso-form .caja { width: min(400px, 100%); display: grid; gap: clamp(12px, 2vh, 18px); }
+.acceso-form .caja-sub { color: var(--ink-2); margin-top: 4px; font-size: 14.5px; }
+.acceso-form form { display: grid; gap: clamp(10px, 1.8vh, 14px); }
+.acceso-form .marca.solo-movil { display: none; justify-content: center; margin-bottom: 4px; }
+.enlace-sutil { align-self: start; font-size: 12.5px; color: var(--ink-3); text-decoration: underline; text-underline-offset: 3px; margin-top: 2px; }
+.enlace-sutil:hover { color: var(--accent); }
+.nota-suave { font-size: 13px; color: var(--ink-3); }
+.nota-suave b { color: var(--ink); font-family: var(--mono); letter-spacing: .08em; }
+
+/* bloque de cuenta en el perfil */
+.filas-cuenta { display: grid; gap: 0; padding: 0 !important; }
+.fila-cuenta { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.fila-cuenta:last-child { border-bottom: 0; }
+.fila-cuenta b { display: block; font-size: 14.5px; }
+.fila-cuenta span { display: block; color: var(--ink-2); font-size: 13.5px; }
+.fila-cuenta .fila-acc { display: flex; gap: 8px; flex-wrap: wrap; }
+.fila-cuenta.peligro b { color: var(--bad); }
+
+/* editor de perfil: foto y país */
+.ep-foto { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ep-foto .avatar { width: 76px; height: 76px; font-size: 26px; }
+.ep-foto-acc { display: grid; gap: 8px; }
+.ep-foto-acc small { color: var(--ink-3); font-size: 12px; }
+.ep-foto-acc .btn { justify-content: center; }
+.selector-pais { display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left; }
+.selector-pais:hover { border-color: var(--line-2); }
+.paises { display: grid; gap: 4px; max-height: min(46vh, 380px); overflow-y: auto; padding-right: 4px; }
+.pais-op { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 8px; text-align: left; font-size: 14px; }
+.pais-op:hover { background: var(--bg-hover); }
+.pais-op.sel { background: var(--accent-soft); color: var(--accent); }
+.modal-quitar { display: flex; justify-content: flex-end; }
+
+@media (max-width: 860px) {
+  /* en móvil el lado ilustrado estorba: la pantalla es solo el formulario */
+  .acceso { grid-template-columns: 1fr; }
+  .acceso-lado { display: none; }
+  .acceso-form { padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px)); align-content: center; }
+  .acceso-form .marca.solo-movil { display: flex; }
+  .acceso-form h2 { font-size: 21px; }
+  .fila-cuenta { flex-direction: column; align-items: stretch; }
+  .fila-cuenta .fila-acc .btn { flex: 1; justify-content: center; }
+}
+@media (max-height: 700px) and (min-width: 861px) {
+  .acceso-cata { width: clamp(72px, 8vw, 110px); }
+  .acceso-lado h1 { font-size: clamp(22px, 2.6vw, 30px); }
+  .term-demo { min-height: 150px; font-size: 12px; }
+}
+
+/* ---------------- ajustes finos en pantallas pequeñas ---------------- */
+@media (max-width: 860px) {
+  .barra-sup { padding: 10px 14px; gap: 8px; }
+  .barra-sup .ruta { display: none; }
+  .tabbar a { font-size: 10.5px; padding: 5px 2px; }
+  .tabbar a svg { width: 19px; height: 19px; }
+  .cuenta-sup { gap: 4px; }
+}
+@media (max-width: 420px) {
+  .chip.racha { padding: 0 7px; }
+  .barra-sup .marca-movil .marca-nombre { display: none; }
+}
+/* tocar cómodo: nada por debajo de 34 px de alto en controles de la barra */
+.boton-icono, .cuenta-btn { min-width: 32px; min-height: 32px; }

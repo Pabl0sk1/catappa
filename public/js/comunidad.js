@@ -183,8 +183,10 @@ function pintarPost(p) {
   });
   var bb = $("#borrar-post");
   if (bb) bb.addEventListener("click", function () {
-    if (!confirm("¿Borrar esta publicación y sus respuestas?")) return;
-    F.api("DELETE", "/api/comunidad/" + p.id).then(function () { F.toast("Publicación borrada"); F.ir("/comunidad"); }).catch(function (e) { F.toast(e.message, "!"); });
+    F.confirmar({ titulo: "Borrar la publicación", texto: "Se borrará esta publicación y todas sus respuestas. No se puede deshacer.", aceptar: "Borrar", peligro: true }).then(function (si) {
+      if (!si) return;
+      F.api("DELETE", "/api/comunidad/" + p.id).then(function () { F.toast("Publicación borrada"); F.ir("/comunidad"); }).catch(function (e) { F.toast(e.message, "!"); });
+    });
   });
   var be = $("#resp-enviar");
   if (be) be.addEventListener("click", function () {

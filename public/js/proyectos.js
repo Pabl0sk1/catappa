@@ -250,8 +250,14 @@ F.vistaProyecto = function (prm) {
 
     var lim = $("#proy-limpiar");
     if (lim) lim.addEventListener("click", function () {
-      if (!confirm("¿Empezar este proyecto desde cero? Se borran las misiones comprobadas.")) return;
-      est = { hechas: {}, resp: {} }; guardarEstado(cursoId, p.id, est); pintar(); window.scrollTo(0, 0);
+      F.confirmar({
+        titulo: "Empezar de cero",
+        texto: "Se borran las misiones que ya has comprobado de este proyecto. Tu progreso del curso no se toca.",
+        aceptar: "Empezar de cero", peligro: true
+      }).then(function (si) {
+        if (!si) return;
+        est = { hechas: {}, resp: {} }; guardarEstado(cursoId, p.id, est); pintar(); F.arriba();
+      });
     });
     var ent = $("#proy-entregar");
     if (ent) ent.addEventListener("click", entregar);
@@ -391,7 +397,7 @@ F.vistaProyecto = function (prm) {
   }
 
   pintar();
-  window.scrollTo(0, 0);
+  F.arriba();
 };
 
 /* ---------------- proyectos antiguos (sin misiones) ---------------- */
