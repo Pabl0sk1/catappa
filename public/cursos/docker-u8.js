@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "Servidor, DevOps y entrevista",
 resumen: "Publicar, desplegar, automatizar, asegurar y contarlo bien el martes",
+nivel: "Experto",
 color: "#15803d",
 lecciones: [
 
 /* =============== U8 L1 =============== */
 {
-id:"u8l1",
+id:"dk8l1",
 titulo:"Registry: publicar tu imagen",
 claves:["docker tag + docker push","Tags inmutables (versión o SHA), nunca latest en producción","El rollback es volver al tag anterior"],
 pasos:[
@@ -66,7 +67,7 @@ docker compose up -d</div>
 
 /* =============== U8 L2 =============== */
 {
-id:"u8l2",
+id:"dk8l2",
 titulo:"Desplegar en un servidor",
 claves:["Nunca construir en producción: pull y up","restart: unless-stopped + systemd para sobrevivir a reinicios","docker context permite operar el servidor desde tu máquina"],
 pasos:[
@@ -150,7 +151,7 @@ WantedBy=multi-user.target</div>`},
 
 /* =============== U8 L3 =============== */
 {
-id:"u8l3",
+id:"dk8l3",
 titulo:"Nginx delante: la arquitectura de producción",
 claves:["Un solo puerto público; el resto, red interna","TLS, balanceo y cabeceras los hace el proxy","La API no publica puertos: expone"],
 pasos:[
@@ -216,7 +217,7 @@ server {
 
 /* =============== U8 L4 =============== */
 {
-id:"u8l4",
+id:"dk8l4",
 titulo:"CI/CD: automatizar el despliegue",
 claves:["CI valida cada cambio; CD lo despliega","El pipeline: tests → build → escaneo → push → deploy","La imagen se construye una vez y se promociona entre entornos"],
 pasos:[
@@ -275,7 +276,7 @@ pasos:[
 
 /* =============== U8 L5 =============== */
 {
-id:"u8l5",
+id:"dk8l5",
 titulo:"Seguridad: la lista que hay que recitar",
 claves:["Usuario no root, base mínima, escaneo, secretos fuera","No montar /var/run/docker.sock","Límites de recursos y puertos mínimos"],
 pasos:[
@@ -336,7 +337,7 @@ trivy image mi-api:1.2.0 --severity CRITICAL,HIGH</div>
 
 /* =============== U8 L6 =============== */
 {
-id:"u8l6",
+id:"dk8l6",
 titulo:"Simulacro de entrevista",
 claves:["Has repasado las preguntas más frecuentes","Sabes qué decir cuando no sabes algo","Estás listo"],
 pasos:[

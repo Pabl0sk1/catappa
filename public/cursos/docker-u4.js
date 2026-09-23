@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "Construir tus propias imágenes",
 resumen: "El Dockerfile instrucción por instrucción, capas, caché y multi-stage",
+nivel: "Intermedio",
 color: "#d97706",
 lecciones: [
 
 /* =============== U4 L1 =============== */
 {
-id:"u4l1",
+id:"dk4l1",
 titulo:"Qué hay dentro de una imagen: las capas",
 claves:["Una imagen es una pila de capas de solo lectura","Cada instrucción del Dockerfile crea una capa","Las capas se cachean y se comparten entre imágenes"],
 pasos:[
@@ -64,7 +65,7 @@ pasos:[
 
 /* =============== U4 L2 =============== */
 {
-id:"u4l2",
+id:"dk4l2",
 titulo:"Tu primer Dockerfile",
 claves:["FROM, WORKDIR, COPY, CMD: el esqueleto mínimo","docker build -t nombre:tag .","El punto final es el contexto, no una decoración"],
 pasos:[
@@ -131,7 +132,7 @@ pasos:[
 
 /* =============== U4 L3 =============== */
 {
-id:"u4l3",
+id:"dk4l3",
 titulo:"El contexto y el .dockerignore",
 claves:["El punto final envía esa carpeta entera al daemon",".dockerignore excluye lo que no debe viajar","Nunca metas .git ni .env en la imagen"],
 pasos:[
@@ -194,7 +195,7 @@ README.md</div>
 
 /* =============== U4 L4 =============== */
 {
-id:"u4l4",
+id:"dk4l4",
 titulo:"RUN y la caché de capas",
 claves:["RUN se ejecuta al CONSTRUIR; CMD al ARRANCAR","Si una capa se invalida, todas las siguientes también","Lo que cambia poco va arriba; lo que cambia mucho, abajo"],
 pasos:[
@@ -273,7 +274,7 @@ RUN apt-get update && apt-get install -y curl \\
 
 /* =============== U4 L5 =============== */
 {
-id:"u4l5",
+id:"dk4l5",
 titulo:"CMD y ENTRYPOINT",
 claves:["ENTRYPOINT = el ejecutable fijo; CMD = sus argumentos por defecto","Lo que pasas en docker run sustituye al CMD, no al ENTRYPOINT","Forma exec (corchetes) siempre"],
 pasos:[
@@ -343,7 +344,7 @@ CMD java -jar app.jar             <span class="cm">SHELL -> sh es PID 1  -> se c
 
 /* =============== U4 L6 =============== */
 {
-id:"u4l6",
+id:"dk4l6",
 titulo:"ENV, ARG, EXPOSE, USER y HEALTHCHECK",
 claves:["EXPOSE solo documenta: NO publica","ARG solo existe en build; ENV persiste","Ninguno de los dos vale para secretos"],
 pasos:[
@@ -423,7 +424,7 @@ RUN chown spring:spring /app/app.jar
 
 /* =============== U4 L7 =============== */
 {
-id:"u4l7",
+id:"dk4l7",
 titulo:"Multi-stage: de 949 MB a 372 MB",
 claves:["Compila en una etapa, ejecuta en otra limpia","COPY --from=builder trae solo el artefacto","Menos peso y menos superficie de ataque"],
 pasos:[
@@ -495,7 +496,7 @@ ENTRYPOINT ["java","-jar","/app/app.jar"]</div>
 
 /* =============== U4 L8 =============== */
 {
-id:"u4l8",
+id:"dk4l8",
 titulo:"Repaso: el Dockerfile de producción",
 claves:["Sabes escribirlo entero y explicar cada línea","Tag fijo, usuario no root, healthcheck y forma exec","Los 7 fallos clásicos y cómo se arreglan"],
 pasos:[

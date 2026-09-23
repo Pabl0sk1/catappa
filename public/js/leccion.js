@@ -60,7 +60,7 @@ function montar(cursoId, info, l) {
     "</div>" +
     '<div class="lec-cuerpo" id="lec-scroll"><div class="lec-in" id="lec-in"></div></div>' +
     '<div class="lec-pie" id="lec-pie">' +
-      '<div class="fb" id="fb" role="status" aria-live="assertive" hidden><div class="fb-cab"><span class="fb-ico" id="fb-ico"></span><span id="fb-tit"></span></div><p class="fb-txt" id="fb-txt"></p><p class="fb-tuya" id="fb-tuya" hidden></p><p class="fb-sol" id="fb-sol" hidden></p></div>' +
+      '<div class="fb" id="fb" role="status" aria-live="assertive" hidden><div class="fb-cab"><span class="fb-cata" id="fb-cata" aria-hidden="true"></span><span class="fb-ico" id="fb-ico"></span><span id="fb-tit"></span></div><p class="fb-txt" id="fb-txt"></p><p class="fb-tuya" id="fb-tuya" hidden></p><p class="fb-sol" id="fb-sol" hidden></p></div>' +
       '<div class="lec-acciones"><button class="tactil secundario" id="lec-saltar" hidden>Saltar</button><button class="tactil principal-l" id="lec-ppal">Comprobar</button></div>' +
     "</div>";
   document.body.appendChild(PANT);
@@ -421,6 +421,7 @@ function accion() {
   pie.classList.add(ok ? "bien" : "mal");
   $("#fb").hidden = false; $("#lec-saltar").hidden = true;
   $("#fb-ico").innerHTML = F.icono(ok ? "check" : "x");
+  $("#fb-cata").innerHTML = F.cata({ expr: ok ? "feliz" : "duda", nivel: F.nivelCurso(S.cursoId), alto: 54 });
   var titulo = ok ? azar(FRASES_OK) : azar(FRASES_NO);
   if (paso.t === "par") titulo = ok ? "¡Todas a la primera!" : (S.fallosPar === 1 ? "1 pareja incorrecta" : S.fallosPar + " parejas incorrectas");
   $("#fb-tit").textContent = titulo;
@@ -458,7 +459,7 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
   F.sonido.tocar("fin");
   if ((r.nuevas && r.nuevas.length) || (r.certificados && r.certificados.length)) F.sonido.tocar("insignia");
   var sig = F.siguiente(cursoId);
-  var medalla = '<div class="fin-cata"><img src="' + F.MARCA.mascota + '" width="139" height="154" alt="Cata celebra que has terminado la lección"><svg class="fin-medalla" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="48" fill="var(--ok-soft)"/><circle cx="52" cy="52" r="48" fill="none" stroke="var(--ok)" stroke-width="3" stroke-dasharray="6 5"/>' +
+  var medalla = '<div class="fin-cata">' + F.cata({ expr: "celebra", nivel: F.nivelCurso(cursoId), brillo: F.racha() > 0, alto: 154, etiqueta: "Cata celebra que has terminado la lección" }) + '<svg class="fin-medalla" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="48" fill="var(--ok-soft)"/><circle cx="52" cy="52" r="48" fill="none" stroke="var(--ok)" stroke-width="3" stroke-dasharray="6 5"/>' +
     (pct >= 90 ? '<path d="m52 26 7.6 15.4 17 2.5-12.3 12 2.9 16.9L52 64.8l-15.2 8 2.9-16.9-12.3-12 17-2.5z" fill="var(--accent-fill)"/>' : '<path d="m34 53 12 12 24-26" fill="none" stroke="var(--ok)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>') + "</svg></div>";
   var nuevas = (r.nuevas || []).map(function (id) {
     var ins = F.INSIGNIAS.find(function (x) { return x.id === id; }) || { nombre: id, desc: "" };

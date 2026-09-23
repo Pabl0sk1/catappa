@@ -10,6 +10,18 @@ function minutos(l) { return Math.max(3, Math.round(l.npasos * 0.6)); }
 function horasCurso(c) { return Math.max(1, Math.round(F.lecciones(c.id).reduce(function (s, l) { return s + minutos(l.leccion || l); }, 0) / 60)); }
 F.horasCurso = horasCurso;
 
+/* cómo está Cata en la portada: nivel del curso, brillo si hay racha, dormida si hace días que no entras */
+function estadoCata(c) {
+  var dias = F.diasSinAprender(), nivel = F.nivelCurso(c.id), racha = F.racha();
+  if (dias !== null && dias >= 2) {
+    return { expr: "dormida", nivel: nivel, alto: 150, titulo: "Cata te echa de menos: hace " + dias + " días que no aprendes",
+      etiqueta: "Cata dormida: hace " + dias + " días que no aprendes" };
+  }
+  return { expr: "normal", nivel: nivel, brillo: racha > 0, alto: 150,
+    titulo: "Cata · nivel " + nivel + " en " + c.titulo + (racha > 0 ? " · racha de " + racha + " días" : ""),
+    etiqueta: "Cata con la hoja de nivel " + nivel };
+}
+
 /* curso "activo": el último en el que se avanzó y que no está terminado */
 function cursoActivo() {
   var mejor = null, fecha = "";
@@ -122,7 +134,7 @@ F.vistaInicio = function () {
       aviso +
       '<div class="hola">' +
         '<div class="continuar">' +
-          (c ? '<div class="continuar-logo">' + F.logoCurso(c, "grande") + "</div>" : "") + '<div class="prompt"><b>' + F.esc(usuarioTerm) + "@catappa</b>:~$ continuar " + F.esc(c ? c.id : "") + '<span class="cursor"></span></div>' +
+          (c ? '<div class="continuar-cata" title="' + F.esc(estadoCata(c).titulo) + '">' + F.cata(estadoCata(c)) + "</div>" : "") + '<div class="prompt"><b>' + F.esc(usuarioTerm) + "@catappa</b>:~$ continuar " + F.esc(c ? c.id : "") + '<span class="cursor"></span></div>' +
           (sig
             ? "<h2>" + F.esc(sig.leccion.titulo) + "</h2><p>" + F.esc(c.titulo) + " · Unidad " + (sig.ui + 1) + ": " + F.esc(sig.unidad.titulo) + " · " + sig.leccion.npasos + " pasos, unos " + minutos(sig.leccion) + " minutos.</p>" +
               '<div class="acciones-c"><a class="btn btn-primario btn-grande" href="#/leccion/' + c.id + "/" + sig.leccion.id + '">' + F.icono("play") + (F.contarHechas(c.id) ? "Continuar" : "Empezar") + '</a><span class="progreso-c">' + F.porcentaje(c.id) + "% de " + F.esc(c.titulo) + "</span></div>"
@@ -204,6 +216,9 @@ F.vistaCurso = function (prm) {
           : !E.perfil ? '<a class="btn btn-primario" href="#/entrar?modo=registro">' + F.icono("certificado") + "Crea una cuenta para tu certificado</a>" : "";
       })()) + (sig ? "" : '<span class="badge ok">' + F.icono("check").replace("<svg", '<svg style="width:12px;height:12px"') + "Curso completado</span>") +
       "</div>" +
+      '<div class="nivel-cata">' + F.cata({ expr: pct === 100 ? "celebra" : "normal", nivel: F.nivelCurso(c.id), brillo: F.racha() > 0, alto: 104 }) +
+        '<div><b>' + (pct === 100 ? "Curso completado" : "Vas por el nivel " + F.esc(F.nivelCurso(c.id))) + "</b>" +
+        "<span>La hoja de " + F.esc(F.MARCA.mascotaNombre) + " cambia de color con tu nivel: verde en Fundamentos, amarilla en Intermedio, naranja en Avanzado, roja en Experto y dorada en Maestro.</span></div></div>" +
       '<div class="barra-prog" style="--c:' + c.color + ';margin-top:22px;height:8px"><i style="width:' + pct + '%"></i></div>' +
       '<div class="pipeline">' + stages + "</div>" +
       (hechasN ? '<section class="zona-reinicio"><div><b>Reiniciar el curso</b><span>Empieza ' + F.esc(c.titulo) + " desde cero, como si nunca lo hubieras abierto.</span></div>" +

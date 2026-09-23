@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "YAML sin dolor",
 resumen: "El idioma de Compose, Kubernetes y GitHub Actions, en tres lecciones",
+nivel: "Intermedio",
 color: "#0f766e",
 lecciones: [
 
 /* =============== U5 L1 =============== */
 {
-id:"u5l1",
+id:"dk5l1",
 titulo:"Qué es YAML y cómo se escribe",
 claves:["YAML representa mapas, listas y valores","La indentación es SIEMPRE con espacios, nunca tabuladores","clave: valor, con espacio obligatorio tras los dos puntos"],
 pasos:[
@@ -77,7 +78,7 @@ puertos: ["8080:8080", "9090:9090"]</div>
 
 /* =============== U5 L2 =============== */
 {
-id:"u5l2",
+id:"dk5l2",
 titulo:"Comillas, listas de objetos y anclas",
 claves:['Entrecomilla puertos y versiones: "8080:80"','Una lista de objetos empieza cada bloque con -','&ancla define y *ancla reutiliza'],
 pasos:[
@@ -162,7 +163,7 @@ services:
 
 /* =============== U5 L3 =============== */
 {
-id:"u5l3",
+id:"dk5l3",
 titulo:"Encuentra el error",
 claves:["docker compose config valida el YAML y te da la línea","Los 5 errores clásicos: tabulador, indentación, espacio, comillas, clave duplicada"],
 pasos:[

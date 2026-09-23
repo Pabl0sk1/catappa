@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "El Linux de dentro",
 resumen: "Moverte dentro del contenedor, permisos, root y la señal que mata tu app",
+nivel: "Intermedio",
 color: "#6b4fd8",
 lecciones: [
 
 /* =============== U3 L1 =============== */
 {
-id:"u3l1",
+id:"dk3l1",
 titulo:"El sistema de ficheros de Linux",
 claves:["Todo cuelga de / , no hay C:\\","/etc configuración, /var/lib datos, /app tu aplicación","Dentro del contenedor tienes un Linux completo"],
 pasos:[
@@ -67,7 +68,7 @@ root@9c3f1a8b2d40:/#`,
 
 /* =============== U3 L2 =============== */
 {
-id:"u3l2",
+id:"dk3l2",
 titulo:"Los comandos que necesitas dentro",
 claves:["ls, cd, cat, pwd para moverte y leer","> escribe en un fichero, >> añade","| encadena comandos"],
 pasos:[
@@ -151,7 +152,7 @@ apk add --no-cache curl</div>
 
 /* =============== U3 L3 =============== */
 {
-id:"u3l3",
+id:"dk3l3",
 titulo:"root, usuarios y permisos",
 claves:["Por defecto el contenedor corre como root: es un riesgo","chmod +x hace ejecutable un script","En producción se usa USER con un usuario sin privilegios"],
 pasos:[
@@ -225,7 +226,7 @@ RUN <b>chmod +x</b> /entrypoint.sh</div>`},
 
 /* =============== U3 L4 =============== */
 {
-id:"u3l4",
+id:"dk3l4",
 titulo:"PID 1 y las señales",
 claves:["El proceso principal es PID 1; si muere, el contenedor se para","docker stop manda SIGTERM a PID 1","Forma exec = java es PID 1; forma shell = sh se come la señal"],
 pasos:[

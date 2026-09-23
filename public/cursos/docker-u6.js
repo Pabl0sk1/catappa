@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "Docker Compose",
 resumen: "Levantar API + base de datos con un solo comando, y entender por qué funciona",
+nivel: "Avanzado",
 color: "#1668d6",
 lecciones: [
 
 /* =============== U6 L1 =============== */
 {
-id:"u6l1",
+id:"dk6l1",
 titulo:"Por qué existe Compose",
 claves:["Compose define varios contenedores en un YAML","Un comando levanta todo el stack","Compose = una máquina; Kubernetes = un clúster"],
 pasos:[
@@ -66,7 +67,7 @@ docker run -d --name adminer --network mired -p 8081:8080 adminer</div>
 
 /* =============== U6 L2 =============== */
 {
-id:"u6l2",
+id:"dk6l2",
 titulo:"La estructura del compose.yml",
 claves:["services: los contenedores; volumes: y networks: al final","image: usar una imagen ya hecha; build: construir la tuya","ports, environment, restart"],
 pasos:[
@@ -153,7 +154,7 @@ pasos:[
 
 /* =============== U6 L3 =============== */
 {
-id:"u6l3",
+id:"dk6l3",
 titulo:"Cómo se hablan los servicios",
 claves:["Compose crea una red propia con DNS interno","El host es el NOMBRE DEL SERVICIO, no localhost","Dentro de un contenedor, localhost es él mismo"],
 pasos:[
@@ -227,7 +228,7 @@ pasos:[
 
 /* =============== U6 L4 =============== */
 {
-id:"u6l4",
+id:"dk6l4",
 titulo:"Volúmenes: que los datos no se pierdan",
 claves:["Named volume para datos de producción; bind mount para desarrollo","down conserva los volúmenes, down -v los borra","La ruta a persistir la marca la imagen"],
 pasos:[
@@ -297,7 +298,7 @@ docker compose down <b>-v</b>    <span class="cm"># borra ADEMAS los volumenes: 
 
 /* =============== U6 L5 =============== */
 {
-id:"u6l5",
+id:"dk6l5",
 titulo:"depends_on y healthcheck",
 claves:["depends_on solo ordena el arranque, no espera a que esté lista","condition: service_healthy sí espera","El healthcheck lo define el servicio del que dependes"],
 pasos:[
@@ -364,7 +365,7 @@ pasos:[
 
 /* =============== U6 L6 =============== */
 {
-id:"u6l6",
+id:"dk6l6",
 titulo:"Variables, .env y entornos",
 claves:["Compose lee .env automáticamente y sustituye ${VARIABLE}",".env nunca se sube al repositorio","Varios ficheros -f para dev y producción"],
 pasos:[
@@ -433,7 +434,7 @@ API_PORT=8080</div>`},
 
 /* =============== U6 L7 =============== */
 {
-id:"u6l7",
+id:"dk6l7",
 titulo:"Los comandos de Compose",
 claves:["up -d --build, ps, logs -f, exec, down","config valida el YAML","--scale para varias instancias"],
 pasos:[

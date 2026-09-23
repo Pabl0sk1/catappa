@@ -65,6 +65,9 @@ function pintarPerfil(p) {
         (p.bio ? '<p class="bio">' + F.esc(p.bio) + "</p>" : mio ? '<p class="bio" style="color:var(--ink-3)">Aún no has escrito nada sobre ti.</p>' : "") + "</div>" +
         (mio ? '<button class="btn" id="editar-perfil">Editar perfil</button>' : "") +
       "</div>" +
+      (mio ? '<div class="panel panel-pad cata-perfil">' + F.cata({ expr: p.racha > 0 ? "feliz" : "normal", nivel: F.nivelMaximo(), brillo: p.racha > 0, alto: 120 }) +
+        "<div><b>" + F.esc(F.MARCA.mascotaNombre) + " lleva tu nivel en la hoja</b><span>Ahora mismo, tu nivel más alto es <b>" + F.esc(F.nivelMaximo()) + "</b>" +
+        (p.racha > 0 ? ", y la hoja brilla porque llevas una racha de " + p.racha + (p.racha === 1 ? " día" : " días") : "") + ".</span></div></div>" : "") +
       '<div class="stats-p">' +
         '<div class="panel stat-p"><b>' + F.num(p.xp) + "</b><span>XP total</span></div>" +
         '<div class="panel stat-p"><b>' + p.racha + "</b><span>días de racha</span></div>" +

@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "Redes y almacenamiento a fondo",
 resumen: "Drivers de red, publicar puertos con cabeza, volúmenes y copias de seguridad",
+nivel: "Avanzado",
 color: "#be185d",
 lecciones: [
 
 /* =============== U7 L1 =============== */
 {
-id:"u7l1",
+id:"dk7l1",
 titulo:"Las redes de Docker",
 claves:["bridge es la red por defecto","La bridge por defecto NO tiene DNS; una red creada por ti, sí","host, none y overlay: cuándo se usan"],
 pasos:[
@@ -82,7 +83,7 @@ docker network rm lab</div>
 
 /* =============== U7 L2 =============== */
 {
-id:"u7l2",
+id:"dk7l2",
 titulo:"Publicar puertos con cabeza",
 claves:["-p 127.0.0.1:8080:80 solo expone a tu máquina","Publicar solo lo imprescindible","EXPOSE documenta, ports publica"],
 pasos:[
@@ -130,7 +131,7 @@ pasos:[
 
 /* =============== U7 L3 =============== */
 {
-id:"u7l3",
+id:"dk7l3",
 titulo:"Volúmenes a fondo",
 claves:["Named volume: Docker gestiona la ruta, portable","Bind mount: tu carpeta, ideal en desarrollo","tmpfs: en memoria, no persiste"],
 pasos:[
@@ -186,7 +187,7 @@ docker system df -v               <span class="cm"># cuanto ocupa cada uno</span
 
 /* =============== U7 L4 =============== */
 {
-id:"u7l4",
+id:"dk7l4",
 titulo:"Copias de seguridad y limpieza",
 claves:["Backup de volumen: contenedor efímero + tar","Para bases de datos, mejor un dump lógico (pg_dump)","prune libera espacio, pero -v y --volumes borran datos"],
 pasos:[

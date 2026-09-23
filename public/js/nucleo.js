@@ -10,7 +10,8 @@ var F = window.F = {};
 F.MARCA = {
   nombre: "Catappa",
   logo: '<img class="marca-logo" src="marca/cata-96.png" width="31" height="34" alt="">',
-  mascota: "marca/cata-256.png"          // Cata, la mascota (PNG sin fondo)
+  mascota: "marca/cata-256.png",         // Cata, la mascota (PNG sin fondo, para el logo)
+  mascotaNombre: "Cata"                  // se dibuja en vector en js/cata.js
 };
 
 /* ---------------- utilidades ---------------- */
@@ -444,13 +445,30 @@ F.confirmarReinicio = function (cursoId, despues) {
 };
 
 /* ---------------- progreso del curso antiguo (Ruta Docker) ---------------- */
+/* el curso de Docker usa ahora ids con prefijo: u1l1 -> dk1l1 */
+F.idDocker = function (id) { return /^u\d+l\d+$/.test(id) ? "dk" + id.slice(1) : id; };
 F.progresoAntiguo = function () {
   var viejo = F.leerLocal("ruta-docker-v1", null);
   if (!viejo || !viejo.hechas) return [];
-  return Object.keys(viejo.hechas).filter(function (id) { return viejo.hechas[id]; });
+  return Object.keys(viejo.hechas).filter(function (id) { return viejo.hechas[id]; }).map(F.idDocker);
+};
+/* progreso local (invitado) guardado con los ids antiguos */
+F.migrarIdsDocker = function () {
+  var p = F.leerLocal("catappa-progreso-local", null);
+  var c = p && p.progreso && p.progreso.docker;
+  if (!c || !c.lecciones) return 0;
+  var n = 0;
+  Object.keys(c.lecciones).forEach(function (id) {
+    var nuevo = F.idDocker(id);
+    if (nuevo === id) return;
+    if (!c.lecciones[nuevo]) c.lecciones[nuevo] = c.lecciones[id];
+    delete c.lecciones[id]; n++;
+  });
+  if (n) F.guardarLocal("catappa-progreso-local", p);
+  return n;
 };
 /* hasta dónde llegó Pablo según su mensaje: Docker · Unidad 2 · Lección 4 */
-F.PROGRESO_DECLARADO = ["u1l1", "u1l2", "u1l3", "u1l4", "u1l5", "u1l6", "u2l1", "u2l2", "u2l3", "u2l4"];
+F.PROGRESO_DECLARADO = ["dk1l1", "dk1l2", "dk1l3", "dk1l4", "dk1l5", "dk1l6", "dk2l1", "dk2l2", "dk2l3", "dk2l4"];
 
 F.migrarAInvitado = function () {
   if (F.leerLocal("catappa-migrado-local", false)) return 0;

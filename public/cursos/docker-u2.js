@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "Los comandos del día a día",
 resumen: "run, ps, puertos, logs, exec y el ciclo de vida completo",
+nivel: "Fundamentos",
 color: "#0e97b4",
 lecciones: [
 
 /* =============== U2 L1 =============== */
 {
-id:"u2l1",
+id:"dk2l1",
 titulo:"La anatomía de docker run",
 claves:["docker run [flags] IMAGEN [comando]","El orden importa: los flags van ANTES de la imagen","Lo que pones después de la imagen sustituye al programa por defecto"],
 pasos:[
@@ -87,7 +88,7 @@ hola`,
 
 /* =============== U2 L2 =============== */
 {
-id:"u2l2",
+id:"dk2l2",
 titulo:"Segundo plano y nombres",
 claves:["-d lo deja corriendo de fondo y te devuelve el prompt","--name evita nombres aleatorios","docker ps muestra lo que está en marcha"],
 pasos:[
@@ -157,7 +158,7 @@ Status: Downloaded newer image for nginx:alpine
 
 /* =============== U2 L3 =============== */
 {
-id:"u2l3",
+id:"dk2l3",
 titulo:"Puertos: abrir la puerta al exterior",
 claves:["-p HOST:CONTENEDOR (fuera:dentro)","Sin -p, el servicio no es accesible desde tu máquina","El puerto de dentro lo decide la app; el de fuera lo eliges tú"],
 pasos:[
@@ -229,7 +230,7 @@ pasos:[
 
 /* =============== U2 L4 =============== */
 {
-id:"u2l4",
+id:"dk2l4",
 titulo:"Logs: ver qué está pasando dentro",
 claves:["docker logs NOMBRE muestra la salida del proceso principal","-f sigue los logs en vivo","La app debe escribir a la salida estándar, no a ficheros"],
 pasos:[
@@ -287,7 +288,7 @@ pasos:[
 
 /* =============== U2 L5 =============== */
 {
-id:"u2l5",
+id:"dk2l5",
 titulo:"Entrar dentro de un contenedor",
 claves:["docker exec entra en uno que YA corre","docker run crea uno nuevo","Las imágenes alpine solo traen sh, no bash"],
 pasos:[
@@ -350,7 +351,7 @@ index.html</span></div>
 
 /* =============== U2 L6 =============== */
 {
-id:"u2l6",
+id:"dk2l6",
 titulo:"Ciclo de vida: parar, arrancar, borrar",
 claves:["stop manda SIGTERM, espera 10s y luego SIGKILL","stop ≠ rm: parado sigue existiendo","docker rm -f para y borra de una vez"],
 pasos:[
@@ -433,7 +434,7 @@ docker builder prune     <span class="cm"># borra la cache de construccion</span
 
 /* =============== U2 L7 =============== */
 {
-id:"u2l7",
+id:"dk2l7",
 titulo:"Configurar sin tocar el código",
 claves:["-e pasa variables de entorno","La misma imagen sirve para dev y para producción","Los secretos nunca van dentro de la imagen"],
 pasos:[

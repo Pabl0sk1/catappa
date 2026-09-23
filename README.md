@@ -60,7 +60,7 @@ comunidad ni ranking.
 |---|---|---|---|---|
 | Linux | Sistemas | 12 | 58 | 374 |
 | Git y GitHub | Control de versiones | 7 | 38 | 279 |
-| Docker | Contenedores | 8 | 45 | 386 |
+| Docker | Contenedores | 10 | 54 | 443 |
 | Kubernetes | Contenedores | 12 | 43 | 238 |
 | DevOps | Infraestructura | 7 | 38 | 263 |
 | Jenkins | Infraestructura | 11 | 47 | 294 |
@@ -85,7 +85,7 @@ comunidad ni ranking.
 | Redis | Datos | 4 | 10 | 34 |
 | MongoDB | Datos | 4 | 10 | 34 |
 | Go | Lenguajes | 6 | 16 | 52 |
-| **Total** | | **238** | **864** | **4290** |
+| **Total** | | **240** | **873** | **4347** |
 
 Cada curso sube por niveles — **Fundamentos, Intermedio, Avanzado, Experto y
 Maestro** — y termina con casos reales y un simulacro de entrevista. En la
@@ -133,6 +133,14 @@ respuesta y terminal simulada con salida real.
   actividad en la racha y el ranking, unidades plegadas y, en Docker, el progreso
   del curso antiguo guardado en el navegador).
 - **Contraseñas con ojo** para mostrarlas u ocultarlas en todos los campos.
+- **Cata, la mascota, vive dentro de la app** (`public/js/cata.js`, vector generado
+  desde el código): su **hoja cambia de color con tu nivel** en cada curso —verde
+  en Fundamentos, amarilla en Intermedio, naranja en Avanzado, roja en Experto y
+  dorada en Maestro—, **brilla cuando llevas racha** y cambia de expresión:
+  sonríe y mueve la cola al acertar, ladea la cabeza al fallar (sin regañar),
+  levanta la hoja al terminar una lección y se duerme si hace días que no entras.
+  Aparece en la portada, en la página del curso, en cada corrección, al terminar
+  una lección y en tu perfil.
 - **Certificados**: al completar todas las lecciones de un curso se emite un
   certificado con el nombre, el curso, la fecha y un código único
   (`CAT-XXXX-XXXX-XXXX`). Se ve en `#/certificado/<código>`, donde cualquiera
@@ -151,11 +159,16 @@ hay un botón para marcar Docker hasta la **Unidad 2 · Lección 4**.
 
 ---
 
-## Laboratorio de Docker
+## Laboratorio de Docker (opcional)
 
-En `laboratorio/` está la práctica en la **terminal de verdad**: aplicaciones
+El curso de Docker de la plataforma ya incluye todo el temario del laboratorio,
+también la **depuración de contenedores rotos** (unidad 9) y las **preguntas de
+entrevista** (unidad 10), así que **no es necesario** para aprender.
+
+En `laboratorio/` queda la práctica en la **terminal de verdad**: aplicaciones
 Spring Boot listas para construir y levantar (no hace falta tener Java ni Maven:
-se compilan dentro de Docker). Complementa el curso de Docker de la plataforma.
+se compilan dentro de Docker). Sirve si quieres teclear los comandos sobre un
+proyecto ya montado.
 
 Cada módulo tiene un `README.md` con teoría mínima, práctica guiada, ejercicios
 sin solución a la vista y preguntas de entrevista. Regla de oro: **no leas dos
@@ -301,6 +314,12 @@ docker compose up -d --build
 ---
 
 ## Marca
+
+**Cata** es la mascota: una gata geométrica con una hoja de catappa. En la app se
+dibuja en vector (`public/js/cata.js`) para poder cambiar el color de la hoja
+según tu nivel y su expresión según lo que pase; para el logo y los iconos se usa
+el PNG sin fondo de `public/marca/`.
+
 
 **Cata**, la mascota, es una gata geométrica con una hoja de catappa. Está
 redibujada en vector (`public/marca/cata.svg`) a partir del logo original, así

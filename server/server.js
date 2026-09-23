@@ -16,7 +16,7 @@ const PUBLICO = path.join(__dirname, "..", "public");
 const MAX_BODY = 64 * 1024;
 
 /* ---------------- catálogo de cursos (leído de los mismos ficheros que usa el navegador) ---------------- */
-const CATALOGO = {};   // {cursoId: {lecciones: Set, unidades: [[ids]], total}}
+const CATALOGO = {};   // {cursoId: {lecciones: Set, unidades: [[ids]], total, titulo}}
 function cargarCatalogo() {
   const dir = path.join(PUBLICO, "cursos");
   const ctx = vm.createContext({});
@@ -43,6 +43,24 @@ function limpiarTexto(s, max) {
   return String(s == null ? "" : s).replace(/\u0000/g, "").trim().slice(0, max);
 }
 const COLORES = ["#179493", "#f5b642", "#7fd1b9", "#7aa2f7", "#f26d6d", "#c49bf2", "#8fd16a", "#f29e6d", "#6dd3f2"];
+
+/* el curso de Docker pasó a usar ids con prefijo (u1l1 -> dk1l1): se renombra el progreso guardado */
+function migrarIdsDocker() {
+  const prog = db.get("progreso");
+  let n = 0;
+  for (const uid of Object.keys(prog)) {
+    const c = prog[uid].docker;
+    if (!c || !c.lecciones) continue;
+    for (const id of Object.keys(c.lecciones)) {
+      if (!/^u\d+l\d+$/.test(id)) continue;
+      const nuevo = "dk" + id.slice(1);
+      if (!c.lecciones[nuevo]) c.lecciones[nuevo] = c.lecciones[id];
+      delete c.lecciones[id];
+      n++;
+    }
+  }
+  if (n) { db.guardar("progreso"); console.log("[migracion] " + n + " lecciones de Docker renombradas a dk*"); }
+}
 
 /* ---------------- certificados ----------------
    Al completar todas las lecciones de un curso se emite un certificado con un código
@@ -264,6 +282,8 @@ ruta("POST", "/api/perfil", (req, res, b, u) => {
 }, true);
 
 function importarProgreso(uid, datos) {
+  // los navegadores con el curso antiguo de Docker envían ids u1l1: se traducen a dk1l1
+  for (const cid of Object.keys(datos)) if (cid === "docker") datos[cid] = (datos[cid] || []).map(x => /^u\d+l\d+$/.test(x) ? "dk" + x.slice(1) : x);
   // datos: {cursoId: [leccionIds]}
   const prog = db.get("progreso");
   prog[uid] = prog[uid] || {};
@@ -484,5 +504,6 @@ const servidor = http.createServer(async (req, res) => {
 
 db.cargar();
 cargarCatalogo();
+migrarIdsDocker();
 semilla.aplicar(db, hashClave);
 servidor.listen(PUERTO, () => console.log(`[catappa] escuchando en http://localhost:${PUERTO}  datos en ${db.DIR}`));

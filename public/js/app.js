@@ -53,6 +53,7 @@ function registrarSW() {
 
 function arrancar() {
   // progreso de invitado (incluye la migración del curso antiguo de Docker)
+  F.migrarIdsDocker();
   var importadas = F.migrarAInvitado();
   E.progreso = F.leerLocal("catappa-progreso-local", { progreso: {} }).progreso || {};
 

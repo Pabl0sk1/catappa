@@ -736,3 +736,36 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
   .cert-lienzo { position: fixed; inset: 0; border: 0; box-shadow: none; border-radius: 0; }
   .cert-lienzo img { width: 100vw; height: 100vh; object-fit: contain; }
 }
+
+/* ---------------- Cata, la mascota ---------------- */
+.cata { display: block; height: 120px; width: auto; overflow: visible; }
+.cata-cabeza, .cata-cola, .cata-hoja { transform-box: view-box; }
+/* acierto: mueve la cola */
+.cata-feliz .cata-cola { transform-origin: 500px 845px; animation: cata-cola 700ms ease-in-out 3; }
+@keyframes cata-cola { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(7deg); } 75% { transform: rotate(-7deg); } }
+/* fallo: ladea la cabeza, sin regañar */
+.cata-duda .cata-cabeza { transform-origin: 408px 420px; transform: rotate(-9deg); animation: cata-ladea 400ms ease-out; }
+@keyframes cata-ladea { from { transform: rotate(0deg); } to { transform: rotate(-9deg); } }
+/* lección terminada: levanta la hoja */
+.cata-celebra .cata-hoja { transform-origin: 680px 694px; animation: cata-hoja-arriba 800ms cubic-bezier(.3, 1.5, .5, 1) both; }
+@keyframes cata-hoja-arriba { from { transform: rotate(0deg); } to { transform: rotate(-22deg); } }
+/* racha: la hoja brilla */
+.cata-brillo .cata-hoja { animation: cata-brilla 2.6s ease-in-out infinite; }
+@keyframes cata-brilla { 0%, 100% { filter: drop-shadow(0 0 1px rgba(232, 190, 69, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(232, 190, 69, .9)); } }
+/* dormida: las z suben despacio */
+.cata-dormida text { animation: cata-z 3.2s ease-in-out infinite; }
+.cata-dormida text:nth-of-type(2) { animation-delay: .5s; }
+.cata-dormida text:nth-of-type(3) { animation-delay: 1s; }
+@keyframes cata-z { 0%, 100% { opacity: 0; } 40% { opacity: .9; } }
+
+.continuar-cata { position: absolute; bottom: 10px; right: 20px; pointer-events: none; }
+.continuar-cata .cata { height: 132px; filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .35)); }
+.nivel-cata { display: flex; align-items: center; gap: 16px; margin-top: 22px; padding: 14px 18px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); }
+.nivel-cata div { display: grid; gap: 2px; }
+.nivel-cata span { font-size: 13.5px; color: var(--ink-2); }
+.cata-perfil { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.cata-perfil div { display: grid; gap: 2px; }
+.cata-perfil span { font-size: 13.5px; color: var(--ink-2); }
+.fb-cata { flex: none; display: block; }
+.fb-cata .cata { height: 54px; }
+@media (max-width: 720px) { .fb-cata { display: none; } .nivel-cata .cata { height: 84px; } }

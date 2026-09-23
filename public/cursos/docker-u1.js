@@ -2,12 +2,13 @@ window.CURSOS = window.CURSOS || {};
 (CURSOS.docker = CURSOS.docker || []).push({
 titulo: "Antes de tocar Docker",
 resumen: "Qué problema resuelve, qué es un contenedor y cómo se le habla",
+nivel: "Fundamentos",
 color: "#1668d6",
 lecciones: [
 
 /* =============== U1 L1 =============== */
 {
-id: "u1l1",
+id:"dk1l1",
 titulo: "Por qué existe Docker",
 claves: ["Docker empaqueta la app CON su entorno", "Resuelve el 'en mi máquina funciona'", "Un mismo paquete corre igual en tu PC, en el CI y en el servidor"],
 pasos: [
@@ -74,7 +75,7 @@ pasos: [
 
 /* =============== U1 L2 =============== */
 {
-id:"u1l2",
+id:"dk1l2",
 titulo:"Qué es un contenedor de verdad",
 claves:["Un contenedor es un proceso de Linux aislado","namespaces = lo que el proceso VE","cgroups = lo que el proceso CONSUME"],
 pasos:[
@@ -131,7 +132,7 @@ pasos:[
 
 /* =============== U1 L3 =============== */
 {
-id:"u1l3",
+id:"dk1l3",
 titulo:"Contenedor contra máquina virtual",
 claves:["La VM virtualiza hardware y lleva su propio kernel","El contenedor comparte el kernel del anfitrión","Contenedor: milisegundos y megas. VM: minutos y gigas"],
 pasos:[
@@ -199,7 +200,7 @@ pasos:[
 
 /* =============== U1 L4 =============== */
 {
-id:"u1l4",
+id:"dk1l4",
 titulo:"Imagen, contenedor y registry",
 claves:["Imagen = plantilla inmutable (como una clase)","Contenedor = instancia en ejecución (como un objeto)","Registry = el almacén de imágenes; Docker Hub es el público"],
 pasos:[
@@ -259,7 +260,7 @@ pasos:[
 
 /* =============== U1 L5 =============== */
 {
-id:"u1l5",
+id:"dk1l5",
 titulo:"Cómo se le dan órdenes a Docker",
 claves:["Tú escribes en el CLI; el trabajo lo hace el daemon","El CLI habla con el daemon por una API","Todos los comandos empiezan por docker"],
 pasos:[
@@ -324,7 +325,7 @@ docker run --help</div>
 
 /* =============== U1 L6 =============== */
 {
-id:"u1l6",
+id:"dk1l6",
 titulo:"Tu primer contenedor, paso a paso",
 claves:["docker run descarga (si hace falta) y ejecuta","Si no tienes la imagen, Docker hace pull automáticamente","El contenedor vive mientras viva su proceso"],
 pasos:[
