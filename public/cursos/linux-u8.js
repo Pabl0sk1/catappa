@@ -152,12 +152,7 @@ titulo:"Cómo arranca Linux",
 claves:["Firmware (BIOS/UEFI) → cargador (GRUB) → kernel e initramfs → PID 1 (systemd) → targets y servicios","dmesg y journalctl -b muestran lo ocurrido en el arranque","systemd-analyze blame dice qué servicio retrasa el arranque"],
 pasos:[
  {t:"info", eti:"De botón a prompt", h:"Las fases del arranque",
-  c:`<div class="diag">1. Firmware (BIOS o UEFI)   comprueba el hardware y busca un disco arrancable
-2. Cargador (GRUB)           elige y carga el kernel
-3. Kernel + initramfs        detecta hardware, monta el disco raiz
-4. PID 1: systemd            primer proceso de usuario
-5. Targets                   arranca servicios en orden (red, ssh, nginx...)
-6. Login                     consola o SSH listos</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>1. Firmware (BIOS o UEFI)</td><td>comprueba el hardware y busca un disco arrancable</td></tr><tr><td>2. Cargador (GRUB)</td><td>elige y carga el kernel</td></tr><tr><td>3. Kernel + initramfs</td><td>detecta hardware, monta el disco raiz</td></tr><tr><td>4. PID 1: systemd</td><td>primer proceso de usuario</td></tr><tr><td>5. Targets</td><td>arranca servicios en orden (red, ssh, nginx...)</td></tr><tr><td>6. Login</td><td>consola o SSH listos</td></tr></tbody></table></div>
      <p>El <b>initramfs</b> es un mini sistema de ficheros temporal que trae los controladores necesarios para poder montar el disco real (por ejemplo, si está cifrado o en LVM).</p>`},
  {t:"orden", p:"Ordena las fases del arranque",
   items:["Firmware BIOS/UEFI","Cargador de arranque GRUB","Kernel e initramfs","systemd (PID 1)","Servicios y targets","Pantalla de login o SSH disponible"],

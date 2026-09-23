@@ -85,19 +85,7 @@ titulo:"Un recorrido por la interfaz",
 claves:["El panel principal (Dashboard) lista los jobs con su último resultado","Nueva tarea (New Item) crea jobs; Administrar Jenkins (Manage Jenkins) configura el sistema","A la izquierda se ven la cola de builds y el estado de los executors"],
 pasos:[
  {t:"info", eti:"Orientarse", h:"La pantalla principal",
-  c:`<div class="diag">┌─────────────────────────────────────────────────────────────┐
-│ Jenkins                                        pablo ▾      │
-├──────────────────────┬──────────────────────────────────────┤
-│ + Nueva tarea        │  Panel de control (Dashboard)        │
-│   Personas           │  ┌────┬──────────────┬─────────────┐ │
-│   Historial          │  │ ✔  │ api-tareas   │ hace 2 h #48│ │
-│ ⚙ Administrar Jenkins│  │ ✘  │ web-tienda   │ hace 5 m #12│ │
-│                      │  └────┴──────────────┴─────────────┘ │
-│ Cola de builds (1)   │                                      │
-│ Estado de executors  │                                      │
-│   1 En espera        │                                      │
-│   2 api-tareas #49   │                                      │
-└──────────────────────┴──────────────────────────────────────┘</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom">┌─────────────────────────────────────────────────────────────┐</span></div><div class="rama" style="--n:0"><span class="nom">Jenkins</span><span class="coment">pablo ▾      │</span></div><div class="rama" style="--n:1"><span class="nom">┬──────────────────────────────────────┤</span></div><div class="rama" style="--n:0"><span class="nom">+ Nueva tarea</span><span class="coment">│  Panel de control (Dashboard)        │</span></div><div class="rama" style="--n:0"><span class="nom">Personas</span><span class="coment">│  ┌────┬──────────────┬─────────────┐ │</span></div><div class="rama" style="--n:0"><span class="nom">Historial</span><span class="coment">│  │ ✔  │ api-tareas   │ hace 2 h #48│ │</span></div><div class="rama" style="--n:0"><span class="nom">⚙ Administrar Jenkins│</span><span class="coment">│ ✘  │ web-tienda   │ hace 5 m #12│ │</span></div><div class="rama" style="--n:8"><span class="nom">┴──────────────┴─────────────┘ │</span></div><div class="rama" style="--n:0"><span class="nom">Cola de builds (1)</span><span class="coment">│                                      │</span></div><div class="rama" style="--n:0"><span class="nom">Estado de executors</span><span class="coment">│                                      │</span></div><div class="rama" style="--n:0"><span class="nom">1 En espera</span><span class="coment">│                                      │</span></div><div class="rama" style="--n:0"><span class="nom">2 api-tareas #49</span><span class="coment">│                                      │</span></div><div class="rama" style="--n:1"><span class="nom">┴──────────────────────────────────────┘</span></div></div>
      <p>Jenkins muestra la interfaz en el idioma de tu navegador; aquí verás los nombres en español y entre paréntesis en inglés, porque en internet los encontrarás de las dos formas.</p>`},
  {t:"par", p:"Empareja cada parte de la interfaz con su función",
   pares:[["Nueva tarea (New Item)","Crear un job nuevo"],["Panel de control (Dashboard)","Ver todos los jobs y su último resultado"],["Administrar Jenkins (Manage Jenkins)","Configurar el sistema, plugins, credenciales y agentes"],["Cola de builds (Build Queue)","Builds esperando un executor libre"],["Estado de executors (Build Executor Status)","Qué está ejecutando cada executor ahora mismo"]],

@@ -59,14 +59,7 @@ titulo:"Números de latencia",
 claves:["Memoria: nanosegundos; disco SSD: decenas de microsegundos; red en el mismo centro: ~0,5 ms","Entre continentes: ~100-150 ms de ida y vuelta","Cada salto de red y cada acceso a disco cuentan"],
 pasos:[
  {t:"info", eti:"Órdenes de magnitud", h:"Lo que cuesta cada cosa",
-  c:`<div class="diag">leer de cache L1 del procesador      ~1 ns
-leer de memoria RAM                  ~100 ns
-leer 1 MB secuencial de memoria      ~10 us
-lectura aleatoria en SSD             ~100 us
-ida y vuelta en el mismo centro      ~500 us
-leer 1 MB secuencial de SSD          ~1 ms
-ida y vuelta Madrid - Frankfurt      ~30 ms
-ida y vuelta Europa - EEUU           ~100 ms</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>leer de cache L1 del procesador</td><td>~1 ns</td></tr><tr><td>leer de memoria RAM</td><td>~100 ns</td></tr><tr><td>leer 1 MB secuencial de memoria</td><td>~10 us</td></tr><tr><td>lectura aleatoria en SSD</td><td>~100 us</td></tr><tr><td>ida y vuelta en el mismo centro</td><td>~500 us</td></tr><tr><td>leer 1 MB secuencial de SSD</td><td>~1 ms</td></tr><tr><td>ida y vuelta Madrid - Frankfurt</td><td>~30 ms</td></tr><tr><td>ida y vuelta Europa - EEUU</td><td>~100 ms</td></tr></tbody></table></div>
      <p>Una caché en memoria responde en microsegundos; una consulta a una base de datos en otro continente, en cientos de milisegundos. Por eso se cachea y se acerca el contenido al usuario.</p>`},
  {t:"orden", p:"Ordena de más rápido a más lento",
   items:["Leer de la memoria RAM","Leer de un SSD","Ida y vuelta por red en el mismo centro de datos","Ida y vuelta entre Europa y Estados Unidos"],

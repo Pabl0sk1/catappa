@@ -12,11 +12,7 @@ titulo:"Qué probar y con qué",
 claves:["Servicios: pruebas unitarias con Mockito, sin Spring","Controladores: @WebMvcTest; repositorios: @DataJpaTest","Integración completa: @SpringBootTest con Testcontainers"],
 pasos:[
  {t:"info", eti:"Estrategia", h:"Pruebas por capa",
-  c:`<div class="diag">Capa             Tipo de prueba          Que arranca                 Velocidad
-servicio         unitaria + Mockito      nada de Spring              milisegundos
-controlador      @WebMvcTest             solo la capa web            rapida
-repositorio      @DataJpaTest            JPA + base de datos         media
-todo junto       @SpringBootTest         la aplicacion completa      lenta</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><thead><tr><th>Capa</th><th>Tipo de prueba</th><th>Que arranca</th><th>Velocidad</th></tr></thead><tbody><tr><td>servicio</td><td>unitaria + Mockito</td><td>nada de Spring</td><td>milisegundos</td></tr><tr><td>controlador</td><td>@WebMvcTest</td><td>solo la capa web</td><td>rapida</td></tr><tr><td>repositorio</td><td>@DataJpaTest</td><td>JPA + base de datos</td><td>media</td></tr><tr><td>todo junto</td><td>@SpringBootTest</td><td>la aplicacion completa</td><td>lenta</td></tr></tbody></table></div>
      <p>Las <b>slices</b> (<code>@WebMvcTest</code>, <code>@DataJpaTest</code>) cargan solo una parte del contexto: mucho más rápidas que <code>@SpringBootTest</code>.</p>`},
  {t:"par", p:"Empareja cada anotación con lo que carga",
   pares:[["@WebMvcTest","Controladores, filtros y conversores JSON"],["@DataJpaTest","Entidades, repositorios y la base de datos"],["@SpringBootTest","El contexto completo de la aplicación"],["@MockitoBean","Sustituye un bean del contexto por un mock"]],

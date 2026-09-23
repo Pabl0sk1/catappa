@@ -63,10 +63,7 @@ pasos:[
         stage('Seguridad')   { steps { sh 'trivy fs --exit-code 1 .' } }
     }
 }</div>
-     <div class="diag">EN SERIE     6 min ─▶ 8 min ─▶ 4 min   = 18 minutos
-EN PARALELO  ┌ 6 min ┐
-             ├ 8 min ┤                 = 8 minutos (la más lenta)
-             └ 4 min ┘</div>`},
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom">EN SERIE</span><span class="coment">6 min ─▶ 8 min ─▶ 4 min   = 18 minutos</span></div><div class="rama" style="--n:0"><span class="nom">EN PARALELO</span><span class="coment">┌ 6 min ┐</span></div><div class="rama" style="--n:4"><span class="nom">8 min ┤</span><span class="coment">= 8 minutos (la más lenta)</span></div><div class="rama" style="--n:4"><span class="nom">4 min ┘</span></div></div>`},
  {t:"opcion", p:"Tres etapas de 6, 8 y 4 minutos se ejecutan en paralelo y hay executors libres. ¿Cuánto tarda la etapa?",
   ops:["18 minutos","Unos 8 minutos: lo que tarda la más lenta","4 minutos","6 minutos"],
   ok:1, why:"Por eso conviene mirar cuál es la rama más lenta si quieres acortar más."},

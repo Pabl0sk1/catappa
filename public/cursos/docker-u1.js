@@ -275,16 +275,27 @@ claves:["Tú escribes en el CLI; el trabajo lo hace el daemon","El CLI habla con
 pasos:[
  {t:"info", eti:"Las piezas", h:"Tú no hablas con los contenedores: hablas con el daemon",
   c:`<p>Cuando escribes un comando, pasan tres cosas:</p>
-     <div class="diag">tu escribes            le pide por una API          hace el trabajo
-+------------+      ------------------->     +--------------------+
-| docker CLI |                                |  dockerd (daemon)  |
-| (el comando|      <-------------------      |  crea contenedores |
-|  "docker") |         te devuelve            |  construye imagenes|
-+------------+                                +---------+----------+
-                                                        | descarga
-                                              +---------v----------+
-                                              | Registry (Docker Hub)|
-                                              +----------------------+</div>
+     <div class="dg">
+       <div class="dg-tit">quién hace qué cuando escribes «docker run»</div>
+       <div class="dg-cols">
+         <div class="dg-col">
+           <div class="dg-col-tit">Tú escribes</div>
+           <div class="dg-caja acento doble">docker CLI<small>el comando «docker»</small></div>
+           <div class="dg-nota">manda la orden por una API, no hace el trabajo</div>
+         </div>
+         <div class="dg-col">
+           <div class="dg-col-tit">Quien trabaja</div>
+           <div class="dg-caja ok doble">dockerd<small>crea contenedores y construye imágenes</small></div>
+           <div class="dg-nota">te devuelve la respuesta</div>
+         </div>
+         <div class="dg-col">
+           <div class="dg-col-tit">De dónde salen las imágenes</div>
+           <div class="dg-caja base doble">Registro<small>Docker Hub y compañía</small></div>
+           <div class="dg-nota">el daemon descarga lo que falta</div>
+         </div>
+       </div>
+       <div class="dg-leyenda"><span><i class="acento"></i>lo que tú tocas</span><span><i></i>lo que hace el trabajo</span></div>
+     </div>
      <ul><li><b>CLI</b> (Command Line Interface): el comando <code>docker</code> que escribes tú. Solo transmite órdenes.</li>
      <li><b>Daemon</b> (<code>dockerd</code>): un programa que está siempre en marcha de fondo y es quien de verdad crea los contenedores.</li></ul>
      <p>Por eso, si Docker Desktop está cerrado, los comandos fallan: el daemon no está escuchando.</p>`},

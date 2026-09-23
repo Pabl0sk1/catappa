@@ -356,15 +356,16 @@ titulo:"Ciclo de vida: parar, arrancar, borrar",
 claves:["stop manda SIGTERM, espera 10s y luego SIGKILL","stop ≠ rm: parado sigue existiendo","docker rm -f para y borra de una vez"],
 pasos:[
  {t:"info", eti:"Los estados", h:"Un contenedor solo tiene tres estados que te importen",
-  c:`<div class="diag">   docker run            docker stop           docker rm
-        |                      |                     |
-        v                      v                     v
-   +----------+   stop    +---------+    rm     +---------+
-   | EN MARCHA| --------> | PARADO  | --------> | BORRADO |
-   +----------+           +---------+           +---------+
-        ^                      |
-        +----------------------+
-              docker start</div>
+  c:`<div class="dg">
+       <div class="dg-tit">ciclo de vida de un contenedor</div>
+       <div class="dg-flujo">
+         <div class="dg-caja acento doble">En marcha<small>docker run</small></div>
+         <div class="dg-caja doble">Parado<small>docker stop</small></div>
+         <div class="dg-caja aviso doble">Borrado<small>docker rm</small></div>
+       </div>
+       <div class="dg-nota arriba">de «parado» se vuelve a «en marcha» con docker start: el contenedor sigue existiendo, con sus datos</div>
+       <div class="dg-nota">de «borrado» no se vuelve: eso sí desaparece</div>
+     </div>
      <p>La diferencia clave: <b>parar no es borrar</b>. Un contenedor parado conserva su sistema de ficheros, sus logs y su configuración. Puedes volver a arrancarlo y sigue donde lo dejaste.</p>`},
 
  {t:"info", eti:"Parar bien", h:"Qué hace exactamente docker stop",

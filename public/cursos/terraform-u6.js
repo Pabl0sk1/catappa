@@ -12,12 +12,7 @@ titulo:"Entornos y CI/CD",
 claves:["Un directorio (y estado) por entorno, reutilizando módulos","Plan automático en cada Pull Request y apply tras aprobar y fusionar","El pipeline asume un rol por OIDC; nadie aplica desde su portátil"],
 pasos:[
  {t:"info", eti:"Varios entornos", h:"Directorios o workspaces",
-  c:`<div class="diag">infra/
-  modulos/        red, servicio-ecs, base-datos
-  entornos/
-    dev/          main.tf + backend (estado dev)
-    staging/
-    prod/</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">infra/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">modulos/</span><span class="coment">red, servicio-ecs, base-datos</span></div><div class="rama" style="--n:1"><span class="nom carpeta">entornos/</span></div><div class="rama" style="--n:2"><span class="nom carpeta">dev/</span><span class="coment">main.tf + backend (estado dev)</span></div><div class="rama" style="--n:2"><span class="nom carpeta">staging/</span></div><div class="rama" style="--n:2"><span class="nom carpeta">prod/</span></div></div>
      <p>Los <b>workspaces</b> de Terraform permiten varios estados con el mismo código, pero ocultan en qué entorno estás y fuerzan a que todos sean iguales. En equipos, suele preferirse un <b>directorio por entorno</b> (o herramientas como Terragrunt).</p>`},
  {t:"info", eti:"Automatizar", h:"Flujo con Pull Requests",
   c:`<div class="termbox"># .github/workflows/terraform.yml (resumen)
@@ -78,10 +73,7 @@ pasos:[
   c:`<ul><li><b>Atlantis</b> (libre): comenta el plan en el PR y aplica con un comentario <code>atlantis apply</code>.</li>
      <li><b>HCP Terraform</b> / Terraform Enterprise, <b>Spacelift</b>, <b>env0</b>: estado gestionado, políticas, aprobaciones, costes estimados y detección de deriva.</li>
      <li><b>Terragrunt</b>: define una vez el backend y los providers, y reutiliza módulos por entorno con muy poco código; ordena dependencias entre estados.</li></ul>
-     <div class="diag">entornos/
-  terragrunt.hcl            backend y provider comunes
-  prod/red/terragrunt.hcl   source = modulo red,  inputs = {...}
-  prod/api/terragrunt.hcl   dependency "red" { config_path = "../red" }</div>`},
+     <div class="dg dg-tabla-caja"><div class="dg-tit">entornos/</div><table class="dg-tabla"><tbody><tr><td>terragrunt.hcl</td><td>backend y provider comunes</td></tr><tr><td>prod/red/terragrunt.hcl</td><td>source = modulo red,  inputs = {...}</td></tr><tr><td>prod/api/terragrunt.hcl</td><td>dependency "red" { config_path = "../red" }</td></tr></tbody></table></div>`},
  {t:"par", p:"Empareja cada herramienta con su aportación",
   pares:[["Atlantis","Plan y apply comentando en el Pull Request"],["Terragrunt","Menos repetición entre entornos y dependencias entre estados"],["HCP Terraform","Estado gestionado, políticas y ejecuciones remotas"],["Renovate o Dependabot","PRs para actualizar providers y módulos"],["Plan programado cada noche","Detectar deriva"]],
   why:"La deriva detectada pronto es un cambio pequeño; detectada meses después, un incidente."},

@@ -168,10 +168,7 @@ pasos:[
      <p><code>revert</code> crea un <b>commit nuevo</b> que hace exactamente lo contrario del commit indicado: lo que se añadió se quita y lo que se quitó se vuelve a poner.</p>`},
 
  {t:"info", eti:"Visualizarlo", h:"La historia no se borra: se añade",
-  c:`<div class="diag">antes:    a1b2 <-- 7c9e (rompe precios) <-- d4f1
-
-despues:  a1b2 <-- 7c9e <-- d4f1 <-- 8e3b "Revert: rompe precios"
-                                      ^ commit NUEVO que deshace 7c9e</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>antes:</td><td>a1b2 &lt;-- 7c9e (rompe precios) &lt;-- d4f1</td></tr><tr><td>despues:</td><td>a1b2 &lt;-- 7c9e &lt;-- d4f1 &lt;-- 8e3b "Revert: rompe precios"</td></tr><tr><td></td><td>^ commit NUEVO que deshace 7c9e</td></tr></tbody></table></div>
      <p>El commit malo sigue en el historial (queda registrado que existió y que se deshizo), pero su efecto desaparece. Nadie tiene que arreglar su copia: es un commit más, se descarga con un pull normal.</p>`},
 
  {t:"opcion", p:"¿Por qué revert es seguro en una rama que comparte todo el equipo?",

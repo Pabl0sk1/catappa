@@ -145,10 +145,7 @@ DROP TABLE IF EXISTS tabla_vieja;</div>`},
   why:"DROP no se puede deshacer fuera de una transacción: mucho cuidado."},
  {t:"info", eti:"En equipo", h:"Migraciones",
   c:`<p>En un proyecto real nadie ejecuta ALTER TABLE a mano en producción. Los cambios se escriben como <b>migraciones</b> numeradas y versionadas en Git, y una herramienta las aplica en orden:</p>
-     <div class="diag">src/main/resources/db/migration/
-  V1__crear_clientes.sql
-  V2__crear_pedidos.sql
-  V3__anadir_telefono.sql</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">src/main/resources/db/migration/</span></div><div class="rama" style="--n:1"><span class="nom">V1__crear_clientes.sql</span></div><div class="rama" style="--n:1"><span class="nom">V2__crear_pedidos.sql</span></div><div class="rama" style="--n:1"><span class="nom">V3__anadir_telefono.sql</span></div></div>
      <p>En Spring Boot, <b>Flyway</b> o <b>Liquibase</b> las ejecutan al arrancar. Todos los entornos quedan con la misma estructura.</p>`},
  {t:"opcion", p:"Añades <code>ALTER TABLE clientes ADD COLUMN telefono text NOT NULL;</code> en una tabla con datos. ¿Qué pasa?",
   ops:["Funciona","Falla: las filas existentes tendrían NULL en una columna NOT NULL. Hay que dar un DEFAULT o rellenar antes","Borra los clientes","Se ignora NOT NULL"],

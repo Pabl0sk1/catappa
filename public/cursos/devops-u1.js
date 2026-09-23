@@ -167,11 +167,7 @@ pasos:[
  {t:"info", eti:"El hallazgo clave", h:"Velocidad y estabilidad no se oponen",
   c:`<p>La intuición dice: «si despliegas más a menudo, romperás más cosas». Los datos de DORA dicen lo contrario: <b>los equipos que despliegan más a menudo también fallan menos y se recuperan antes</b>.</p>
      <p>¿Por qué? Porque para desplegar a menudo necesitas automatización, tests y cambios pequeños, y eso mismo es lo que te da estabilidad.</p>
-     <div class="diag">               bajo rendimiento     alto rendimiento
-frecuencia     mensual              varias veces al dia
-lead time      semanas o meses      menos de un dia
-fallos         ~40%                 ~5%
-recuperacion   dias                 menos de una hora</div>`},
+     <div class="dg dg-tabla-caja"><table class="dg-tabla"><thead><tr><th></th><th>bajo rendimiento</th><th>alto rendimiento</th></tr></thead><tbody><tr><td>frecuencia</td><td>mensual</td><td>varias veces al dia</td></tr><tr><td>lead time</td><td>semanas o meses</td><td>menos de un dia</td></tr><tr><td>fallos</td><td>~40%</td><td>~5%</td></tr><tr><td>recuperacion</td><td>dias</td><td>menos de una hora</td></tr></tbody></table></div>`},
 
  {t:"vf", p:"Según DORA, los equipos que despliegan con más frecuencia tienden a tener más fallos.",
   ok:false,

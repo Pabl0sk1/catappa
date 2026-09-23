@@ -20,11 +20,7 @@ pasos:[
      <li>Un proceso con muchas etapas (compilar, probar, imagen, desplegar) se vuelve un formulario enorme.</li></ul>`},
  {t:"info", eti:"La solución", h:"Pipeline as code y el Jenkinsfile",
   c:`<p>La solución es <b>escribir el pipeline como código</b> (<i>pipeline as code</i>) en un fichero de texto llamado <b>Jenkinsfile</b> (sin extensión), que se guarda <b>en el repositorio</b>, junto al código de la aplicación:</p>
-     <div class="diag">api-tareas/
-├── src/            código de la aplicación
-├── pom.xml         configuración de Maven
-├── Dockerfile
-└── Jenkinsfile     ◀─ el pipeline</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">api-tareas/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/</span><span class="coment">código de la aplicación</span></div><div class="rama" style="--n:1"><span class="nom">pom.xml</span><span class="coment">configuración de Maven</span></div><div class="rama" style="--n:1"><span class="nom">Dockerfile</span></div><div class="rama" style="--n:1"><span class="nom">Jenkinsfile</span><span class="coment">◀─ el pipeline</span></div></div>
      <p>Así el pipeline tiene historial en Git, se revisa en los Pull Requests como cualquier código y, si Jenkins se pierde, el pipeline sigue en el repositorio.</p>
      <div class="nota"><b class="tit">Te suena</b>Es la misma idea que el Dockerfile: en vez de montar la imagen a mano, la describes en un fichero de texto que vive con el código.</div>`},
  {t:"opcion", p:"¿Dónde se guarda el Jenkinsfile?",
@@ -72,10 +68,7 @@ pasos:[
      <p>Parece mucho, pero solo hay <b>cinco palabras nuevas</b>. Las vemos una a una en los siguientes pasos.</p>`},
  {t:"info", eti:"Las llaves", h:"Bloques dentro de bloques",
   c:`<p>Lo primero: las <b>llaves</b> <code>{ }</code> abren y cierran un bloque. Todo lo que está entre <code>stages {</code> y su <code>}</code> pertenece a <code>stages</code>. Es como una caja dentro de otra caja:</p>
-     <div class="diag">pipeline { ................................................... }
-   └─ stages { ........................................... }
-        └─ stage('Probar') { ............................. }
-             └─ steps { sh './mvnw -B test' }</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom">pipeline { ................................................... }</span></div><div class="rama" style="--n:2"><span class="nom">stages { ........................................... }</span></div><div class="rama" style="--n:3"><span class="nom">stage('Probar') { ............................. }</span></div><div class="rama" style="--n:4"><span class="nom">steps { sh './mvnw -B test' }</span></div></div>
      <p>La sangría (los espacios al principio de cada línea) no es obligatoria, pero ayuda muchísimo a ver qué va dentro de qué.</p>`},
  {t:"info", eti:"Palabra por palabra", h:"pipeline, agent, stages, stage, steps",
   c:`<ul><li><code>pipeline { }</code>: envuelve todo el pipeline. Es obligatorio y va el primero.</li>
@@ -137,10 +130,7 @@ claves:["La vista de etapas muestra cada stage como una columna con su tiempo y 
 pasos:[
  {t:"info", eti:"La vista del pipeline", h:"Una columna por etapa",
   c:`<p>En la página de un job de pipeline, Jenkins muestra una tabla con una <b>columna por etapa</b> y una <b>fila por build</b> (<i>Stage View</i>; con el plugin Blue Ocean o la nueva vista <i>Pipeline Overview</i> se ve como un diagrama):</p>
-     <div class="diag">            Compilar   Probar    Empaquetar
-Build #12     25 s      1 min      40 s        ✔ todo verde
-Build #13     24 s      ✘ 38 s      —          ✘ falló en Probar
-Build #14     26 s      1 min      41 s        ✔ arreglado</div>
+     <div class="dg dg-tabla-caja"><table class="dg-tabla"><thead><tr><th></th><th>Compilar</th><th>Probar</th><th>Empaquetar</th><th></th></tr></thead><tbody><tr><td>Build #12</td><td>25 s</td><td>1 min</td><td>40 s</td><td>✔ todo verde</td></tr><tr><td>Build #13</td><td>24 s</td><td>✘ 38 s</td><td>—</td><td>✘ falló en Probar</td></tr><tr><td>Build #14</td><td>26 s</td><td>1 min</td><td>41 s</td><td>✔ arreglado</td></tr></tbody></table></div>
      <p>De un vistazo sabes <b>en qué etapa</b> falló cada build y <b>cuánto tarda</b> cada etapa.</p>`},
  {t:"opcion", p:"En el build #13, ¿por qué la etapa Empaquetar aparece vacía (—)?",
   ops:["Porque se ejecutó muy rápido","Porque la etapa Probar falló y el pipeline se detuvo: Empaquetar no llegó a ejecutarse","Porque se borró","Porque tardó cero segundos"],

@@ -13,13 +13,7 @@ claves:["Un chart es un paquete de plantillas de Kubernetes con valores configur
 pasos:[
  {t:"info", eti:"El gestor de paquetes", h:"Qué es Helm",
   c:`<p>Desplegar una aplicación real implica 8 o 10 manifiestos (Deployment, Service, Ingress, ConfigMap, HPA, PDB...), casi iguales entre entornos. <b>Helm</b> los empaqueta como un <b>chart</b>: plantillas con huecos que se rellenan con <b>valores</b>.</p>
-     <div class="diag">api-chart/
-├── Chart.yaml          nombre y version del chart
-├── values.yaml         valores por defecto
-└── templates/
-    ├── deployment.yaml
-    ├── service.yaml
-    └── ingress.yaml</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">api-chart/</span></div><div class="rama" style="--n:1"><span class="nom">Chart.yaml</span><span class="coment">nombre y version del chart</span></div><div class="rama" style="--n:1"><span class="nom">values.yaml</span><span class="coment">valores por defecto</span></div><div class="rama" style="--n:1"><span class="nom carpeta">templates/</span></div><div class="rama" style="--n:2"><span class="nom">deployment.yaml</span></div><div class="rama" style="--n:2"><span class="nom">service.yaml</span></div><div class="rama" style="--n:2"><span class="nom">ingress.yaml</span></div></div>
      <div class="termbox"><span class="cm"># templates/deployment.yaml</span>
 spec:
   replicas: {{ .Values.replicas }}
@@ -53,16 +47,7 @@ titulo:"Kustomize",
 claves:["Kustomize personaliza YAML sin plantillas: una base y overlays por entorno","Integrado en kubectl: kubectl apply -k","Patches, imágenes, réplicas y generadores de ConfigMaps con hash"],
 pasos:[
  {t:"info", eti:"Sin plantillas", h:"Base y overlays",
-  c:`<div class="diag">k8s/
-├── base/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   └── kustomization.yaml
-└── overlays/
-    ├── staging/kustomization.yaml
-    └── produccion/
-        ├── kustomization.yaml
-        └── recursos.yaml         (patch: mas CPU y memoria)</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">k8s/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">base/</span></div><div class="rama" style="--n:2"><span class="nom">deployment.yaml</span></div><div class="rama" style="--n:2"><span class="nom">service.yaml</span></div><div class="rama" style="--n:2"><span class="nom">kustomization.yaml</span></div><div class="rama" style="--n:1"><span class="nom carpeta">overlays/</span></div><div class="rama" style="--n:2"><span class="nom">staging/kustomization.yaml</span></div><div class="rama" style="--n:2"><span class="nom carpeta">produccion/</span></div><div class="rama" style="--n:3"><span class="nom">kustomization.yaml</span></div><div class="rama" style="--n:3"><span class="nom">recursos.yaml</span><span class="coment">(patch: mas CPU y memoria)</span></div></div>
      <div class="termbox"><span class="cm"># overlays/produccion/kustomization.yaml</span>
 resources: [../../base]
 namespace: produccion

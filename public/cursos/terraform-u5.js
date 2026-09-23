@@ -12,21 +12,7 @@ titulo:"Crear y usar módulos",
 claves:["Un módulo es una carpeta de ficheros .tf reutilizable con variables y outputs","Se llama con module \"nombre\" { source = ... }","Encapsula buenas prácticas: una vez bien hecho, se reutiliza en todos los entornos"],
 pasos:[
  {t:"info", eti:"Reutilizar", h:"Estructura de un módulo",
-  c:`<div class="diag">modulos/servicio-ecs/
-  variables.tf    nombre, imagen, cpu, memoria, subredes, puerto...
-  main.tf         task definition, service, target group, logs, alarmas
-  outputs.tf      url, nombre del servicio, rol
-  README.md
-
-entornos/prod/main.tf
-  module "api" {
-    source   = "../../modulos/servicio-ecs"
-    nombre   = "tareas-api"
-    imagen   = "123456789012.dkr.ecr.eu-west-1.amazonaws.com/tareas-api:1.4.0"
-    cpu      = 512
-    memoria  = 1024
-    subredes = module.red.subredes_privadas
-  }</div>`},
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">modulos/servicio-ecs/</span></div><div class="rama" style="--n:1"><span class="nom">variables.tf</span><span class="coment">nombre, imagen, cpu, memoria, subredes, puerto...</span></div><div class="rama" style="--n:1"><span class="nom">main.tf</span><span class="coment">task definition, service, target group, logs, alarmas</span></div><div class="rama" style="--n:1"><span class="nom">outputs.tf</span><span class="coment">url, nombre del servicio, rol</span></div><div class="rama" style="--n:1"><span class="nom">README.md</span></div><div class="rama" style="--n:0"><span class="nom">entornos/prod/main.tf</span></div><div class="rama" style="--n:1"><span class="nom">module "api" {</span></div><div class="rama" style="--n:2"><span class="nom">source</span><span class="coment">= "../../modulos/servicio-ecs"</span></div><div class="rama" style="--n:2"><span class="nom">nombre</span><span class="coment">= "tareas-api"</span></div><div class="rama" style="--n:2"><span class="nom">imagen</span><span class="coment">= "123456789012.dkr.ecr.eu-west-1.amazonaws.com/tareas-api:1.4.0"</span></div><div class="rama" style="--n:2"><span class="nom">cpu</span><span class="coment">= 512</span></div><div class="rama" style="--n:2"><span class="nom">memoria</span><span class="coment">= 1024</span></div><div class="rama" style="--n:2"><span class="nom">subredes = module.red.subredes_privadas</span></div><div class="rama" style="--n:1"><span class="nom">}</span></div></div>`},
  {t:"par", p:"Empareja cada elemento con su papel en un módulo",
   pares:[["variables.tf","Las entradas que acepta el módulo"],["outputs.tf","Lo que el módulo expone a quien lo usa"],["source","Dónde está el módulo (carpeta, Git o registro)"],["module.red.subredes_privadas","Usar la salida de otro módulo"]],
   why:"Un buen módulo tiene pocas entradas obligatorias y valores por defecto seguros."},

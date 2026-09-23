@@ -58,13 +58,7 @@ titulo:"Laboratorio: tu API en AWS con Terraform",
 claves:["Capas: red, datos y servicio, cada una con su estado","Módulo oficial de VPC, ECS Fargate con ALB y RDS con secretos gestionados","Pipeline con plan en el PR, OIDC y destrucción al terminar para no pagar"],
 pasos:[
  {t:"info", eti:"Proyecto final", h:"Lo que vas a construir",
-  c:`<div class="diag">infra/
-  modulos/servicio-ecs/          task definition, service, target group, logs, alarmas
-  entornos/prod/
-    red/        module "vpc" (terraform-aws-modules), 2 AZ, NAT, endpoints S3 y ECR
-    datos/      aws_db_instance postgres, Multi-AZ, manage_master_user_password = true
-    servicio/   aws_lb + module "api" (servicio-ecs) + aws_ecr_repository
-  .github/workflows/terraform.yml  plan en PR, apply al fusionar, OIDC</div>`},
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">infra/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">modulos/servicio-ecs/</span><span class="coment">task definition, service, target group, logs, alarmas</span></div><div class="rama" style="--n:1"><span class="nom carpeta">entornos/prod/</span></div><div class="rama" style="--n:2"><span class="nom carpeta">red/</span><span class="coment">module "vpc" (terraform-aws-modules), 2 AZ, NAT, endpoints S3 y ECR</span></div><div class="rama" style="--n:2"><span class="nom carpeta">datos/</span><span class="coment">aws_db_instance postgres, Multi-AZ, manage_master_user_password = true</span></div><div class="rama" style="--n:2"><span class="nom carpeta">servicio/</span><span class="coment">aws_lb + module "api" (servicio-ecs) + aws_ecr_repository</span></div><div class="rama" style="--n:1"><span class="nom">.github/workflows/terraform.yml</span><span class="coment">plan en PR, apply al fusionar, OIDC</span></div></div>`},
  {t:"orden", p:"Ordena la construcción del laboratorio",
   items:["Crear el bucket de estado y el rol de OIDC para GitHub","Capa red con el módulo de VPC","Capa datos con RDS y su secreto en Secrets Manager","Capa servicio: ECR, ALB y el módulo servicio-ecs","Pipeline con plan en el PR y apply al fusionar","Probar la API, revisar costes y destruir en orden inverso"],
   why:"Se destruye al revés: servicio, datos y por último red."},

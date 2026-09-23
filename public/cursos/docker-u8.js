@@ -156,13 +156,15 @@ titulo:"Nginx delante: la arquitectura de producción",
 claves:["Un solo puerto público; el resto, red interna","TLS, balanceo y cabeceras los hace el proxy","La API no publica puertos: expone"],
 pasos:[
  {t:"info", eti:"El dibujo", h:"Así se despliega de verdad",
-  c:`<div class="diag">        Internet
-           |  443 / 80   <- unico punto de entrada
-      [ nginx ]          red frontend
-           |
-      [  api  ] x N      en ambas redes, SIN puerto publicado
-           |
-      [postgres]         red backend (internal), con volumen</div>
+  c:`<div class="dg">
+       <div class="dg-tit">un stack como se despliega de verdad</div>
+       <div class="dg-vert">
+         <div class="dg-caja base doble">Internet<small>443 y 80: el único punto de entrada</small></div>
+         <div class="dg-caja acento doble">nginx<small>red frontend</small></div>
+         <div class="dg-caja doble">api × N<small>en las dos redes, sin puertos publicados</small></div>
+         <div class="dg-caja ok doble">postgres<small>red backend (internal), con volumen</small></div>
+       </div>
+     </div>
      <p>Solo nginx publica puertos. La API se alcanza <b>a través</b> de nginx, y la base de datos solo desde la API.</p>`},
 
  {t:"opcion", p:"¿Por qué poner nginx delante? Enumera el motivo principal.",
@@ -227,11 +229,24 @@ pasos:[
      <p>Docker es la pieza que une las dos: el CI produce <b>una imagen</b>, y esa misma imagen es la que se despliega.</p>`},
 
  {t:"info", eti:"El pipeline", h:"Los pasos, en orden",
-  c:`<div class="diag">codigo -> git push -> [CI] tests -> build imagen -> escaneo -> push al registry
-                                                                      |
-                                        [CD] deploy en servidor <-----+
-                                                |
-                                          smoke test + monitorizacion</div>
+  c:`<div class="dg">
+       <div class="dg-tit">del commit a producción</div>
+       <div class="dg-flujo">
+         <div class="dg-caja acento">código</div>
+         <div class="dg-caja">git push</div>
+         <div class="dg-caja">pruebas</div>
+         <div class="dg-caja">build de la imagen</div>
+         <div class="dg-caja">escaneo</div>
+         <div class="dg-caja">registro</div>
+       </div>
+       <div class="dg-nota arriba">hasta aquí, integración continua</div>
+       <div class="dg-flujo" style="margin-top:12px">
+         <div class="dg-caja">despliegue</div>
+         <div class="dg-caja">prueba de humo</div>
+         <div class="dg-caja ok">monitorización</div>
+       </div>
+       <div class="dg-nota">y aquí, entrega continua: la misma imagen que se probó es la que se despliega</div>
+     </div>
      <p>Un ejemplo en GitHub Actions, resumido:</p>
      <div class="termbox">- run: mvn -B test
 - uses: docker/build-push-action@v6

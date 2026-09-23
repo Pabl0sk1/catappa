@@ -110,9 +110,7 @@ pasos:[
      <p>En la red <code>bridge</code> por defecto esto <b>no funciona</b>: solo en redes definidas por el usuario.</p>`},
  {t:"info", eti:"Kubernetes", h:"CoreDNS",
   c:`<p>Cada Service de Kubernetes recibe un nombre DNS:</p>
-     <div class="diag">api                                  (desde el mismo namespace)
-api.pagos                            (desde otro namespace)
-api.pagos.svc.cluster.local          (nombre completo)</div>
+     <div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>api</td><td>(desde el mismo namespace)</td></tr><tr><td>api.pagos</td><td>(desde otro namespace)</td></tr><tr><td>api.pagos.svc.cluster.local</td><td>(nombre completo)</td></tr></tbody></table></div>
      <p>El <code>/etc/resolv.conf</code> de cada pod incluye <b>dominios de búsqueda</b> y <code>ndots:5</code>: un nombre con menos de 5 puntos se prueba primero añadiendo cada dominio de búsqueda. Consultar <code>api.externa.com</code> genera varias consultas fallidas antes de la buena. Terminar el nombre en punto (<code>api.externa.com.</code>) lo evita.</p>`},
  {t:"par", p:"Empareja cada nombre con desde dónde funciona",
   pares:[["db (en Compose)","Otros contenedores de la misma red de Compose"],["api","Pods del mismo namespace de Kubernetes"],["api.pagos","Pods de cualquier namespace"],["api.pagos.svc.cluster.local","Nombre completo dentro del clúster"]],

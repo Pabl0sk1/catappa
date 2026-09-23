@@ -31,10 +31,7 @@ titulo:"Qué medir: señales doradas, RED y USE",
 claves:["Señales doradas: latencia, tráfico, errores y saturación","RED para servicios: Rate, Errors, Duration","USE para recursos: Utilization, Saturation, Errors"],
 pasos:[
  {t:"info", eti:"Método", h:"Tres listas que cubren casi todo",
-  c:`<div class="diag">SENALES DORADAS (Google SRE)   latencia, trafico, errores, saturacion
-RED (servicios)                peticiones/s, errores/s, duracion (percentiles)
-USE (recursos)                 utilizacion, saturacion (colas), errores
-                               de CPU, memoria, disco, red, pool de conexiones</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>SENALES DORADAS (Google SRE)</td><td>latencia, trafico, errores, saturacion</td></tr><tr><td>RED (servicios)</td><td>peticiones/s, errores/s, duracion (percentiles)</td></tr><tr><td>USE (recursos)</td><td>utilizacion, saturacion (colas), errores</td></tr><tr><td></td><td>de CPU, memoria, disco, red, pool de conexiones</td></tr></tbody></table></div>
      <p>Para una API: RED por endpoint. Para una máquina, un disco o un pool de conexiones: USE.</p>`},
  {t:"par", p:"Empareja cada métrica con su categoría",
   pares:[["Peticiones por segundo","Tráfico (Rate)"],["Porcentaje de respuestas 5xx","Errores"],["p99 del tiempo de respuesta","Latencia (Duration)"],["Hilos esperando una conexión a la base de datos","Saturación"],["CPU al 70%","Utilización"]],

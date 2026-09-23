@@ -114,8 +114,31 @@ respuesta y terminal simulada con salida real.
 
 ### Plataforma
 
-- **Cuentas** con usuario y contraseña (hash scrypt, sin correo).
-- **Modo invitado**: aprendes sin cuenta; al registrarte se importa todo.
+- **Cuentas** con usuario y contraseña (hash scrypt). Para entrar hace falta
+  cuenta: no hay modo invitado. Al registrarte se piden solo cuatro cosas —nombre,
+  usuario, contraseña y su confirmación— y el progreso que hubiera en el navegador
+  se importa solo.
+- **Se entra con el usuario o con el correo**, si lo has añadido.
+- **Correo opcional y verificado**: al añadirlo o cambiarlo llega un código de seis
+  cifras y el correo no se guarda hasta confirmarlo. Sirve para **recuperar la
+  contraseña** desde la pantalla de acceso. Se puede desvincular cuando quieras.
+- **Perfil completo**: nombre, usuario, correo, fecha de nacimiento, sobre ti,
+  color del avatar, **foto de perfil** (se recorta y reduce a 256 px en el
+  navegador) y **país de origen con bandera**.
+- **Borrar la cuenta**: pide la contraseña y escribir tu usuario, y se lleva el
+  progreso, los certificados, los proyectos, las publicaciones, la foto y el
+  correo asociado.
+- **Proyectos por misiones**: cada curso tiene proyectos que aparecen dentro del
+  camino, en la etapa que los desbloquea. Se hacen dentro de la plataforma, misión
+  a misión, y **cada misión se comprueba de verdad**: el comando que escribes, el
+  código que se ejecuta con casos de prueba, o la salida real que pegas desde tu
+  máquina, validada contra patrones. Solo lo que no se puede comprobar queda como
+  confirmación manual, y se marca como tal.
+- **Elegir lenguaje y framework** en los cursos de infraestructura (Docker,
+  Kubernetes, Jenkins, Terraform, Ansible, AWS…): los ejemplos, Dockerfiles,
+  comandos de prueba, puertos y rutas de salud pasan a ser los de tu stack.
+  Hay ocho: Java+Spring, Node+Express, Python+Django, Python+FastAPI, PHP+Laravel,
+  Go, .NET y Ruby+Rails.
 - **Comunidad**: preguntas, debates y recursos por curso y por lección; respuestas,
   votos, respuesta aceptada, búsqueda y filtros. Admite bloques de código.
 - **Ranking** semanal y global.
@@ -124,8 +147,8 @@ respuesta y terminal simulada con salida real.
 - **XP, racha diaria y objetivo diario** (50 XP).
 - **Tema Sistema, Claro u Oscuro.** Por defecto sigue al del sistema operativo.
   Solo con la sesión iniciada se puede cambiar (en **Ajustes → Apariencia** o en
-  el menú del botón de tema de la barra superior, con las mismas tres opciones) y la elección se guarda en la cuenta; sin sesión
-  (portada, invitados) siempre se usa el del sistema. El predeterminado está en
+  el menú del botón de tema de la barra superior, con las mismas tres opciones) y la elección se guarda en la cuenta; en la
+  pantalla de acceso siempre se usa el del sistema. El predeterminado está en
   `F.TEMA_PREDETERMINADO` (`public/js/nucleo.js`).
 - **Reiniciar un curso**: desde la página del curso o en **Ajustes → Reiniciar un
   curso**, lo deja como si nunca se hubiera empezado ni abierto (lecciones, XP,
@@ -147,7 +170,10 @@ respuesta y terminal simulada con salida real.
   al terminar la última lección, en la página del curso y en el perfil; quien ya
   había completado cursos lo recibe al entrar. Reiniciar el curso lo retira.
 - **Búsqueda global** con `Ctrl + K` (lecciones, unidades y conceptos clave).
-- Diseño adaptado a móvil, con barra de navegación inferior.
+- **Cerrar sesión** a un clic en la barra superior, siempre con confirmación.
+- Diseño revisado en diez resoluciones, de 320×568 a 1920×1080: la ventana no se
+  desplaza, lo hace el contenido, con la cabecera fija arriba y, en móvil, la
+  barra de navegación abajo.
 
 ### Tu progreso anterior
 
@@ -216,7 +242,14 @@ todos los cursos.
 | GET | `/api/yo` | perfil y progreso de la sesión |
 | POST | `/api/progreso` | registrar una lección terminada |
 | POST | `/api/importar` | importar progreso previo |
-| POST | `/api/perfil` | editar nombre, bio, color y tema (`sistema`, `claro` u `oscuro`) |
+| POST | `/api/perfil` | editar nombre, bio, color, tema, fecha de nacimiento, país, foto y stack |
+| POST | `/api/correo/codigo`, `/api/correo/verificar`, `/api/correo/quitar` | correo verificado por código |
+| POST | `/api/clave/olvidada`, `/api/clave/restablecer`, `/api/clave/cambiar` | contraseña |
+| POST | `/api/cuenta/borrar` | borrar la cuenta (pide contraseña y usuario) |
+| POST | `/api/proyecto/paso` | comprobar una misión de un proyecto |
+| POST | `/api/proyecto` | entregar un proyecto (se revisan todas sus misiones) |
+| POST | `/api/examen` | examen de una unidad |
+| GET | `/api/lenguajes` · POST `/api/ejecutar`, `/api/ejercicio` | ejecución real de código |
 | GET | `/api/perfil/:usuario` | perfil público |
 | GET | `/api/ranking?rango=semana\|global` | ranking |
 | GET/POST | `/api/comunidad` | listar (filtros `curso`, `leccion`, `q`, `orden`) y publicar |
@@ -225,6 +258,25 @@ todos los cursos.
 | POST | `/api/progreso/reiniciar` | reiniciar un curso (`{ cursoId }`); retira su certificado |
 | GET | `/api/certificados/:codigo` | verificar un certificado (público) |
 | GET | `/api/estado` | salud (lo usa el healthcheck) |
+
+---
+
+## Correo saliente
+
+Los códigos de verificación y de recuperación se mandan con un cliente SMTP
+propio (`server/correo.js`, sin dependencias). Se configura con variables de
+entorno:
+
+| Variable | |
+|---|---|
+| `CATAPPA_SMTP_HOST` | servidor, por ejemplo `smtp.gmail.com` |
+| `CATAPPA_SMTP_PUERTO` | `465` (TLS directo) o `587` (STARTTLS). Por defecto 587 |
+| `CATAPPA_SMTP_USUARIO` / `CATAPPA_SMTP_CLAVE` | credenciales (en Gmail, una contraseña de aplicación) |
+| `CATAPPA_SMTP_DESDE` | remitente; por defecto, el usuario |
+
+**Sin configurar nada funciona igual**: en ese caso el mensaje se guarda en
+`datos/correos/` y el código se enseña en la propia pantalla, avisando de que es
+el modo local. Así una instalación personal no se queda a medias.
 
 ---
 

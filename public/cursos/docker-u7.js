@@ -54,13 +54,16 @@ docker network rm lab</div>
      <p><code>inspect</code> es el que usarás para depurar: te dice exactamente qué contenedores están en esa red. Si tu API no encuentra la base de datos, es lo primero que compruebas.</p>`},
 
  {t:"info", eti:"Segmentar", h:"La arquitectura que debes saber dibujar",
-  c:`<div class="diag">  Internet
-     |
- [ nginx ]  ---- red "frontend"
-     |
- [  api  ]  ---- en AMBAS redes
-     |
- [  db   ]  ---- red "backend" (internal: true)</div>
+  c:`<div class="dg">
+       <div class="dg-tit">qué red ve cada servicio</div>
+       <div class="dg-vert">
+         <div class="dg-caja base">Internet</div>
+         <div class="dg-caja acento doble">nginx<small>red «frontend»</small></div>
+         <div class="dg-caja doble">api<small>en las dos redes: es el puente</small></div>
+         <div class="dg-caja ok doble">db<small>red «backend», con internal: true</small></div>
+       </div>
+       <div class="dg-nota">la base de datos no tiene ninguna salida a internet: solo la alcanza la api</div>
+     </div>
      <div class="termbox">networks:
   frontend:
   backend:

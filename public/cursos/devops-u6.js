@@ -183,11 +183,7 @@ SLA  -> lo que prometes (contrato) 99,5%</div>`},
   why:"Confundirlas es muy común. Tenerlas claras en una entrevista de SRE/DevOps es obligatorio."},
 
  {t:"info", eti:"Hazlo tangible", h:"Cuánto es un 99,9%",
-  c:`<div class="diag">SLO        caida permitida al mes (30 dias)
-99%        7 h 12 min
-99,9%      43 min
-99,99%     4 min 19 s
-99,999%    26 s</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>SLO</td><td>caida permitida al mes (30 dias)</td></tr><tr><td>99%</td><td>7 h 12 min</td></tr><tr><td>99,9%</td><td>43 min</td></tr><tr><td>99,99%</td><td>4 min 19 s</td></tr><tr><td>99,999%</td><td>26 s</td></tr></tbody></table></div>
      <p>Cada «nueve» extra cuesta mucho más en ingeniería. Por eso el SLO se elige según lo que <b>de verdad necesita el negocio</b>, no el más alto posible.</p>`},
 
  {t:"opcion", p:"Con un SLO del 99,9% mensual, ¿cuánto tiempo de caída te puedes permitir aproximadamente al mes?",

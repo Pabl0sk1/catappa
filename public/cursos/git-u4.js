@@ -43,7 +43,7 @@ pasos:[
 
  {t:"info", eti:"HEAD otra vez", h:"HEAD apunta a la rama en la que estás",
   c:`<p>¿Cómo sabe Git en qué rama estás? Por <b>HEAD</b>: normalmente HEAD no apunta a un commit directamente, sino a una rama, y la rama apunta al commit.</p>
-     <div class="diag">HEAD --> main --> 9f3c</div>
+     <div class="dg"><div class="dg-flujo"><div class="dg-caja acento">HEAD</div><div class="dg-caja">main</div><div class="dg-caja ok">9f3c</div></div></div>
      <p>Cuando haces commit, avanza la rama a la que apunta HEAD. Por eso es tan importante saber en qué rama estás antes de hacer commit: <code>git status</code> te lo dice en la primera línea.</p>`},
 
  {t:"par", p:"Empareja cada concepto con su definición",

@@ -75,20 +75,11 @@ pasos:[
   c:`<p>Comunicar dos programas en continentes distintos es un problema enorme. Se divide en <b>capas</b>: cada una se ocupa de una parte y usa los servicios de la de abajo, sin preocuparse de cómo funcionan.</p>
      <p>Por ejemplo, HTTP no sabe si viajas por fibra, Wi-Fi o 5G. Solo le pide a TCP «entrega estos bytes». Y TCP le pide a IP «lleva este paquete a esta dirección».</p>`},
  {t:"info", eti:"El modelo teórico", h:"Las 7 capas de OSI",
-  c:`<div class="diag">7 Aplicacion     HTTP, DNS, SSH, SMTP      lo que usan los programas
-6 Presentacion   formato, cifrado          (en la practica, dentro de la 7)
-5 Sesion         mantener dialogos         (en la practica, dentro de la 7)
-4 Transporte     TCP, UDP, puertos         de programa a programa
-3 Red            IP, routers               de maquina a maquina, entre redes
-2 Enlace         Ethernet, MAC, switches   dentro de la misma red local
-1 Fisica         cables, radio, senales    bits por el medio fisico</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>7 Aplicacion</td><td>HTTP, DNS, SSH, SMTP</td><td>lo que usan los programas</td></tr><tr><td>6 Presentacion</td><td>formato, cifrado</td><td>(en la practica, dentro de la 7)</td></tr><tr><td>5 Sesion</td><td>mantener dialogos</td><td>(en la practica, dentro de la 7)</td></tr><tr><td>4 Transporte</td><td>TCP, UDP, puertos</td><td>de programa a programa</td></tr><tr><td>3 Red</td><td>IP, routers</td><td>de maquina a maquina, entre redes</td></tr><tr><td>2 Enlace</td><td>Ethernet, MAC, switches</td><td>dentro de la misma red local</td></tr><tr><td>1 Fisica</td><td>cables, radio, senales</td><td>bits por el medio fisico</td></tr></tbody></table></div>
      <p>En el día a día se habla de «capa 2», «capa 3», «capa 4» y «capa 7». Un «balanceador de capa 4» reparte conexiones TCP; uno «de capa 7» entiende HTTP y puede decidir según la URL.</p>`},
  {t:"info", eti:"El modelo real", h:"TCP/IP: 4 capas",
   c:`<p>Internet usa en realidad el modelo <b>TCP/IP</b>, más simple:</p>
-     <div class="diag">Aplicacion   (OSI 5-7)   HTTP, DNS, TLS, SSH
-Transporte   (OSI 4)     TCP, UDP
-Internet     (OSI 3)     IP, ICMP
-Enlace       (OSI 1-2)   Ethernet, Wi-Fi</div>`},
+     <div class="dg dg-tabla-caja"><table class="dg-tabla"><thead><tr><th>Aplicacion</th><th>(OSI 5-7)</th><th>HTTP, DNS, TLS, SSH</th></tr></thead><tbody><tr><td>Transporte</td><td>(OSI 4)</td><td>TCP, UDP</td></tr><tr><td>Internet</td><td>(OSI 3)</td><td>IP, ICMP</td></tr><tr><td>Enlace</td><td>(OSI 1-2)</td><td>Ethernet, Wi-Fi</td></tr></tbody></table></div>`},
  {t:"orden", p:"Ordena las capas de OSI de abajo (1) a arriba (7)",
   items:["Física","Enlace","Red","Transporte","Sesión","Presentación","Aplicación"],
   why:"Truco para recordarlo: «Fui En Rojo Todo Sin Pensar Antes»."},

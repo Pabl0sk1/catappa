@@ -15,15 +15,16 @@ pasos:[
  {t:"info", eti:"Abrimos la caja", h:"Una imagen no es un bloque: es una pila",
   c:`<p>Hasta ahora has usado imágenes hechas por otros. Vamos a construir las tuyas, pero primero hay que entender cómo están hechas por dentro.</p>
      <p>Una imagen es una <b>pila de capas</b>, una encima de otra, todas de <b>solo lectura</b>:</p>
-     <div class="diag">+--------------------------------+
-| capa de escritura              | <- la pone el CONTENEDOR al arrancar
-+================================+    (se borra con el)
-| COPY app.jar                   | \\
-+--------------------------------+  |
-| RUN apt-get install curl       |  |  LA IMAGEN
-+--------------------------------+  |  (solo lectura)
-| FROM eclipse-temurin:21-jre    | /
-+--------------------------------+</div>
+     <div class="dg">
+       <div class="dg-tit">capas de una imagen y del contenedor</div>
+       <div class="dg-pila">
+         <div class="dg-caja aviso doble">capa de escritura<small>la añade el contenedor al arrancar, y se borra con él</small></div>
+         <div class="dg-caja acento">COPY app.jar</div>
+         <div class="dg-caja acento">RUN apt-get install curl</div>
+         <div class="dg-caja acento">FROM eclipse-temurin:21-jre</div>
+       </div>
+       <div class="dg-leyenda"><span><i class="acento"></i>la imagen: solo lectura, compartida</span><span><i class="aviso"></i>lo que se pierde al borrar el contenedor</span></div>
+     </div>
      <p>Cada instrucción que escribas en el Dockerfile y que modifique ficheros <b>añade una capa nueva</b> encima.</p>`},
 
  {t:"info", eti:"Tres consecuencias", h:"Por qué esto importa tanto",

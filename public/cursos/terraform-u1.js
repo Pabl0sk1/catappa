@@ -73,12 +73,7 @@ titulo:"Tu primera infraestructura",
 claves:["Un proyecto es una carpeta con ficheros .tf","El bloque terraform fija versiones; provider configura el proveedor","Un recurso tiene tipo y nombre local: aws_instance.web"],
 pasos:[
  {t:"info", eti:"Manos a la obra", h:"Estructura mínima",
-  c:`<div class="diag">infra/
-  versions.tf    versiones de Terraform y providers
-  providers.tf   configuracion del provider
-  main.tf        recursos
-  variables.tf   entradas
-  outputs.tf     salidas</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">infra/</div><table class="dg-tabla"><tbody><tr><td>versions.tf</td><td>versiones de Terraform y providers</td></tr><tr><td>providers.tf</td><td>configuracion del provider</td></tr><tr><td>main.tf</td><td>recursos</td></tr><tr><td>variables.tf</td><td>entradas</td></tr><tr><td>outputs.tf</td><td>salidas</td></tr></tbody></table></div>
      <div class="termbox">terraform {
   required_version = "&gt;= 1.9"
   required_providers {

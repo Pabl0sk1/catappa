@@ -124,10 +124,7 @@ titulo:"Migraciones con Flyway",
 claves:["Flyway aplica scripts SQL versionados al arrancar: V1__, V2__...","Tabla flyway_schema_history registra lo aplicado","Nunca edites una migración aplicada; crea una nueva"],
 pasos:[
  {t:"info", eti:"Esquema versionado", h:"Flyway",
-  c:`<div class="diag">src/main/resources/db/migration/
-  V1__crear_tareas.sql
-  V2__anadir_fecha_limite.sql
-  V3__indice_tareas_hecha.sql</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">src/main/resources/db/migration/</span></div><div class="rama" style="--n:1"><span class="nom">V1__crear_tareas.sql</span></div><div class="rama" style="--n:1"><span class="nom">V2__anadir_fecha_limite.sql</span></div><div class="rama" style="--n:1"><span class="nom">V3__indice_tareas_hecha.sql</span></div></div>
      <div class="termbox">-- V1__crear_tareas.sql
 CREATE TABLE tareas (
     id     bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

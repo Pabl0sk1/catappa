@@ -15,11 +15,7 @@ pasos:[
  {t:"info", eti:"El problema", h:"Un job por rama no escala",
   c:`<p>Hasta ahora has creado un job que construye una rama. Pero en un equipo hay muchas ramas a la vez: cada persona trabaja en la suya y abre un <b>Pull Request</b> (una propuesta de cambio) para fusionarla.</p>
      <p>Crear a mano un job por rama sería imposible de mantener. Para eso existe el <b>Multibranch Pipeline</b>: Jenkins mira el repositorio y <b>crea un job automáticamente</b> para cada rama y cada Pull Request que tenga Jenkinsfile. Cuando una rama se borra, su job desaparece.</p>
-     <div class="diag">api-tareas (Multibranch Pipeline)
-├── main            #212 ✔
-├── feature/login   #7   ✔
-├── PR-58           #3   ✘
-└── PR-61           #1   ▶ en curso</div>`},
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom">api-tareas (Multibranch Pipeline)</span></div><div class="rama" style="--n:1"><span class="nom">main</span><span class="coment">#212 ✔</span></div><div class="rama" style="--n:1"><span class="nom">feature/login</span><span class="coment">#7   ✔</span></div><div class="rama" style="--n:1"><span class="nom">PR-58</span><span class="coment">#3   ✘</span></div><div class="rama" style="--n:1"><span class="nom">PR-61</span><span class="coment">#1   ▶ en curso</span></div></div>`},
  {t:"opcion", p:"¿Qué hace un Multibranch Pipeline?",
   ops:["Ejecutar varias etapas a la vez","Crear y mantener automáticamente un job por cada rama y Pull Request con Jenkinsfile","Fusionar ramas","Instalar plugins"],
   ok:1, why:"Descubre las ramas solo: no hay que crear ni borrar jobs a mano."},
@@ -46,12 +42,7 @@ pasos:[
   c:`<p>Cuando una empresa tiene veinte servicios Java, sus Jenkinsfiles son casi idénticos. Si hay que cambiar algo (por ejemplo, añadir un análisis de seguridad), habría que tocar veinte repositorios.</p>
      <p>La solución es una <b>librería compartida</b> (<i>shared library</i>): un repositorio aparte con el pipeline común, que los demás proyectos usan.</p>`},
  {t:"info", eti:"Cómo es", h:"Estructura de una librería",
-  c:`<div class="diag">jenkins-comun/                 (repositorio de la librería)
-├── vars/
-│   └── pipelineJava.groovy    paso global: se llama como pipelineJava(...)
-├── src/
-│   └── com/empresa/Util.groovy  clases para lógica más compleja
-└── resources/                 ficheros de apoyo</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">jenkins-comun/</span><span class="coment">(repositorio de la librería)</span></div><div class="rama" style="--n:1"><span class="nom carpeta">vars/</span></div><div class="rama" style="--n:2"><span class="nom">pipelineJava.groovy</span><span class="coment">paso global: se llama como pipelineJava(...)</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/</span></div><div class="rama" style="--n:2"><span class="nom">com/empresa/Util.groovy</span><span class="coment">clases para lógica más compleja</span></div><div class="rama" style="--n:1"><span class="nom carpeta">resources/</span><span class="coment">ficheros de apoyo</span></div></div>
      <div class="termbox">// Jenkinsfile de cada servicio: dos líneas
 @Library('jenkins-comun@v2') _
 pipelineJava(imagen: 'ghcr.io/empresa/pagos')</div>

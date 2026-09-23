@@ -32,9 +32,7 @@ titulo:"Rendimiento y SEO",
 claves:["Core Web Vitals: LCP (carga), INP (respuesta) y CLS (estabilidad)","Menos bytes: imágenes optimizadas (AVIF, WebP), CSS y JS mínimos, caché y CDN","SEO: títulos, descripciones, HTML semántico, URLs limpias y páginas rápidas"],
 pasos:[
  {t:"info", eti:"Rápida y encontrable", h:"Core Web Vitals",
-  c:`<div class="diag">LCP  Largest Contentful Paint   &lt; 2,5 s   cuanto tarda en verse lo principal
-INP  Interaction to Next Paint  &lt; 200 ms  cuanto tarda en responder a un clic
-CLS  Cumulative Layout Shift    &lt; 0,1     cuanto "salta" el contenido al cargar</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>LCP</td><td>Largest Contentful Paint</td><td>&amp;lt; 2,5 s</td><td>cuanto tarda en verse lo principal</td></tr><tr><td>INP</td><td>Interaction to Next Paint</td><td>&amp;lt; 200 ms</td><td>cuanto tarda en responder a un clic</td></tr><tr><td>CLS</td><td>Cumulative Layout Shift</td><td>&amp;lt; 0,1</td><td>cuanto "salta" el contenido al cargar</td></tr></tbody></table></div>
      <ul><li>Imágenes en AVIF o WebP, con tamaño adecuado y <code>width</code>/<code>height</code> (evitan saltos).</li>
      <li>Precargar la fuente y la imagen principales; el resto, diferido.</li>
      <li>Menos JavaScript y dividido por rutas.</li>

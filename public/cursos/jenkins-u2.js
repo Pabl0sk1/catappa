@@ -104,13 +104,7 @@ claves:["JENKINS_HOME es la carpeta con todo el estado: configuración, jobs, hi
 pasos:[
  {t:"info", eti:"El disco de Jenkins", h:"Una carpeta con todo",
   c:`<p>Jenkins no usa una base de datos: guarda todo en ficheros dentro de una carpeta llamada <b>JENKINS_HOME</b>. Dentro hay:</p>
-     <div class="diag">JENKINS_HOME/
-├── config.xml          configuración general
-├── jobs/               cada job y el historial de sus builds
-├── plugins/            los plugins instalados
-├── credentials.xml     contraseñas y tokens (cifrados)
-├── secrets/            las claves para descifrarlos
-└── workspace/          carpetas de trabajo de los builds</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">JENKINS_HOME/</span></div><div class="rama" style="--n:1"><span class="nom">config.xml</span><span class="coment">configuración general</span></div><div class="rama" style="--n:1"><span class="nom carpeta">jobs/</span><span class="coment">cada job y el historial de sus builds</span></div><div class="rama" style="--n:1"><span class="nom carpeta">plugins/</span><span class="coment">los plugins instalados</span></div><div class="rama" style="--n:1"><span class="nom">credentials.xml</span><span class="coment">contraseñas y tokens (cifrados)</span></div><div class="rama" style="--n:1"><span class="nom carpeta">secrets/</span><span class="coment">las claves para descifrarlos</span></div><div class="rama" style="--n:1"><span class="nom carpeta">workspace/</span><span class="coment">carpetas de trabajo de los builds</span></div></div>
      <p>Si usas Docker, esta carpeta es <code>/var/jenkins_home</code> dentro del contenedor.</p>`},
  {t:"opcion", p:"¿Dónde guarda Jenkins la lista de jobs y el historial de builds?",
   ops:["En una base de datos PostgreSQL","En ficheros dentro de la carpeta JENKINS_HOME","En GitHub","En la memoria del navegador"],

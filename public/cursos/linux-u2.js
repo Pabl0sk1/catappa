@@ -15,20 +15,7 @@ pasos:[
   c:`<p>En Linux hay <b>un único árbol</b> de directorios que empieza en la <b>raíz</b>, escrita como una barra: <code>/</code>. Todos los discos, memorias USB y carpetas de red se «enganchan» en algún punto de ese árbol (se dice que se <b>montan</b>).</p>
      <p>La organización sigue un estándar, el <b>FHS</b> (Filesystem Hierarchy Standard), así que un Ubuntu y un Red Hat se parecen mucho por dentro.</p>`},
  {t:"info", eti:"El mapa", h:"Los directorios que importan",
-  c:`<div class="diag">/
-├── bin, usr/bin   programas (ls, cp, bash...)
-├── sbin           programas de administracion
-├── etc            CONFIGURACION del sistema y los servicios
-├── home           carpetas personales: /home/pablo
-├── root           carpeta personal del usuario root
-├── var            datos que cambian: logs (/var/log), bases de datos (/var/lib)
-├── tmp            temporales (se borran al reiniciar)
-├── opt            software instalado a mano
-├── srv            datos que sirve el servidor (webs, ficheros)
-├── dev            dispositivos (discos: /dev/sda)
-├── proc, sys      ventanas al kernel (no son ficheros reales)
-├── mnt, media     puntos de montaje de discos
-└── boot           el kernel y el arranque</div>`},
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">/</span></div><div class="rama" style="--n:1"><span class="nom">bin, usr/bin</span><span class="coment">programas (ls, cp, bash...)</span></div><div class="rama" style="--n:1"><span class="nom">sbin</span><span class="coment">programas de administracion</span></div><div class="rama" style="--n:1"><span class="nom">etc</span><span class="coment">CONFIGURACION del sistema y los servicios</span></div><div class="rama" style="--n:1"><span class="nom">home</span><span class="coment">carpetas personales: /home/pablo</span></div><div class="rama" style="--n:1"><span class="nom">root</span><span class="coment">carpeta personal del usuario root</span></div><div class="rama" style="--n:1"><span class="nom">var</span><span class="coment">datos que cambian: logs (/var/log), bases de datos (/var/lib)</span></div><div class="rama" style="--n:1"><span class="nom">tmp</span><span class="coment">temporales (se borran al reiniciar)</span></div><div class="rama" style="--n:1"><span class="nom">opt</span><span class="coment">software instalado a mano</span></div><div class="rama" style="--n:1"><span class="nom">srv</span><span class="coment">datos que sirve el servidor (webs, ficheros)</span></div><div class="rama" style="--n:1"><span class="nom">dev</span><span class="coment">dispositivos (discos: /dev/sda)</span></div><div class="rama" style="--n:1"><span class="nom">proc, sys</span><span class="coment">ventanas al kernel (no son ficheros reales)</span></div><div class="rama" style="--n:1"><span class="nom">mnt, media</span><span class="coment">puntos de montaje de discos</span></div><div class="rama" style="--n:1"><span class="nom">boot</span><span class="coment">el kernel y el arranque</span></div></div>`},
  {t:"par", p:"Empareja cada directorio con lo que contiene",
   pares:[["/etc","Configuración del sistema y de los servicios"],["/var/log","Los ficheros de log"],["/home","Las carpetas personales de los usuarios"],["/tmp","Ficheros temporales"],["/dev","Los dispositivos, como los discos"]],
   why:"Estos cinco los usarás a diario. Saber dónde buscar es media solución de cualquier problema."},

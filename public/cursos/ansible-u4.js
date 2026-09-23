@@ -12,14 +12,7 @@ titulo:"Roles y colecciones",
 claves:["Un rol empaqueta tareas, handlers, plantillas, ficheros y variables por defecto","Los playbooks se vuelven cortos: qué roles aplicar a qué grupos","Colecciones y Ansible Galaxy para reutilizar roles y módulos de la comunidad"],
 pasos:[
  {t:"info", eti:"Reutilizar", h:"Estructura de un rol",
-  c:`<div class="diag">roles/nginx/
-  tasks/main.yml         tareas
-  handlers/main.yml      handlers
-  templates/sitio.conf.j2
-  files/
-  defaults/main.yml      variables por defecto (baja prioridad)
-  vars/main.yml          variables internas
-  meta/main.yml          dependencias y metadatos</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">roles/nginx/</span></div><div class="rama" style="--n:1"><span class="nom">tasks/main.yml</span><span class="coment">tareas</span></div><div class="rama" style="--n:1"><span class="nom">handlers/main.yml</span><span class="coment">handlers</span></div><div class="rama" style="--n:1"><span class="nom">templates/sitio.conf.j2</span></div><div class="rama" style="--n:1"><span class="nom carpeta">files/</span></div><div class="rama" style="--n:1"><span class="nom">defaults/main.yml</span><span class="coment">variables por defecto (baja prioridad)</span></div><div class="rama" style="--n:1"><span class="nom">vars/main.yml</span><span class="coment">variables internas</span></div><div class="rama" style="--n:1"><span class="nom">meta/main.yml</span><span class="coment">dependencias y metadatos</span></div></div>
      <div class="termbox"># sitio.yml
 - hosts: web
   become: true

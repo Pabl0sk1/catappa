@@ -45,15 +45,7 @@ pasos:[
 curl https://start.spring.io/starter.zip -d dependencies=web,data-jpa,postgresql,validation,actuator \\
      -d javaVersion=21 -d groupId=com.catappa -d artifactId=tareas-api -o tareas-api.zip</div>`},
  {t:"info", eti:"Lo que obtienes", h:"Estructura del proyecto",
-  c:`<div class="diag">tareas-api/
-  mvnw, mvnw.cmd, pom.xml
-  src/main/java/com/catappa/tareasapi/
-      TareasApiApplication.java      &lt;- punto de entrada
-  src/main/resources/
-      application.properties         &lt;- configuracion
-      static/  templates/
-  src/test/java/com/catappa/tareasapi/
-      TareasApiApplicationTests.java</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">tareas-api/</span></div><div class="rama" style="--n:1"><span class="nom">mvnw, mvnw.cmd, pom.xml</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/main/java/com/catappa/tareasapi/</span></div><div class="rama" style="--n:3"><span class="nom">TareasApiApplication.java</span><span class="coment">&amp;lt;- punto de entrada</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/main/resources/</span></div><div class="rama" style="--n:3"><span class="nom">application.properties</span><span class="coment">&amp;lt;- configuracion</span></div><div class="rama" style="--n:3"><span class="nom carpeta">static/</span><span class="coment">templates/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/test/java/com/catappa/tareasapi/</span></div><div class="rama" style="--n:3"><span class="nom">TareasApiApplicationTests.java</span></div></div>
      <div class="termbox">@SpringBootApplication
 public class TareasApiApplication {
     public static void main(String[] args) {

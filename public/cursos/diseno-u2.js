@@ -12,11 +12,7 @@ titulo:"Vertical y horizontal",
 claves:["Vertical: una máquina más grande; simple pero con techo y punto único de fallo","Horizontal: más máquinas iguales detrás de un balanceador","Para escalar en horizontal, los servidores no deben guardar estado"],
 pasos:[
  {t:"info", eti:"Crecer", h:"Dos formas de escalar",
-  c:`<div class="diag">VERTICAL                          HORIZONTAL
-[ servidor enorme ]               usuarios -&gt; balanceador -&gt; [app] [app] [app] [app]
-+ nada que cambiar                + casi sin limite, tolera fallos
-- techo fisico y precio           - la app no puede guardar estado en memoria
-- si cae, cae todo                - mas piezas que operar</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><thead><tr><th>VERTICAL</th><th>HORIZONTAL</th></tr></thead><tbody><tr><td>[ servidor enorme ]</td><td>usuarios -&amp;gt; balanceador -&amp;gt; [app] [app] [app] [app]</td></tr><tr><td>+ nada que cambiar</td><td>+ casi sin limite, tolera fallos</td></tr><tr><td>- techo fisico y precio</td><td>- la app no puede guardar estado en memoria</td></tr><tr><td>- si cae, cae todo</td><td>- mas piezas que operar</td></tr></tbody></table></div>
      <p><b>Sin estado</b> significa que cualquier réplica puede atender cualquier petición: la sesión va en un token o en Redis, los ficheros en S3, los datos en la base de datos.</p>`},
  {t:"par", p:"Empareja cada estado con dónde debe vivir para escalar en horizontal",
   pares:[["Sesión del usuario","Token (JWT) o Redis compartido"],["Ficheros subidos","Almacenamiento de objetos (S3)"],["Datos de negocio","Base de datos"],["Caché de consultas","Caché compartida (Redis)"],["Tareas en curso","Cola de mensajes"]],

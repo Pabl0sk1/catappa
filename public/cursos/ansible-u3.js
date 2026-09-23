@@ -12,15 +12,7 @@ titulo:"Variables, facts y plantillas",
 claves:["Variables en group_vars, host_vars, vars del play y la línea de comandos","Facts: datos recogidos del servidor (sistema, memoria, IPs)","Plantillas Jinja2 con {{ variable }}, condicionales y bucles"],
 pasos:[
  {t:"info", eti:"Parametrizar", h:"Variables y plantillas",
-  c:`<div class="diag">infra/
-  inventario.ini
-  group_vars/
-    web.yml          puerto_api: 8080, dominio: tareas.catappa.dev
-    all.yml          zona_horaria: Europe/Madrid
-  host_vars/
-    web1.catappa.dev.yml
-  templates/
-    tareas.conf.j2</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">infra/</span></div><div class="rama" style="--n:1"><span class="nom">inventario.ini</span></div><div class="rama" style="--n:1"><span class="nom carpeta">group_vars/</span></div><div class="rama" style="--n:2"><span class="nom">web.yml</span><span class="coment">puerto_api: 8080, dominio: tareas.catappa.dev</span></div><div class="rama" style="--n:2"><span class="nom">all.yml</span><span class="coment">zona_horaria: Europe/Madrid</span></div><div class="rama" style="--n:1"><span class="nom carpeta">host_vars/</span></div><div class="rama" style="--n:2"><span class="nom">web1.catappa.dev.yml</span></div><div class="rama" style="--n:1"><span class="nom carpeta">templates/</span></div><div class="rama" style="--n:2"><span class="nom">tareas.conf.j2</span></div></div>
      <div class="termbox"># templates/tareas.conf.j2
 server {
     listen 443 ssl;
@@ -85,17 +77,7 @@ titulo:"Precedencia de variables y group_vars",
 claves:["group_vars/ y host_vars/ junto al inventario organizan las variables","Hay más de 20 niveles de precedencia; -e (extra vars) siempre gana","Defaults del rol: el valor más fácil de sobrescribir"],
 pasos:[
  {t:"info", eti:"¿Qué valor gana?", h:"Organizar variables",
-  c:`<div class="diag">inventario/
-  produccion.ini
-  group_vars/
-    all.yml          # comun a todo
-    web.yml          # solo grupo web
-  host_vars/
-    web1.yml         # solo web1
-
-de menos a mas prioridad (simplificado):
-  defaults del rol  &lt;  group_vars/all  &lt;  group_vars/web  &lt;  host_vars/web1
-  &lt;  vars del play  &lt;  set_fact  &lt;  -e en la linea de comandos</div>`},
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">inventario/</span></div><div class="rama" style="--n:1"><span class="nom">produccion.ini</span></div><div class="rama" style="--n:1"><span class="nom carpeta">group_vars/</span></div><div class="rama" style="--n:2"><span class="nom">all.yml</span><span class="coment"># comun a todo</span></div><div class="rama" style="--n:2"><span class="nom">web.yml</span><span class="coment"># solo grupo web</span></div><div class="rama" style="--n:1"><span class="nom carpeta">host_vars/</span></div><div class="rama" style="--n:2"><span class="nom">web1.yml</span><span class="coment"># solo web1</span></div><div class="rama" style="--n:0"><span class="nom">de menos a mas prioridad (simplificado):</span></div><div class="rama" style="--n:1"><span class="nom">defaults del rol</span><span class="coment">&amp;lt;  group_vars/all  &amp;lt;  group_vars/web  &amp;lt;  host_vars/web1</span></div><div class="rama" style="--n:1"><span class="nom">&amp;lt;</span><span class="coment">vars del play  &amp;lt;  set_fact  &amp;lt;  -e en la linea de comandos</span></div></div>`},
  {t:"orden", p:"Ordena de MENOR a MAYOR prioridad",
   items:["defaults/ del rol","group_vars/all","group_vars del grupo concreto","host_vars del host","Variables extra con -e"],
   why:"Regla práctica: pon los valores por defecto en defaults del rol y sobrescribe en group_vars."},

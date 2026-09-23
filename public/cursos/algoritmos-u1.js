@@ -36,13 +36,7 @@ claves:["O grande describe cómo crece el coste cuando crece la entrada (n)","Se
 pasos:[
  {t:"info", eti:"Medir el crecimiento", h:"Big O",
   c:`<p>No medimos segundos (dependen del ordenador), sino <b>cómo crece</b> el número de operaciones cuando la entrada <code>n</code> crece.</p>
-     <div class="diag">n = 1.000.000
-O(1)        1              acceder a array[i], buscar en HashMap
-O(log n)    ~20            busqueda binaria
-O(n)        1.000.000      recorrer una lista
-O(n log n)  ~20.000.000    buena ordenacion (merge sort, Arrays.sort)
-O(n²)       10^12          dos bucles anidados: ¡horas!
-O(2^n)      imposible      probar todos los subconjuntos</div>`},
+     <div class="dg dg-tabla-caja"><div class="dg-tit">n = 1.000.000</div><table class="dg-tabla"><tbody><tr><td>O(1)</td><td>1</td><td>acceder a array[i], buscar en HashMap</td></tr><tr><td>O(log n)</td><td>~20</td><td>busqueda binaria</td></tr><tr><td>O(n)</td><td>1.000.000</td><td>recorrer una lista</td></tr><tr><td>O(n log n)</td><td>~20.000.000</td><td>buena ordenacion (merge sort, Arrays.sort)</td></tr><tr><td>O(n²)</td><td>10^12</td><td>dos bucles anidados: ¡horas!</td></tr><tr><td>O(2^n)</td><td>imposible</td><td>probar todos los subconjuntos</td></tr></tbody></table></div>`},
  {t:"par", p:"Empareja cada operación con su complejidad",
   pares:[["Acceder a array[5]","O(1)"],["Búsqueda binaria en un array ordenado","O(log n)"],["Recorrer una lista una vez","O(n)"],["Ordenar con Arrays.sort","O(n log n)"],["Comparar cada elemento con todos los demás","O(n²)"]],
   why:"Memoriza este orden: es la base de cualquier discusión de eficiencia."},

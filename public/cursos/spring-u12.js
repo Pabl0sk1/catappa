@@ -12,12 +12,7 @@ titulo:"Capas y arquitectura hexagonal",
 claves:["Capas clásicas: controlador, servicio, repositorio","Hexagonal: el dominio en el centro, sin depender de frameworks; puertos y adaptadores","Las dependencias apuntan hacia el dominio"],
 pasos:[
  {t:"info", eti:"Organizar el código", h:"De capas a hexagonal",
-  c:`<div class="diag">CAPAS                          HEXAGONAL (puertos y adaptadores)
-controller                     adaptadores de entrada: REST, Kafka, CLI
-    |                                   |
-service                            [ DOMINIO + casos de uso ]  &lt;- sin Spring, sin JPA
-    |                                   |  puertos (interfaces)
-repository                     adaptadores de salida: JPA, cliente HTTP, correo</div>
+  c:`<div class="dg dg-tabla-caja"><table class="dg-tabla"><tbody><tr><td>CAPAS</td><td>HEXAGONAL (puertos y adaptadores)</td></tr><tr><td>controller</td><td>adaptadores de entrada: REST, Kafka, CLI</td></tr><tr><td>|</td><td>|</td></tr><tr><td>service</td><td>[ DOMINIO + casos de uso ]  &amp;lt;- sin Spring, sin JPA</td></tr><tr><td>|</td><td>|  puertos (interfaces)</td></tr><tr><td>repository</td><td>adaptadores de salida: JPA, cliente HTTP, correo</td></tr></tbody></table></div>
      <p>En hexagonal, el dominio define <b>puertos</b> (interfaces como <code>PedidoRepositorio</code> o <code>PasarelaPago</code>) y la infraestructura los implementa con <b>adaptadores</b>. Cambiar PostgreSQL por otro almacén o Stripe por otra pasarela no toca la lógica de negocio, y el dominio se prueba sin nada externo.</p>`},
  {t:"par", p:"Empareja cada pieza de la arquitectura hexagonal con su ejemplo",
   pares:[["Dominio","Pedido, con la regla «no se puede pagar dos veces»"],["Caso de uso","PagarPedido: orquesta el dominio y los puertos"],["Puerto de salida","Interfaz PasarelaPago"],["Adaptador de salida","StripePasarelaPago que llama a la API de Stripe"],["Adaptador de entrada","PedidoController REST"]],

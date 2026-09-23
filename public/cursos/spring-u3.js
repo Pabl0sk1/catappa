@@ -80,10 +80,7 @@ titulo:"Perfiles y orden de prioridad",
 claves:["Perfiles: application-dev.yml, application-prod.yml, activados con spring.profiles.active","Prioridad: argumentos > variables de entorno > ficheros de perfil > application.yml","Doce factores: la configuración viene del entorno; la misma imagen en todos los entornos"],
 pasos:[
  {t:"info", eti:"Por entorno", h:"Perfiles",
-  c:`<div class="diag">src/main/resources/
-  application.yml          comun a todos
-  application-dev.yml      base de datos local, logs en debug
-  application-prod.yml     pool mas grande, logs en JSON</div>
+  c:`<div class="dg dg-tabla-caja"><div class="dg-tit">src/main/resources/</div><table class="dg-tabla"><thead><tr><th>application.yml</th><th>comun a todos</th></tr></thead><tbody><tr><td>application-dev.yml</td><td>base de datos local, logs en debug</td></tr><tr><td>application-prod.yml</td><td>pool mas grande, logs en JSON</td></tr></tbody></table></div>
      <div class="termbox">SPRING_PROFILES_ACTIVE=prod java -jar app.jar
 java -jar app.jar --spring.profiles.active=dev
 

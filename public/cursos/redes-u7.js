@@ -13,11 +13,7 @@ claves:["Cada router decide el siguiente salto con su tabla de rutas","Gana la r
 pasos:[
  {t:"info", eti:"Decidir el camino", h:"La tabla de rutas",
   c:`<p>Un router no conoce el camino completo: solo sabe a quién pasarle el paquete a continuación (el <b>siguiente salto</b>). Lo decide con su <b>tabla de rutas</b>:</p>
-     <div class="diag">destino          siguiente salto
-10.0.0.0/16      local (VPC)
-10.1.0.0/16      conexion con la otra VPC
-192.168.0.0/16   tunel VPN a la oficina
-0.0.0.0/0        puerta de salida a internet</div>
+     <div class="dg dg-tabla-caja"><table class="dg-tabla"><thead><tr><th>destino</th><th>siguiente salto</th></tr></thead><tbody><tr><td>10.0.0.0/16</td><td>local (VPC)</td></tr><tr><td>10.1.0.0/16</td><td>conexion con la otra VPC</td></tr><tr><td>192.168.0.0/16</td><td>tunel VPN a la oficina</td></tr><tr><td>0.0.0.0/0</td><td>puerta de salida a internet</td></tr></tbody></table></div>
      <p>Si varias rutas coinciden, gana la <b>más específica</b> (prefijo más largo). Un paquete a 10.0.5.3 coincide con 10.0.0.0/16 y con 0.0.0.0/0: gana /16.</p>`},
  {t:"opcion", p:"Una tabla tiene <code>10.0.0.0/8 → A</code>, <code>10.20.0.0/16 → B</code> y <code>0.0.0.0/0 → C</code>. ¿Por dónde va un paquete a 10.20.4.9?",
   ops:["A","B","C","Se descarta"],

@@ -67,14 +67,7 @@ titulo:"Estilos, estado global y arquitectura",
 claves:["Estilos: CSS Modules, Tailwind o CSS-in-JS; elige uno y sé coherente","Estado global solo para lo realmente global: Zustand o Redux Toolkit","Organiza por funcionalidad y separa componentes de presentación de la lógica"],
 pasos:[
  {t:"info", eti:"Decisiones", h:"Las piezas de una app real",
-  c:`<div class="diag">src/
-  app/            router, proveedores, layout
-  features/
-    tareas/       componentes, hooks (useTareas), api, tipos, tests
-    sesion/
-  shared/
-    ui/           Boton, Modal, Campo... (sin logica de negocio)
-    lib/          cliente http, utilidades</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">src/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">app/</span><span class="coment">router, proveedores, layout</span></div><div class="rama" style="--n:1"><span class="nom carpeta">features/</span></div><div class="rama" style="--n:2"><span class="nom carpeta">tareas/</span><span class="coment">componentes, hooks (useTareas), api, tipos, tests</span></div><div class="rama" style="--n:2"><span class="nom carpeta">sesion/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">shared/</span></div><div class="rama" style="--n:2"><span class="nom carpeta">ui/</span><span class="coment">Boton, Modal, Campo... (sin logica de negocio)</span></div><div class="rama" style="--n:2"><span class="nom carpeta">lib/</span><span class="coment">cliente http, utilidades</span></div></div>
      <div class="termbox">// estado global sencillo con Zustand
 const useCarrito = create&lt;Carrito&gt;(set =&gt; ({
   items: [],

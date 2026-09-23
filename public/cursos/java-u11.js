@@ -18,14 +18,7 @@ import java.util.List;
 import com.catappa.clientes.Cliente;
 
 public class PedidoService { ... }</div>
-     <div class="diag">mi-api/
-  pom.xml
-  src/main/java/com/catappa/
-      Aplicacion.java
-      pedidos/   Pedido.java  PedidoService.java  PedidoController.java
-      clientes/  Cliente.java ClienteService.java ...
-  src/main/resources/   application.yml
-  src/test/java/com/catappa/pedidos/  PedidoServiceTest.java</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">mi-api/</span></div><div class="rama" style="--n:1"><span class="nom">pom.xml</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/main/java/com/catappa/</span></div><div class="rama" style="--n:3"><span class="nom">Aplicacion.java</span></div><div class="rama" style="--n:3"><span class="nom carpeta">pedidos/</span><span class="coment">Pedido.java  PedidoService.java  PedidoController.java</span></div><div class="rama" style="--n:3"><span class="nom carpeta">clientes/</span><span class="coment">Cliente.java ClienteService.java ...</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/main/resources/</span><span class="coment">application.yml</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/test/java/com/catappa/pedidos/</span><span class="coment">PedidoServiceTest.java</span></div></div>
      <p>Agrupar por <b>funcionalidad</b> (pedidos, clientes) mantiene juntas las piezas que cambian a la vez. La alternativa por capa (controllers, services, repositories) dispersa cada cambio por todo el proyecto.</p>`},
  {t:"par", p:"Empareja cada carpeta con su contenido",
   pares:[["src/main/java","Código de la aplicación"],["src/main/resources","Configuración y ficheros estáticos"],["src/test/java","Pruebas"],["target/ (o build/)","Resultado de compilar: .class y el .jar"]],
@@ -145,9 +138,7 @@ class PedidoServiceTest {
   pares:[["@Mock","Crear un objeto falso de una dependencia"],["@InjectMocks","Crear la clase probada inyectándole los mocks"],["when(...).thenReturn(...)","Definir qué devuelve el mock"],["verify(...)","Comprobar que se llamó a un método"],["ArgumentCaptor","Capturar el argumento con el que se llamó"]],
   why:"La inyección por constructor hace las clases fáciles de probar con mocks."},
  {t:"info", eti:"Estrategia", h:"La pirámide de pruebas",
-  c:`<div class="diag">          /  E2E  \\          pocas: lentas y fragiles (navegador, sistema completo)
-         / integracion \\     algunas: con base de datos real (Testcontainers), @SpringBootTest
-        /   unitarias   \\    muchas: rapidas, aisladas, con mocks</div>
+  c:`<div class="dg dg-arbol"><div class="rama" style="--n:1"><span class="nom carpeta">/</span><span class="coment">E2E  \\          pocas: lentas y fragiles (navegador, sistema completo)</span></div><div class="rama" style="--n:1"><span class="nom">/ integracion \\</span><span class="coment">algunas: con base de datos real (Testcontainers), @SpringBootTest</span></div><div class="rama" style="--n:0"><span class="nom carpeta">/</span><span class="coment">unitarias   \\    muchas: rapidas, aisladas, con mocks</span></div></div>
      <p><b>Testcontainers</b> arranca un PostgreSQL real en Docker durante las pruebas: pruebas de integración fiables sin bases de datos compartidas.</p>`},
  {t:"opcion", p:"Quieres comprobar que tu consulta JPA personalizada funciona con PostgreSQL de verdad. ¿Qué prueba escribes?",
   ops:["Unitaria con un mock del repositorio","De integración con Testcontainers levantando PostgreSQL","Ninguna, la consulta se ve bien","Manual en producción"],

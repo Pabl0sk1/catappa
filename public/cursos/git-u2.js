@@ -27,10 +27,7 @@ git init
 
  {t:"info", eti:"La carpeta .git", h:"Ahí vive todo el historial",
   c:`<p>Dentro de <code>.git</code> está todo: los commits, las ramas, la configuración del repositorio, los remotos...</p>
-     <div class="diag">mi-api/
-├── .git/          <- EL REPOSITORIO (historial, ramas, config)
-├── src/           <- tu codigo (directorio de trabajo)
-└── pom.xml</div>
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">mi-api/</span></div><div class="rama" style="--n:1"><span class="nom carpeta">.git/</span><span class="coment">&lt;- EL REPOSITORIO (historial, ramas, config)</span></div><div class="rama" style="--n:1"><span class="nom carpeta">src/</span><span class="coment">&lt;- tu codigo (directorio de trabajo)</span></div><div class="rama" style="--n:1"><span class="nom">pom.xml</span></div></div>
      <div class="nota ojo"><b class="tit">Cuidado</b>Si borras la carpeta <code>.git</code>, <b>pierdes todo el historial</b> y la carpeta vuelve a ser una carpeta normal. No la toques a mano.</div>
      <p>Es oculta, así que para verla en Windows necesitas mostrar los elementos ocultos, o en la terminal: <code>ls -Force</code> (PowerShell) o <code>ls -la</code> (Git Bash).</p>`},
 

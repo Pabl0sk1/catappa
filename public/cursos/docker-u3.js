@@ -19,17 +19,7 @@ pasos:[
  {t:"info", eti:"La raíz", h:"En Linux no existe C:\\",
   c:`<p>En Windows cada disco es una letra: <code>C:\\</code>, <code>D:\\</code>. En Linux <b>todo</b> cuelga de un único punto de partida, la raíz, que se escribe con una barra: <code>/</code>.</p>
      <p>Y las barras van al revés que en Windows: <code>/usr/share/nginx/html</code>, no <code>C:\\usr\\share</code>.</p>
-     <div class="diag">/                 <- la raiz de todo
-├── bin           ejecutables basicos (ls, cat, sh...)
-├── etc           FICHEROS DE CONFIGURACION
-├── home          carpetas personales de usuarios
-├── opt           software opcional
-├── app           (por convencion) tu aplicacion
-├── tmp           temporales
-├── usr           programas y datos del sistema
-└── var
-    ├── log       LOGS
-    └── lib       DATOS de los servicios (ej: /var/lib/postgresql/data)</div>`},
+     <div class="dg dg-arbol"><div class="rama" style="--n:0"><span class="nom carpeta">/</span><span class="coment">&lt;- la raiz de todo</span></div><div class="rama" style="--n:1"><span class="nom">bin</span><span class="coment">ejecutables basicos (ls, cat, sh...)</span></div><div class="rama" style="--n:1"><span class="nom">etc</span><span class="coment">FICHEROS DE CONFIGURACION</span></div><div class="rama" style="--n:1"><span class="nom">home</span><span class="coment">carpetas personales de usuarios</span></div><div class="rama" style="--n:1"><span class="nom">opt</span><span class="coment">software opcional</span></div><div class="rama" style="--n:1"><span class="nom">app</span><span class="coment">(por convencion) tu aplicacion</span></div><div class="rama" style="--n:1"><span class="nom">tmp</span><span class="coment">temporales</span></div><div class="rama" style="--n:1"><span class="nom">usr</span><span class="coment">programas y datos del sistema</span></div><div class="rama" style="--n:1"><span class="nom">var</span></div><div class="rama" style="--n:2"><span class="nom">log</span><span class="coment">LOGS</span></div><div class="rama" style="--n:2"><span class="nom">lib</span><span class="coment">DATOS de los servicios (ej: /var/lib/postgresql/data)</span></div></div>`},
 
  {t:"par", p:"Empareja cada carpeta con lo que contiene",
   pares:[["/etc","Ficheros de configuración"],

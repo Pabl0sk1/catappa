@@ -90,11 +90,7 @@ pasos:[
 cd tareas-web
 npm install
 npm run dev          # http://localhost:5173 con recarga instantanea</div>
-     <div class="diag">tareas-web/
-  index.html            &lt;div id="root"&gt;&lt;/div&gt;
-  src/main.tsx          monta la aplicacion
-  src/App.tsx           componente principal
-  package.json  vite.config.ts</div>
+     <div class="dg dg-tabla-caja"><div class="dg-tit">tareas-web/</div><table class="dg-tabla"><tbody><tr><td>index.html</td><td>&amp;lt;div id="root"&amp;gt;&amp;lt;/div&amp;gt;</td></tr><tr><td>src/main.tsx</td><td>monta la aplicacion</td></tr><tr><td>src/App.tsx</td><td>componente principal</td></tr><tr><td>package.json</td><td>vite.config.ts</td></tr></tbody></table></div>
      <div class="termbox">// src/main.tsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
