@@ -6,7 +6,7 @@
    La línea VERSION la reescribe herramientas/indice.js en cada build: si
    cambia cualquier fichero, cambia la versión y el navegador ofrece actualizar.
    ===================================================================== */
-var VERSION = "catappa-a5d74cdd84";
+var VERSION = "catappa-e26a328107";
 var CARCASA = "carcasa-" + VERSION;
 var CONTENIDO = "contenido-" + VERSION;
 var FUENTES = "fuentes-v1";

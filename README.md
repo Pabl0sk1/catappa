@@ -10,8 +10,7 @@
 Plataforma para aprender tecnología desde cero hasta nivel maestro — Linux, Git y GitHub, Docker, Kubernetes, DevOps, Jenkins, Terraform, AWS, Redes, SQL y PostgreSQL, Java, Spring Boot, Python, HTML y CSS, JavaScript, TypeScript, React, Node.js, Seguridad web, Algoritmos y estructuras de datos, Diseño de sistemas, Observabilidad, Ansible, Apache Kafka, Redis, MongoDB y Go — con lecciones
 cortas estilo Duolingo, sonido, cuentas, comunidad de preguntas y respuestas,
 ranking, perfiles e insignias. Se instala como aplicación (PWA) y funciona sin
-conexión. Incluye además un **laboratorio de Docker** para practicar en la
-terminal de verdad con aplicaciones Spring Boot.
+conexión.
 
 El nombre juega con **`cat` + app** (el comando de Linux) y con la
 *Terminalia catappa*, el almendro tropical cuya hoja lleva **Cata**, la mascota.
@@ -159,58 +158,13 @@ hay un botón para marcar Docker hasta la **Unidad 2 · Lección 4**.
 
 ---
 
-## Laboratorio de Docker (opcional)
-
-El curso de Docker de la plataforma ya incluye todo el temario del laboratorio,
-también la **depuración de contenedores rotos** (unidad 9) y las **preguntas de
-entrevista** (unidad 10), así que **no es necesario** para aprender.
-
-En `laboratorio/` queda la práctica en la **terminal de verdad**: aplicaciones
-Spring Boot listas para construir y levantar (no hace falta tener Java ni Maven:
-se compilan dentro de Docker). Sirve si quieres teclear los comandos sobre un
-proyecto ya montado.
-
-Cada módulo tiene un `README.md` con teoría mínima, práctica guiada, ejercicios
-sin solución a la vista y preguntas de entrevista. Regla de oro: **no leas dos
-módulos seguidos sin ejecutar nada.**
-
-| # | Módulo | Qué aprendes | Tiempo |
-|---|--------|--------------|--------|
-| 00 | [Fundamentos](laboratorio/00-fundamentos/README.md) | Qué es un contenedor de verdad, VM vs contenedor, namespaces y cgroups, imagen vs contenedor, capas | 45 min |
-| 01 | [Comandos básicos](laboratorio/01-comandos/README.md) | `run`, `ps`, `exec`, `logs`, `stop`, `rm`, `images`, `pull`, flags que importan | 60 min |
-| 02 | [Linux esencial](laboratorio/02-linux/README.md) | El Linux que necesitas *dentro* del contenedor: filesystem, procesos, PID 1, usuarios, permisos, señales | 45 min |
-| 03 | [Dockerfile](laboratorio/03-dockerfile/README.md) | Todas las instrucciones, caché de capas, multi-stage, imagen Spring Boot de 900 MB → 200 MB | 2 h |
-| 04 | [YAML](laboratorio/04-yaml/README.md) | Sintaxis completa del YAML, los 5 errores que todo el mundo comete | 30 min |
-| 05 | [Docker Compose](laboratorio/05-compose/README.md) | `compose.yml` entero, API + Postgres + Adminer, `depends_on`, healthchecks, `.env`, perfiles | 2 h |
-| 06 | [Redes y volúmenes](laboratorio/06-redes-volumenes/README.md) | Bridge vs host vs none, DNS interno, named volumes vs bind mounts, backup de datos | 1 h |
-| 07 | [Servidor y despliegue](laboratorio/07-servidor/README.md) | Nginx como reverse proxy, desplegar en un VPS por SSH, `docker context`, systemd, registry, CI/CD con GitHub Actions | 1,5 h |
-| 08 | [Entrevista](laboratorio/08-entrevista/README.md) | 60 preguntas con respuesta, 8 escenarios de depuración, simulacro final | 1,5 h |
-
-Extra: [`laboratorio/cheatsheet.md`](laboratorio/cheatsheet.md) — una página con
-todo, para repasar antes de una entrevista.
-
-**Si solo tienes 4 horas:** módulos 03 (Dockerfile), 05 (Compose) y 08
-(preguntas), en ese orden, más el simulacro final del curso de Docker de la
-plataforma.
-
-Antes del módulo 05, crea el fichero de variables a partir de la plantilla (el
-`.env` real no se sube al repositorio, como explica el propio módulo):
-
-```powershell
-copy laboratorio\05-compose\.env.example laboratorio\05-compose\.env
-# y rellena, por ejemplo: POSTGRES_DB=tareas, POSTGRES_USER=tareas_user, POSTGRES_PASSWORD=tareas_pass
-```
-
-Comprobación previa:
+## Antes de empezar con Docker
 
 ```powershell
 docker --version
 docker compose version
 docker run hello-world    # debe imprimir "Hello from Docker!"
 ```
-
-Para limpiar lo del laboratorio, usa `docker compose down` dentro de cada
-módulo y borra por nombre (`docker rm -f NOMBRE`, `docker rmi app-simple:v1`).
 
 > ⚠️ Si tienes contenedores o volúmenes de otros proyectos, **no ejecutes
 > `docker system prune -a --volumes` ni `docker volume prune`**: borrarían sus
@@ -242,14 +196,12 @@ módulo y borra por nombre (`docker rm -f NOMBRE`, `docker rmi app-simple:v1`).
 │       ├── _catalogo.js  fichas de los cursos y rutas de carrera
 │       ├── _indice.js    índice generado (títulos, lecciones, número de pasos)
 │       └── <curso>-uN.js contenido de cada unidad
-└── laboratorio/          práctica de Docker en la terminal (módulos 00 a 08)
 ```
 
 La portada solo descarga el índice (unos 270 KB); el contenido de cada curso se
 carga al abrirlo. El servidor no tiene dependencias de npm y lee el mismo
 contenido que el navegador para validar el progreso (no se puede marcar una
-lección que no existe ni inflar la XP). El `.dockerignore` deja fuera
-`laboratorio/`: la imagen solo lleva `server`, `herramientas` y `public`.
+lección que no existe ni inflar la XP). La imagen solo lleva `server`, `herramientas` y `public`.
 
 **Stack actual:** Node.js sin framework, datos en ficheros JSON y JavaScript sin
 framework en el navegador. Está prevista una migración a **Node.js +

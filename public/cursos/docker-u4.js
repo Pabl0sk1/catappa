@@ -431,7 +431,7 @@ pasos:[
  {t:"info", eti:"El problema", h:"Para compilar necesitas mucho más que para ejecutar",
   c:`<p>Para compilar tu aplicación Java necesitas el <b>JDK</b> completo, <b>Maven</b>, y Maven se descarga cientos de megas de dependencias en la carpeta <code>~/.m2</code>.</p>
      <p>Pero para <b>ejecutar</b> el jar solo necesitas el <b>JRE</b>.</p>
-     <p>Si construyes todo en una sola imagen, esa imagen se lleva a producción el compilador, Maven, el repositorio de dependencias y tu código fuente. Resultado real medido en tu laboratorio: <b>949 MB</b>.</p>`},
+     <p>Si construyes todo en una sola imagen, esa imagen se lleva a producción el compilador, Maven, el repositorio de dependencias y tu código fuente. Resultado real medido con la API de ejemplo de este curso: <b>949 MB</b>.</p>`},
 
  {t:"info", eti:"La solución", h:"Dos etapas en el mismo fichero",
   c:`<div class="termbox"><span class="cm"># ---------- ETAPA 1: compilar ----------</span>
