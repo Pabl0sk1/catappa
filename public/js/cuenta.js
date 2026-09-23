@@ -102,8 +102,11 @@ F.dialogoCorreo = function (alTerminar) {
     '<p class="error-form" hidden></p>',
     '<button class="btn btn-suave" data-cerrar>Cancelar</button><button class="btn btn-primario" id="c-ok">Enviar código</button>');
   var paso = 1;
+  var correoEnUso = F.vigilarDisponible(m.el.querySelector("#c-correo"), "correo", actual);
   m.el.querySelector("#c-ok").addEventListener("click", function () {
-    var b = this; b.disabled = true; pintarError(m, "");
+    var b = this; pintarError(m, "");
+    if (paso === 1 && correoEnUso()) { pintarError(m, correoEnUso()); return; }
+    b.disabled = true;
     if (paso === 1) {
       var dir = m.el.querySelector("#c-correo").value.trim();
       F.api("POST", "/api/correo/codigo", { correo: dir }).then(function (d) {

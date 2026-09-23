@@ -276,6 +276,34 @@ F.xpHoy = function () { return F.actividad()[F.hoy()] || 0; };
 F.META_DIARIA = 50;
 
 /* ---------------- API ---------------- */
+/* Avisa mientras se escribe si un usuario o un correo ya están en uso.
+   tipo: "usuario" | "correo"; actual: el valor que ya tiene la cuenta (no se comprueba).
+   Devuelve una función que dice si el valor se puede usar (para bloquear el envío). */
+F.vigilarDisponible = function (input, tipo, actual) {
+  var aviso = document.createElement("small");
+  aviso.className = "aviso-disponible"; aviso.hidden = true; aviso.setAttribute("aria-live", "polite");
+  input.insertAdjacentElement("afterend", aviso);
+  var estado = { valor: null, libre: true }, reloj = null, pedido = 0;
+  var normal = function (v) { v = v.trim(); return tipo === "usuario" ? v.toLowerCase().replace(/^@/, "") : v.toLowerCase(); };
+  var pintar = function (texto, clase) { aviso.textContent = texto; aviso.className = "aviso-disponible " + (clase || ""); aviso.hidden = !texto; };
+  function comprobar() {
+    var v = normal(input.value), n = ++pedido;
+    if (!v || v === (actual || "").toLowerCase()) { estado = { valor: v, libre: true }; pintar(""); return; }
+    F.api("GET", "/api/disponible?" + tipo + "=" + encodeURIComponent(v)).then(function (d) {
+      if (n !== pedido) return;   // ya se escribió otra cosa
+      estado = { valor: v, libre: !!d.libre };
+      pintar(d.mensaje, d.libre ? "ok" : "mal");
+    }).catch(function () { if (n === pedido) { estado = { valor: v, libre: true }; pintar(""); } });
+  }
+  input.addEventListener("input", function () { clearTimeout(reloj); pintar(""); reloj = setTimeout(comprobar, 350); });
+  input.addEventListener("blur", function () { clearTimeout(reloj); comprobar(); });
+  return function () {
+    var v = normal(input.value);
+    if (estado.valor === v && !estado.libre) { input.focus(); return aviso.textContent || "Ese valor ya está en uso."; }
+    return "";
+  };
+};
+
 F.api = function (metodo, ruta, cuerpo) {
   var op = { method: metodo, headers: { "Content-Type": "application/json" } };
   if (E.token) op.headers["x-catappa-token"] = E.token;

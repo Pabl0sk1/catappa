@@ -48,6 +48,11 @@ function hashClave(clave, salt) {
 function limpiarTexto(s, max) {
   return String(s == null ? "" : s).replace(/\u0000/g, "").trim().slice(0, max);
 }
+/* un nombre de usuario o un correo solo puede pertenecer a una cuenta */
+const RE_USUARIO = /^[a-z0-9_-]{3,20}$/;
+const MSG_USUARIO = "El usuario debe tener entre 3 y 20 caracteres: letras minúsculas, números, - o _.";
+function usuarioEnUso(nombre, exceptoId) { return db.get("usuarios").some(x => x.id !== exceptoId && x.usuario === nombre); }
+function correoEnUso(dir, exceptoId) { return db.get("usuarios").some(x => x.id !== exceptoId && (x.correo || "").toLowerCase() === dir); }
 const COLORES = ["#179493", "#f5b642", "#7fd1b9", "#7aa2f7", "#f26d6d", "#c49bf2", "#8fd16a", "#f29e6d", "#6dd3f2"];
 
 /* el curso de Docker pasó a usar ids con prefijo (u1l1 -> dk1l1): se renombra el progreso guardado */
@@ -334,9 +339,10 @@ function borrarCuenta(u) {
   const posts = db.get("posts");
   for (let j = posts.length - 1; j >= 0; j--) {
     const p = posts[j];
-    if (p.autor === u.usuario) { posts.splice(j, 1); continue; }
-    p.votos = (p.votos || []).filter(x => x !== u.usuario);
-    p.respuestas = (p.respuestas || []).filter(r => r.autor !== u.usuario);
+    if (p.autor === u.id) { posts.splice(j, 1); continue; }
+    p.votos = (p.votos || []).filter(x => x !== u.id);
+    p.respuestas = (p.respuestas || []).filter(r => r.autor !== u.id);
+    for (const r of p.respuestas) r.votos = (r.votos || []).filter(x => x !== u.id);
   }
   const ses = db.get("sesiones");
   for (const t of Object.keys(ses)) if (ses[t].uid === u.id) delete ses[t];
@@ -355,11 +361,11 @@ ruta("POST", "/api/registro", async (req, res, b) => {
   const usuario = limpiarTexto(b.usuario, 20).toLowerCase();
   const nombre = limpiarTexto(b.nombre, 40) || usuario;
   const clave = String(b.clave || "");
-  if (!/^[a-z0-9_-]{3,20}$/.test(usuario)) return error(res, 400, "El usuario debe tener entre 3 y 20 caracteres: letras minúsculas, números, - o _.");
+  if (!RE_USUARIO.test(usuario)) return error(res, 400, MSG_USUARIO);
   if (clave.length < 6) return error(res, 400, "La contraseña debe tener al menos 6 caracteres.");
   if (b.clave2 !== undefined && String(b.clave2) !== clave) return error(res, 400, "Las dos contraseñas no coinciden.");
   const us = db.get("usuarios");
-  if (us.some(u => u.usuario === usuario)) return error(res, 409, "Ese nombre de usuario ya existe.");
+  if (usuarioEnUso(usuario)) return error(res, 409, "Ese nombre de usuario ya está en uso.");
   const salt = crypto.randomBytes(16).toString("hex");
   const u = { id: db.id(), usuario, nombre, salt, hash: hashClave(clave, salt), color: COLORES[us.length % COLORES.length], bio: "", creado: new Date().toISOString(), rol: "alumno" };
   us.push(u); db.guardar("usuarios");
@@ -387,7 +393,32 @@ ruta("GET", "/api/yo", (req, res, b, u) => {
   enviar(res, 200, { perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {}, nuevosCertificados: nuevos });
 }, true);
 
+/* ¿está libre este usuario o este correo? Si hay sesión, la propia cuenta no cuenta como ocupada */
+ruta("GET", "/api/disponible", (req, res, b, u, q) => {
+  if (q.has("usuario")) {
+    const nombre = limpiarTexto(q.get("usuario"), 40).toLowerCase();
+    if (!RE_USUARIO.test(nombre)) return enviar(res, 200, { libre: false, valido: false, mensaje: MSG_USUARIO });
+    const ocupado = usuarioEnUso(nombre, u && u.id);
+    return enviar(res, 200, { libre: !ocupado, valido: true, mensaje: ocupado ? "Ese nombre de usuario ya está en uso." : "Disponible." });
+  }
+  if (q.has("correo")) {
+    const dir = limpiarTexto(q.get("correo"), 120).toLowerCase();
+    if (!RE_CORREO.test(dir)) return enviar(res, 200, { libre: false, valido: false, mensaje: "Ese correo no tiene buena pinta." });
+    const ocupado = correoEnUso(dir, u && u.id);
+    return enviar(res, 200, { libre: !ocupado, valido: true, mensaje: ocupado ? "Ese correo ya está en uso en otra cuenta." : "Disponible." });
+  }
+  error(res, 400, "Indica un usuario o un correo.");
+});
+
 ruta("POST", "/api/perfil", (req, res, b, u) => {
+  if (b.usuario !== undefined) {
+    const nuevo = limpiarTexto(b.usuario, 20).toLowerCase();
+    if (nuevo !== u.usuario) {
+      if (!RE_USUARIO.test(nuevo)) return error(res, 400, MSG_USUARIO);
+      if (usuarioEnUso(nuevo, u.id)) return error(res, 409, "Ese nombre de usuario ya está en uso.");
+      u.usuario = nuevo;   // las publicaciones, votos y sesiones van por id: no hay que tocar nada más
+    }
+  }
   if (b.nombre !== undefined) u.nombre = limpiarTexto(b.nombre, 40) || u.usuario;
   if (b.bio !== undefined) u.bio = limpiarTexto(b.bio, 240);
   if (b.color && /^#[0-9a-fA-F]{6}$/.test(b.color)) u.color = b.color;
@@ -437,9 +468,7 @@ function importarProgreso(uid, datos) {
 ruta("POST", "/api/correo/codigo", async (req, res, b, u) => {
   const dir = limpiarTexto(b.correo, 120).toLowerCase();
   if (!RE_CORREO.test(dir)) return error(res, 400, "Ese correo no tiene buena pinta.");
-  if (db.get("usuarios").some(x => x.id !== u.id && (x.correo || "").toLowerCase() === dir)) {
-    return error(res, 409, "Ese correo ya está en otra cuenta.");
-  }
+  if (correoEnUso(dir, u.id)) return error(res, 409, "Ese correo ya está en uso en otra cuenta.");
   const codigo = nuevoCodigoCorto();
   guardarCodigo(u.id, { codigo, tipo: "correo", correo: dir });
   const r = await mandarCodigo(dir, "Tu código de Catappa",
@@ -454,6 +483,8 @@ ruta("POST", "/api/correo/verificar", (req, res, b, u) => {
   if (v.intentos >= 5) { borrarCodigo(u.id); return error(res, 429, "Demasiados intentos. Pide un código nuevo."); }
   v.intentos++; db.guardar("verificaciones");
   if (limpiarTexto(b.codigo, 10) !== v.codigo) return error(res, 400, "Ese código no es.");
+  // otra cuenta pudo quedarse ese correo mientras llegaba el código
+  if (correoEnUso(v.correo, u.id)) { borrarCodigo(u.id); return error(res, 409, "Ese correo ya está en uso en otra cuenta."); }
   u.correo = v.correo;
   u.correoVerificado = true;
   borrarCodigo(u.id);

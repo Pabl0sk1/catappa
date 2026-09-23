@@ -129,7 +129,7 @@ function editarPerfil() {
       "</div>" +
     "</div>" +
     '<div class="campo"><label for="ep-nombre">Nombre</label><input class="entrada" id="ep-nombre" maxlength="40" value="' + F.esc(p.nombre) + '"></div>' +
-    '<div class="campo"><label>Usuario</label><input class="entrada" value="@' + F.esc(p.usuario) + '" disabled><small>El nombre de usuario no se puede cambiar.</small></div>' +
+    '<div class="campo"><label for="ep-usuario">Usuario</label><input class="entrada" id="ep-usuario" maxlength="20" autocapitalize="off" spellcheck="false" autocomplete="username" value="' + F.esc(p.usuario) + '"><small>3–20 caracteres: minúsculas, números, guion o guion bajo. Cambia también la dirección de tu perfil.</small></div>' +
     '<div class="campo"><label for="ep-nac">Fecha de nacimiento</label><input class="entrada" id="ep-nac" type="date" max="' + new Date().toISOString().slice(0, 10) + '" value="' + F.esc(p.nacimiento || "") + '"><small>No se enseña a nadie.</small></div>' +
     '<div class="campo"><label>País de origen</label>' +
       '<button type="button" class="entrada selector-pais" id="ep-pais">' + pintaPais(estado.pais) + "</button></div>" +
@@ -152,6 +152,7 @@ function editarPerfil() {
     });
   });
   m.el.querySelector("#ep-nombre").addEventListener("input", refrescarFoto);
+  var usuarioEnUso = F.vigilarDisponible(m.el.querySelector("#ep-usuario"), "usuario", p.usuario);
   m.el.querySelector("#ep-subir").addEventListener("click", function () { m.el.querySelector("#ep-archivo").click(); });
   m.el.querySelector("#ep-archivo").addEventListener("change", function () {
     var archivo = this.files && this.files[0];
@@ -170,8 +171,13 @@ function editarPerfil() {
   });
 
   m.el.querySelector("#ep-guardar").addEventListener("click", function () {
-    var b = this; b.disabled = true;
+    var b = this;
+    var ocupado = usuarioEnUso();
+    if (ocupado) { var e0 = m.el.querySelector(".error-form"); e0.textContent = ocupado; e0.hidden = false; return; }
+    b.disabled = true;
+    var usuarioNuevo = m.el.querySelector("#ep-usuario").value.trim().toLowerCase().replace(/^@/, "");
     var datos = {
+      usuario: usuarioNuevo,
       nombre: m.el.querySelector("#ep-nombre").value,
       bio: m.el.querySelector("#ep-bio").value,
       color: estado.color,
@@ -181,7 +187,10 @@ function editarPerfil() {
     if (estado.avatar !== undefined) datos.avatar = estado.avatar;
     F.api("POST", "/api/perfil", datos).then(function (d) {
       E.perfil = d.perfil; F.guardarSesionCache();
-      m.cerrar(); F.toast("Perfil actualizado"); F.navegar();
+      m.cerrar(); F.toast("Perfil actualizado");
+      // si la página era la del usuario antiguo, se pasa a la del nuevo
+      if (usuarioNuevo !== p.usuario && location.hash.indexOf("/" + p.usuario) >= 0) location.hash = location.hash.replace("/" + p.usuario, "/" + usuarioNuevo);
+      else F.navegar();
     }).catch(function (e) {
       var err = m.el.querySelector(".error-form"); err.textContent = e.message; err.hidden = false;
       b.disabled = false;
@@ -454,6 +463,7 @@ F.vistaEntrar = function (prm) {
 
   F.mejorarClaves(raiz);
   animarDemo();
+  var usuarioEnUso = modo === "registro" ? F.vigilarDisponible($("#f-usuario"), "usuario", "") : function () { return ""; };
   var err = $("#f-error");
   var mostrarError = function (t) { err.textContent = t; err.hidden = !t; };
 
@@ -474,6 +484,7 @@ F.vistaEntrar = function (prm) {
           clave: $("#f-clave").value, clave2: $("#f-clave2").value, importar: F.progresoParaImportar() }
       : { identificador: $("#f-id").value.trim(), clave: $("#f-clave").value };
 
+    if (modo === "registro" && usuarioEnUso()) { mostrarError(usuarioEnUso()); boton.disabled = false; return; }
     if (modo === "registro" && datos.clave !== datos.clave2) {
       mostrarError("Las dos contraseñas no coinciden."); boton.disabled = false; return;
     }
