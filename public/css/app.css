@@ -1056,3 +1056,11 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 }
 /* tocar cómodo: nada por debajo de 34 px de alto en controles de la barra */
 .boton-icono, .cuenta-btn { min-width: 32px; min-height: 32px; }
+
+/* botones largos en pantallas estrechas: mejor dos líneas que una barra de
+   desplazamiento horizontal en toda la página */
+@media (max-width: 520px) {
+  .btn { white-space: normal; height: auto; min-height: 38px; padding: 8px 14px; text-align: center; max-width: 100%; }
+  .panel-pad { padding: 14px 14px; }
+}
+.btn { min-width: 0; }
