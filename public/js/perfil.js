@@ -379,7 +379,7 @@ function formulario(modo, hayAntiguo) {
       titulo: "Entra en tu cuenta", sub: "Continúa donde lo dejaste.", boton: "Entrar",
       campos:
         '<div class="campo"><label for="f-id">Usuario o correo</label>' +
-          '<input class="entrada" id="f-id" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="pablo" required></div>' +
+          '<input class="entrada" id="f-id" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="tu usuario o tu correo" required></div>' +
         '<div class="campo"><label for="f-clave">Contraseña</label>' +
           '<input class="entrada" id="f-clave" type="password" autocomplete="current-password" required>' +
           '<button type="button" class="enlace-sutil" id="f-olvide">¿Has olvidado la contraseña?</button></div>',
@@ -389,9 +389,9 @@ function formulario(modo, hayAntiguo) {
       titulo: "Crea tu cuenta", sub: "Solo cuatro datos. El correo puedes añadirlo después.", boton: "Crear cuenta",
       campos:
         '<div class="campo"><label for="f-nombre">Nombre</label>' +
-          '<input class="entrada" id="f-nombre" autocomplete="name" maxlength="40" placeholder="Pablo Ocampos" required></div>' +
+          '<input class="entrada" id="f-nombre" autocomplete="name" maxlength="40" placeholder="Nombre y apellido" required></div>' +
         '<div class="campo"><label for="f-usuario">Usuario</label>' +
-          '<input class="entrada" id="f-usuario" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="pablo" required>' +
+          '<input class="entrada" id="f-usuario" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="p. ej. ana_dev" required>' +
           "<small>3–20 caracteres: minúsculas, números, guion o guion bajo.</small></div>" +
         '<div class="campo"><label for="f-clave">Contraseña</label>' +
           '<input class="entrada" id="f-clave" type="password" autocomplete="new-password" minlength="6" required><small>Mínimo 6 caracteres.</small></div>' +

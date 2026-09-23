@@ -510,7 +510,7 @@ F.migrarIdsDocker = function () {
   if (n) F.guardarLocal("catappa-progreso-local", p);
   return n;
 };
-/* hasta dónde llegó Pablo según su mensaje: Docker · Unidad 2 · Lección 4 */
+/* hasta dónde llegó el usuario según su mensaje: Docker · Unidad 2 · Lección 4 */
 F.PROGRESO_DECLARADO = ["dk1l1", "dk1l2", "dk1l3", "dk1l4", "dk1l5", "dk1l6", "dk2l1", "dk2l2", "dk2l3", "dk2l4"];
 
 F.migrarAInvitado = function () {
