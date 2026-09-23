@@ -274,6 +274,12 @@ entorno:
 | `CATAPPA_SMTP_USUARIO` / `CATAPPA_SMTP_CLAVE` | credenciales (en Gmail, una contraseña de aplicación) |
 | `CATAPPA_SMTP_DESDE` | remitente; por defecto, el usuario |
 
+Con Docker, esas variables se leen de un fichero **`.env`** en la raíz (no se sube
+a git). Para Gmail: activa la verificación en dos pasos, crea una
+[contraseña de aplicación](https://myaccount.google.com/apppasswords), copia
+`.env.example` como `.env`, pon tu correo y esa contraseña, y reconstruye con
+`docker compose up -d --build`.
+
 **Sin configurar nada funciona igual**: en ese caso el mensaje se guarda en
 `datos/correos/` y el código se enseña en la propia pantalla, avisando de que es
 el modo local. Así una instalación personal no se queda a medias.

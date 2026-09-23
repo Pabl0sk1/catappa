@@ -16,6 +16,10 @@ services:
     container_name: catappa
     ports:
       - "8090:3000"
+    # correo saliente (SMTP): se lee de .env, que no se sube a git. Ver .env.example
+    env_file:
+      - path: .env
+        required: false
     volumes:
       - catappa-datos:/data          # usuarios, progreso y comunidad
     restart: unless-stopped

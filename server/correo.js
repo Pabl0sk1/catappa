@@ -26,7 +26,8 @@ const CFG = {
   host: process.env.CATAPPA_SMTP_HOST || "",
   puerto: Number(process.env.CATAPPA_SMTP_PUERTO || 587),
   usuario: process.env.CATAPPA_SMTP_USUARIO || "",
-  clave: process.env.CATAPPA_SMTP_CLAVE || "",
+  // Google muestra la contraseña de aplicación en grupos de 4 («abcd efgh ijkl mnop»): los espacios sobran
+  clave: String(process.env.CATAPPA_SMTP_CLAVE || "").replace(/\s+/g, ""),
   desde: process.env.CATAPPA_SMTP_DESDE || process.env.CATAPPA_SMTP_USUARIO || "catappa@localhost",
   inseguro: process.env.CATAPPA_SMTP_INSEGURO === "1"
 };
