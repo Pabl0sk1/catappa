@@ -138,6 +138,33 @@ double conIva(double base) { return base * 1.21; }</div>
   ok:1, why:"El compilador detecta el error antes de ejecutar nada: una de las ventajas del tipado y la compilación."},
  {t:"vf", p:"En Java, la sangría del código es obligatoria para delimitar los bloques, como en Python.",
   ok:false, why:"Las llaves delimitan los bloques; la sangría es una convención de legibilidad (muy recomendable)."}
+]},
+
+{
+id:"jv1l6",
+titulo:"Practica: compila y ejecuta Java",
+claves:["El código va dentro de la clase Main, en el método main","System.out.println() imprime una línea","Catappa compila con javac y ejecuta con java, igual que en tu máquina"],
+pasos:[
+ {t:"info", eti:"Novedad", h:"Java de verdad, compilado",
+  c:`<p>En los pasos de <b>código</b> de este curso, Catappa guarda tu programa como <code>Main.java</code>, lo <b>compila con javac</b> y lo ejecuta con <code>java</code>. Si hay un error de compilación, verás el mismo mensaje que verías en tu máquina.</p>
+     <p>La clase debe llamarse <b>Main</b>, porque así se llama el fichero.</p>`},
+
+ {t:"codigo", p:"Imprime exactamente <code>Hola, Catappa</code>",
+  lenguaje:"java",
+  plantilla:"public class Main {\n    public static void main(String[] args) {\n        // escribe aquí\n    }\n}\n",
+  pruebas:[{salida:"Hola, Catappa"}],
+  pista:"System.out.println(\"Hola, Catappa\");",
+  solucion:"public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hola, Catappa\");\n    }\n}",
+  why:"println imprime y añade el salto de línea; print no lo añade."},
+
+ {t:"codigo", p:"Lee dos enteros con Scanner (uno por línea) y muestra su suma",
+  lenguaje:"java",
+  c:`<p>Para leer por teclado se usa <code>Scanner</code>: <code>Scanner sc = new Scanner(System.in);</code> y después <code>sc.nextInt()</code>.</p>`,
+  plantilla:"import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // lee dos enteros e imprime la suma\n    }\n}\n",
+  pruebas:[{entrada:"3\n4", salida:"7"}, {entrada:"100\n-40", salida:"60"}, {entrada:"0\n5", salida:"5", oculta:true}],
+  pista:"int a = sc.nextInt(); int b = sc.nextInt(); System.out.println(a + b);",
+  solucion:"import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int a = sc.nextInt();\n        int b = sc.nextInt();\n        System.out.println(a + b);\n    }\n}",
+  why:"nextInt() lee el siguiente número saltándose los espacios y saltos de línea."}
 ]}
 
 ]});

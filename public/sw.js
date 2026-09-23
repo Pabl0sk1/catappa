@@ -6,7 +6,7 @@
    La línea VERSION la reescribe herramientas/indice.js en cada build: si
    cambia cualquier fichero, cambia la versión y el navegador ofrece actualizar.
    ===================================================================== */
-var VERSION = "catappa-e26a328107";
+var VERSION = "catappa-c90e7f2be8";
 var CARCASA = "carcasa-" + VERSION;
 var CONTENIDO = "contenido-" + VERSION;
 var FUENTES = "fuentes-v1";
@@ -14,7 +14,7 @@ var FUENTES = "fuentes-v1";
 var FICHEROS = [
   "./", "index.html", "manifest.webmanifest",
   "css/app.css",
-  "js/nucleo.js", "js/cata.js", "js/sonido.js", "js/leccion.js", "js/aprender.js", "js/comunidad.js", "js/perfil.js", "js/certificado.js", "js/app.js",
+  "js/nucleo.js", "js/cata.js", "js/codigo.js", "js/sonido.js", "js/leccion.js", "js/aprender.js", "js/comunidad.js", "js/perfil.js", "js/certificado.js", "js/app.js",
   "cursos/_catalogo.js", "cursos/_indice.js",
   "iconos/icono-192.png", "iconos/icono-512.png", "iconos/icono.svg", "iconos/favicon-32.png", "iconos/favicon-16.png", "favicon.ico",
   "marca/cata-96.png", "marca/cata-256.png",

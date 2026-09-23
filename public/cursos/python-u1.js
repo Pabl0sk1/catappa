@@ -118,6 +118,46 @@ isinstance(precio, float) # True
   ok:1, why:"/ siempre da float. La división entera es //: 10 // 4 = 2."},
  {t:"vf", p:"Los enteros de Python pueden desbordarse como el int de Java.",
   ok:false, why:"Tienen precisión arbitraria: crecen lo que haga falta."}
+]},
+
+{
+id:"py1l5",
+titulo:"Practica: escribe y ejecuta código",
+claves:["Aquí escribes código de verdad y se ejecuta en el servidor","input() lee una línea; print() escribe una línea","Tu solución se corrige con casos de prueba: mismas entradas, misma salida esperada"],
+pasos:[
+ {t:"info", eti:"Novedad", h:"A partir de aquí, escribes código de verdad",
+  c:`<p>Hasta ahora respondías preguntas. En los pasos de <b>código</b> escribes un programa en un editor y Catappa lo <b>ejecuta de verdad</b> en el servidor, con Python, y comprueba su salida.</p>
+     <ul><li><b>Ejecutar</b>: lo lanza y te enseña lo que imprime.</li>
+     <li><b>Comprobar</b>: lo ejecuta con cada <b>caso de prueba</b> (una entrada y la salida que debería dar) y te dice cuáles pasan.</li></ul>
+     <p>Puedes fallar las veces que quieras. Si te atascas, tienes la pista y puedes saltarlo.</p>`},
+
+ {t:"codigo", p:"Escribe un programa que imprima exactamente <code>Hola, Catappa</code>",
+  lenguaje:"py",
+  plantilla:"# escribe tu código aquí\n",
+  pruebas:[{salida:"Hola, Catappa"}],
+  pista:"Con print(\"texto\") se imprime una línea. Cuidado con la coma y las mayúsculas.",
+  solucion:"print(\"Hola, Catappa\")",
+  why:"print() escribe en la salida y añade un salto de línea al final."},
+
+ {t:"codigo", p:"Lee dos números enteros (uno en cada línea) y muestra su suma",
+  lenguaje:"py",
+  c:`<p>La entrada llega por teclado: cada <code>input()</code> lee una línea. Recuerda que <code>input()</code> devuelve texto, así que hay que convertirlo con <code>int()</code>.</p>`,
+  plantilla:"a = int(input())\nb = int(input())\n# imprime la suma\n",
+  pruebas:[{entrada:"3\n4", salida:"7"}, {entrada:"10\n-2", salida:"8"}, {entrada:"0\n0", salida:"0", oculta:true}],
+  pista:"print(a + b)",
+  solucion:"a = int(input())\nb = int(input())\nprint(a + b)",
+  why:"Si olvidas int(), Python concatenaría los textos: \"3\" + \"4\" sería \"34\"."},
+
+ {t:"codigo", p:"Lee un nombre y salúdalo: para <code>Ana</code> debe imprimir <code>Hola, Ana!</code>",
+  lenguaje:"py",
+  plantilla:"nombre = input()\n",
+  pruebas:[{entrada:"Ana", salida:"Hola, Ana!"}, {entrada:"Pablo", salida:"Hola, Pablo!"}, {entrada:"Cata", salida:"Hola, Cata!", oculta:true}],
+  pista:"Puedes usar una f-string: print(f\"Hola, {nombre}!\")",
+  solucion:"nombre = input()\nprint(f\"Hola, {nombre}!\")",
+  why:"Las f-strings insertan variables dentro del texto: f\"Hola, {nombre}!\"."},
+
+ {t:"vf", p:"En los ejercicios de código puedes ejecutar tu programa las veces que quieras antes de comprobarlo.",
+  ok:true, why:"Ejecutar te enseña la salida; comprobar la compara con los casos de prueba."}
 ]}
 
 ]});

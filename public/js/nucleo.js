@@ -444,6 +444,45 @@ F.confirmarReinicio = function (cursoId, despues) {
   });
 };
 
+/* ---------------- exámenes de unidad ----------------
+   Al terminar todas las lecciones de una unidad se desbloquea su examen:
+   preguntas de esa unidad mezcladas, y se aprueba con el 80 %. */
+F.APROBADO = 0.8;
+F.examenes = function (cursoId) {
+  var todos = E.perfil ? (E.perfil.examenes || {}) : (F.leerLocal("catappa-progreso-local", {}).examenes || {});
+  return (todos[cursoId] || {});
+};
+F.examen = function (cursoId, ui) { return F.examenes(cursoId)[ui] || null; };
+/* ¿están hechas todas las lecciones de esa unidad? */
+F.unidadCompleta = function (cursoId, ui) {
+  var c = F.curso(cursoId); if (!c || !c.unidades[ui]) return false;
+  var hechas = F.hechas(cursoId);
+  return c.unidades[ui].lecciones.every(function (l) { return !!hechas[l.id]; });
+};
+F.registrarExamen = function (cursoId, ui, aciertos, preguntas) {
+  if (E.perfil && E.modo === "servidor") {
+    return F.api("POST", "/api/examen", { cursoId: cursoId, unidad: ui, aciertos: aciertos, preguntas: preguntas })
+      .then(function (d) { E.perfil = d.perfil; E.progreso = d.progreso; F.guardarSesionCache(); F.pintarStats(); return d; });
+  }
+  // invitado o sin servidor: se guarda en este navegador
+  var p = F.leerLocal("catappa-progreso-local", { progreso: {}, actividad: {} });
+  p.examenes = p.examenes || {}; p.examenes[cursoId] = p.examenes[cursoId] || {};
+  var antes = p.examenes[cursoId][ui], nota = Math.round(aciertos / Math.max(1, preguntas) * 100);
+  var aprobado = aciertos / Math.max(1, preguntas) >= F.APROBADO;
+  var xp = aprobado && !(antes && antes.aprobado) ? 40 + aciertos * 4 : 0;
+  p.examenes[cursoId][ui] = { nota: Math.max(nota, (antes && antes.nota) || 0), aprobado: aprobado || !!(antes && antes.aprobado), aciertos: aciertos, preguntas: preguntas, fecha: F.hoy(), intentos: ((antes && antes.intentos) || 0) + 1 };
+  if (xp) {
+    p.progreso[cursoId] = p.progreso[cursoId] || { lecciones: {}, xp: 0 };
+    p.progreso[cursoId].xp += xp;
+    p.actividad[F.hoy()] = (p.actividad[F.hoy()] || 0) + xp;
+    p.actividadCursos = p.actividadCursos || {}; p.actividadCursos[cursoId] = p.actividadCursos[cursoId] || {};
+    p.actividadCursos[cursoId][F.hoy()] = (p.actividadCursos[cursoId][F.hoy()] || 0) + xp;
+  }
+  F.guardarLocal("catappa-progreso-local", p);
+  E.progreso = p.progreso; F.pintarStats();
+  return Promise.resolve({ nota: nota, aprobado: aprobado, xp: xp });
+};
+
 /* ---------------- progreso del curso antiguo (Ruta Docker) ---------------- */
 /* el curso de Docker usa ahora ids con prefijo: u1l1 -> dk1l1 */
 F.idDocker = function (id) { return /^u\d+l\d+$/.test(id) ? "dk" + id.slice(1) : id; };
@@ -624,6 +663,7 @@ window.addEventListener("hashchange", function () { F.navegar(); });
 var NAV = [
   { id: "aprender", ruta: "/", texto: "Aprender", icono: "aprender" },
   { id: "catalogo", ruta: "/cursos", texto: "Cursos", icono: "catalogo" },
+  { id: "playground", ruta: "/playground", texto: "Playground", icono: "code" },
   { id: "comunidad", ruta: "/comunidad", texto: "Comunidad", icono: "comunidad" },
   { id: "ranking", ruta: "/ranking", texto: "Ranking", icono: "ranking" },
   { id: "perfil", ruta: "/perfil", texto: "Perfil", icono: "perfil" }
@@ -789,7 +829,7 @@ F.pintar = function (html) { var v = F.$("#vista"); if (v) v.innerHTML = html; r
 F.paleta = function () {
   if (F.$(".paleta")) return;
   var items = [];
-  [["Ir a Aprender", "#/", "página"], ["Ir a Comunidad", "#/comunidad", "página"], ["Ir a Ranking", "#/ranking", "página"], ["Mi perfil", "#/perfil", "página"], ["Ajustes", "#/ajustes", "página"]]
+  [["Ir a Aprender", "#/", "página"], ["Playground: ejecutar código", "#/playground", "página"], ["Ir a Comunidad", "#/comunidad", "página"], ["Ir a Ranking", "#/ranking", "página"], ["Mi perfil", "#/perfil", "página"], ["Ajustes", "#/ajustes", "página"]]
     .forEach(function (x) { items.push({ texto: x[0], href: x[1], extra: x[2], grupo: "Navegación" }); });
   F.cursos().forEach(function (c) {
     items.push({ texto: "Curso de " + c.titulo, href: "#/curso/" + c.id, extra: F.porcentaje(c.id) + "%", grupo: "Cursos" });

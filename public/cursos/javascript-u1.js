@@ -136,6 +136,40 @@ const seleccionado = null;   // todavia no hay nada seleccionado</div>`},
   ok:1, why:"Los number son decimales binarios de 64 bits (IEEE 754), igual que double en Java. Para dinero, trabaja en céntimos enteros."},
  {t:"vf", p:"En JavaScript hay un tipo distinto para enteros y otro para decimales.",
   ok:false, why:"Ambos son number. Solo bigint es un tipo aparte para enteros muy grandes."}
+]},
+
+{
+id:"js1l5",
+titulo:"Practica: tu primer código en el navegador",
+claves:["console.log() imprime en la consola","En Catappa el código se ejecuta con Node en el servidor","Los casos de prueba comparan la salida exacta"],
+pasos:[
+ {t:"info", eti:"Novedad", h:"Escribe JavaScript de verdad",
+  c:`<p>En los pasos de <b>código</b> escribes JavaScript y Catappa lo ejecuta con <b>Node</b>, el mismo motor que usarás en el servidor. Lo que imprimas con <code>console.log()</code> es lo que se compara con la salida esperada.</p>`},
+
+ {t:"codigo", p:"Imprime exactamente <code>Hola, Catappa</code>",
+  lenguaje:"js",
+  plantilla:"// escribe tu código aquí\n",
+  pruebas:[{salida:"Hola, Catappa"}],
+  pista:"console.log(\"Hola, Catappa\");",
+  solucion:"console.log(\"Hola, Catappa\");",
+  why:"console.log() escribe una línea en la salida."},
+
+ {t:"codigo", p:"Declara <code>precio = 20</code> e <code>iva = 0.21</code> e imprime el total con IVA",
+  lenguaje:"js",
+  c:`<p>El resultado esperado es <code>24.2</code>. En JavaScript, <code>20 * 1.21</code> da <code>24.2</code>.</p>`,
+  plantilla:"const precio = 20;\nconst iva = 0.21;\n// imprime el total\n",
+  pruebas:[{salida:"24.2"}],
+  pista:"El total es precio + precio * iva, o precio * (1 + iva).",
+  solucion:"const precio = 20;\nconst iva = 0.21;\nconsole.log(precio * (1 + iva));",
+  why:"Cuidado con los decimales: 20 * 1.21 da 24.2, pero otras operaciones pueden dar 24.200000000000003."},
+
+ {t:"codigo", p:"Escribe una función <code>doble(n)</code> que devuelva el doble y muestra <code>doble(21)</code>",
+  lenguaje:"js",
+  plantilla:"function doble(n) {\n  // devuelve el doble\n}\nconsole.log(doble(21));\n",
+  pruebas:[{salida:"42"}],
+  pista:"return n * 2; dentro de la función.",
+  solucion:"function doble(n) {\n  return n * 2;\n}\nconsole.log(doble(21));",
+  why:"Sin return, la función devuelve undefined y se imprimiría «undefined»."}
 ]}
 
 ]});

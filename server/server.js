@@ -9,6 +9,7 @@ const path = require("path");
 const vm = require("vm");
 const crypto = require("crypto");
 const db = require("./db");
+const runner = require("./ejecutar");
 const semilla = require("./semilla");
 
 const PUERTO = +process.env.PORT || 3000;
@@ -17,6 +18,7 @@ const MAX_BODY = 64 * 1024;
 
 /* ---------------- catálogo de cursos (leído de los mismos ficheros que usa el navegador) ---------------- */
 const CATALOGO = {};   // {cursoId: {lecciones: Set, unidades: [[ids]], total, titulo}}
+let CURSOS_SRV = {};   // contenido completo de los cursos (para los ejercicios de código)
 function cargarCatalogo() {
   const dir = path.join(PUBLICO, "cursos");
   const ctx = vm.createContext({});
@@ -24,6 +26,7 @@ function cargarCatalogo() {
   const ficheros = fs.readdirSync(dir).filter(f => f.endsWith(".js")).sort();
   for (const f of ficheros) vm.runInContext(fs.readFileSync(path.join(dir, f), "utf8"), ctx, { filename: f });
   const C = ctx.CURSOS || {};
+  CURSOS_SRV = C;
   for (const id of Object.keys(C)) {
     const unidades = C[id].map(u => u.lecciones.map(l => l.id));
     CATALOGO[id] = { unidades, lecciones: new Set(unidades.flat()), total: unidades.flat().length };
@@ -162,7 +165,8 @@ function perfilPublico(u, completo) {
     certificados: certificadosDe(u.id).map(({ codigo, curso, titulo, fecha, lecciones }) => ({ codigo, curso, titulo, fecha, lecciones }))
   };
   if (completo) {
-    out.tema = u.tema || "sistema";   // preferencia privada: solo en el perfil propio
+    out.tema = u.tema || "sistema";       // preferencia privada: solo en el perfil propio
+    out.examenes = db.get("examenes")[u.id] || {};
     const p = db.get("progreso")[u.id] || {};
     out.cursos = {};
     for (const [cid, cat] of Object.entries(CATALOGO)) {
@@ -354,6 +358,9 @@ function reiniciarCurso(uid, cid) {
   if (ac[uid]) delete ac[uid][cid];
   const certs = db.get("certificados");
   if (certs[uid]) delete certs[uid][cid];
+  const ex = db.get("examenes");
+  if (ex[uid]) delete ex[uid][cid];
+  db.guardar("examenes");
   db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos"); db.guardar("certificados");
   return !!c;
 }
@@ -373,6 +380,80 @@ ruta("GET", "/api/certificados/:codigo", (req, res, b, u, q, prm) => {
   }
   error(res, 404, "No existe ningún certificado con ese código.");
 });
+
+/* ---------------- ejecutar código ---------------- */
+const VECES_POR_IP = new Map();
+function pasaLimite(req) {
+  const ip = (req.socket.remoteAddress || "?") + "";
+  const ahora = Date.now();
+  const v = VECES_POR_IP.get(ip) || { n: 0, desde: ahora };
+  if (ahora - v.desde > 60000) { v.n = 0; v.desde = ahora; }
+  v.n++; VECES_POR_IP.set(ip, v);
+  return v.n <= 60;   // 60 ejecuciones por minuto
+}
+
+ruta("GET", "/api/lenguajes", (req, res) => enviar(res, 200, runner.disponibles()));
+
+ruta("POST", "/api/ejecutar", async (req, res, b) => {
+  if (!pasaLimite(req)) return error(res, 429, "Demasiadas ejecuciones seguidas. Espera unos segundos.");
+  const r = await runner.ejecutar({ lenguaje: b.lenguaje, codigo: b.codigo, entrada: b.entrada });
+  enviar(res, 200, r);
+});
+
+/* corrige un ejercicio con los casos de prueba que están en el contenido del curso
+   (se leen aquí, así las pruebas ocultas no llegan al navegador) */
+function buscarPaso(cursoId, leccionId, indice) {
+  for (const u of (CURSOS_SRV[cursoId] || [])) {
+    for (const l of u.lecciones) if (l.id === leccionId) return l.pasos[indice] || null;
+  }
+  return null;
+}
+ruta("POST", "/api/ejercicio", async (req, res, b) => {
+  if (!pasaLimite(req)) return error(res, 429, "Demasiadas ejecuciones seguidas. Espera unos segundos.");
+  const paso = buscarPaso(b.cursoId, b.leccionId, +b.paso);
+  if (!paso || paso.t !== "codigo") return error(res, 404, "Ese ejercicio no existe.");
+  const r = await runner.corregir({ lenguaje: paso.lenguaje, codigo: b.codigo, pruebas: paso.pruebas });
+  // de las pruebas ocultas solo se dice si pasaron
+  r.resultados = r.resultados.map(x => x.oculta ? { nombre: x.nombre, bien: x.bien, oculta: true } : x);
+  enviar(res, 200, r);
+});
+
+/* examen de unidad: se aprueba con el 80 % de aciertos y suma XP una sola vez */
+const APROBADO = 0.8;
+ruta("POST", "/api/examen", (req, res, b, u) => {
+  const cat = CATALOGO[b.cursoId];
+  const ui = +b.unidad;
+  if (!cat || !(ui >= 0) || ui >= cat.unidades.length) return error(res, 400, "Examen desconocido.");
+  const preguntas = Math.max(1, +b.preguntas || 0), aciertos = Math.min(preguntas, Math.max(0, +b.aciertos || 0));
+  const nota = Math.round(aciertos / preguntas * 100);
+  const aprobado = aciertos / preguntas >= APROBADO;
+
+  const ex = db.get("examenes");
+  ex[u.id] = ex[u.id] || {}; ex[u.id][b.cursoId] = ex[u.id][b.cursoId] || {};
+  const antes = ex[u.id][b.cursoId][ui];
+  const primeraVezAprobado = aprobado && !(antes && antes.aprobado);
+  ex[u.id][b.cursoId][ui] = {
+    nota: Math.max(nota, (antes && antes.nota) || 0),
+    aprobado: aprobado || !!(antes && antes.aprobado),
+    aciertos, preguntas, fecha: hoy(), intentos: ((antes && antes.intentos) || 0) + 1
+  };
+
+  let xp = 0;
+  if (primeraVezAprobado) {
+    xp = 40 + aciertos * 4;                       // premio por aprobar el examen, solo la primera vez
+    const prog = db.get("progreso");
+    prog[u.id] = prog[u.id] || {};
+    const c = prog[u.id][b.cursoId] = prog[u.id][b.cursoId] || { lecciones: {}, xp: 0 };
+    c.xp += xp;
+    const act = db.get("actividad"); act[u.id] = act[u.id] || {};
+    act[u.id][hoy()] = (act[u.id][hoy()] || 0) + xp;
+    const ac = db.get("actividadCursos"); ac[u.id] = ac[u.id] || {}; ac[u.id][b.cursoId] = ac[u.id][b.cursoId] || {};
+    ac[u.id][b.cursoId][hoy()] = (ac[u.id][b.cursoId][hoy()] || 0) + xp;
+    db.guardar("progreso"); db.guardar("actividad"); db.guardar("actividadCursos");
+  }
+  db.guardar("examenes");
+  enviar(res, 200, { nota, aprobado, xp, perfil: perfilPublico(u, true), progreso: db.get("progreso")[u.id] || {} });
+}, true);
 
 ruta("GET", "/api/insignias", (req, res) => enviar(res, 200, INSIGNIAS.map(({ id, nombre, desc }) => ({ id, nombre, desc }))));
 

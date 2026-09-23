@@ -62,6 +62,19 @@ function seccionesCursos() {
   return html;
 }
 
+/* fila del examen de la unidad: se desbloquea al terminar sus lecciones */
+function filaExamen(c, ui) {
+  var lista = F.unidadCompleta(c.id, ui), ex = F.examen(c.id, ui);
+  var estado = !lista ? "Termina la unidad para desbloquearlo"
+    : ex && ex.aprobado ? "Aprobado con " + ex.nota + "/100"
+    : ex ? "Suspendido con " + ex.nota + "/100 · inténtalo otra vez"
+    : "Pon a prueba toda la unidad";
+  return '<div class="job examen' + (lista ? "" : " bloqueada") + (ex && ex.aprobado ? " hecha" : "") + '"' + (lista ? ' data-examen="' + ui + '" tabindex="0" role="button"' : "") + '>' +
+    '<span class="marca">' + F.icono(ex && ex.aprobado ? "aceptada" : lista ? "estrella" : "candado") + "</span>" +
+    '<div class="txt"><b>Examen de la unidad</b><span>' + F.esc(estado) + "</span></div>" +
+    (lista ? '<span class="derecha">' + (ex && ex.aprobado ? "repetir" : "empezar") + "</span>" : "") + "</div>";
+}
+
 /* rutas: secuencias de cursos recomendadas */
 function bloqueRutas() {
   var rutas = (window.CURSOS_RUTAS || []).map(function (r) {
@@ -174,7 +187,8 @@ F.vistaCurso = function (prm) {
     var hechasU = u.lecciones.filter(function (l) { return h[l.id]; }).length;
     var completa = hechasU === u.lecciones.length;
     var contieneActual = sig && sig.ui === ui;
-    var plegada = plegadas ? plegadas.indexOf(ui) >= 0 : (completa && !contieneActual);
+    var examenPendiente = F.unidadCompleta(c.id, ui) && !(F.examen(c.id, ui) || {}).aprobado;
+    var plegada = plegadas ? plegadas.indexOf(ui) >= 0 : (completa && !contieneActual && !examenPendiente);   // si queda el examen, la unidad no se pliega
     var icono = completa ? '<span class="st ok stage-ok">' + F.icono("check") + "</span>" : contieneActual ? '<span class="st cur stage-ok"></span>' : '<span class="st pend stage-ok"></span>';
     var jobs = u.lecciones.map(function (l, li) {
       var hecha = !!h[l.id], abierta = F.desbloqueada(c.id, l.id), actual = sig && sig.leccion.id === l.id;
@@ -199,7 +213,7 @@ F.vistaCurso = function (prm) {
         '<span class="stage-num">stage ' + ("0" + (ui + 1)).slice(-2) + "</span>" +
         '<div style="min-width:0"><h3>' + F.esc(u.titulo) + "</h3><p>" + F.esc(u.resumen || "") + "</p></div>" +
         '<div class="estado"><span class="contador">' + hechasU + "/" + u.lecciones.length + "</span>" + F.icono("abajo", "flecha") + "</div>" +
-      '</div><div class="jobs">' + jobs + "</div></section>";
+      '</div><div class="jobs">' + jobs + filaExamen(c, ui) + "</div></section>";
   }).join("");
 
   var html =
@@ -238,6 +252,11 @@ F.vistaCurso = function (prm) {
     };
     cab.addEventListener("click", alternar);
     cab.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); alternar(); } });
+  });
+  F.$$(".job.examen[data-examen]").forEach(function (fila) {
+    var abrir = function () { F.abrirExamen(c.id, +fila.dataset.examen); };
+    fila.addEventListener("click", abrir);
+    fila.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(); } });
   });
   var actual = $(".job.actual");
   if (actual && !prm.sinScroll) setTimeout(function () { actual.scrollIntoView({ block: "center", behavior: "smooth" }); }, 80);

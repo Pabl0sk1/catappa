@@ -769,3 +769,46 @@ input::-ms-reveal, input::-ms-clear { display: none; }   /* Edge añade su propi
 .fb-cata { flex: none; display: block; }
 .fb-cata .cata { height: 54px; }
 @media (max-width: 720px) { .fb-cata { display: none; } .nivel-cata .cata { height: 84px; } }
+
+/* ---------------- editor de código y Playground ---------------- */
+.editor { border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; background: var(--term); }
+.editor-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 12px; background: var(--term-2); color: var(--term-dim); font-family: var(--mono); font-size: 12px; }
+.editor-leng { color: var(--term-acc); }
+.editor-cuerpo { display: flex; max-height: 420px; }
+.editor-lineas { margin: 0; padding: 12px 8px 12px 12px; color: var(--term-dim); font-family: var(--mono); font-size: 13.5px; line-height: 1.55; text-align: right; user-select: none; overflow: hidden; background: var(--term); }
+.editor-area { flex: 1; min-height: 190px; padding: 12px 14px 12px 6px; border: 0; outline: none; resize: vertical; background: var(--term); color: var(--term-ink); font-family: var(--mono); font-size: 13.5px; line-height: 1.55; tab-size: 4; white-space: pre; overflow: auto; }
+.cod-acciones { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.play-salida, .cod-pruebas { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); padding: 12px 14px; }
+.play-salida pre { margin: 0; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+.salida-ok { color: var(--ink); }
+.salida-error { color: var(--bad); }
+.salida-vacia { color: var(--ink-3); font-size: 13.5px; }
+.salida-ms { color: var(--ink-3); font-family: var(--mono); font-size: 11.5px; margin-top: 6px; }
+.cod-pruebas b { display: block; font-size: 13px; margin-bottom: 6px; }
+.cod-prueba { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); padding: 3px 0; }
+.cod-prueba .sal { color: var(--ink); }
+.cod-prueba.oculta { color: var(--ink-3); }
+.cod-resultados { display: grid; gap: 6px; }
+.cod-res { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.cod-res svg { width: 15px; height: 15px; flex: none; }
+.cod-res.bien { color: var(--ok); } .cod-res.mal { color: var(--bad); }
+.cod-res span { color: var(--ink-2); }
+.cod-res b { color: var(--ink); font-family: var(--mono); }
+.play-cab { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.play-lengs { display: flex; gap: 6px; flex-wrap: wrap; }
+.play-lengs .activo { border-color: var(--accent); color: var(--accent); }
+.play-rejilla { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; margin-top: 18px; align-items: start; }
+.play-lado { display: grid; gap: 10px; }
+.play-etiqueta { font-size: 13px; color: var(--ink-2); }
+.play-acciones { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 900px) { .play-rejilla { grid-template-columns: 1fr; } }
+
+/* ---------------- examen de unidad ---------------- */
+.job.examen { display: flex; align-items: center; gap: 12px; cursor: pointer; border-top: 1px dashed var(--line-2); }
+.job.examen.bloqueada { cursor: default; color: var(--ink-3); }
+.job.examen .txt { flex: 1; display: grid; }
+.job.examen .txt b { font-size: 14.5px; }
+.job.examen .txt span { font-size: 12.5px; color: var(--ink-3); }
+.job.examen .derecha { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.job.examen.hecha .marca { color: var(--ok); }
+.job.examen .marca svg { width: 17px; height: 17px; }

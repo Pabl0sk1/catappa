@@ -12,6 +12,10 @@ ENV NODE_ENV=production \
     PORT=3000 \
     DATA_DIR=/data
 
+# intérpretes para los ejercicios de código que se ejecutan de verdad
+# (el código lo escribe quien aprende y corre con un usuario sin privilegios)
+RUN apk add --no-cache python3 php83-cli openjdk21-jdk bash sqlite
+
 WORKDIR /app
 
 # Solo lo necesario (ver .dockerignore)

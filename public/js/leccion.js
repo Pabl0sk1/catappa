@@ -21,6 +21,37 @@ function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.cl
 var S = null;       // sesión de la lección en curso
 var PANT = null;    // contenedor a pantalla completa
 
+/* Examen de unidad: se arma una "lección" con preguntas de esa unidad.
+   No hay pasos de información ni de código: solo preguntas, mezcladas. */
+F.abrirExamen = function (cursoId, ui) {
+  var c = F.curso(cursoId);
+  if (!c || !c.unidades[ui]) { F.toast("Esa unidad no existe"); return F.ir("/curso/" + cursoId); }
+  if (!F.unidadCompleta(cursoId, ui)) { F.toast("Termina antes todas las lecciones de la unidad", "!"); return F.ir("/curso/" + cursoId); }
+  cerrarPantalla();
+  PANT = el("div", "leccion-pant", '<div class="vacio" style="margin:auto">Preparando el examen…</div>');
+  document.body.appendChild(PANT);
+  document.body.style.overflow = "hidden";
+  F.cargarCurso(cursoId).then(function () {
+    var unidad = (window.CURSOS[cursoId] || [])[ui];
+    if (!unidad) throw new Error("No se pudo preparar el examen");
+    var preguntas = [];
+    unidad.lecciones.forEach(function (l) {
+      (l.pasos || []).forEach(function (p) { if (p.t !== "info" && p.t !== "codigo") preguntas.push(p); });
+    });
+    preguntas = baraja(preguntas).slice(0, Math.min(12, preguntas.length));
+    if (!preguntas.length) throw new Error("Esta unidad no tiene preguntas para el examen");
+    var leccion = {
+      id: "examen-" + ui,
+      titulo: "Examen: " + unidad.titulo,
+      claves: ["Has repasado toda la unidad", "Se aprueba con el 80 % de aciertos", "Puedes repetirlo las veces que quieras"],
+      pasos: preguntas
+    };
+    montar(cursoId, { unidad: unidad, ui: ui, leccion: leccion }, leccion, { examen: true, ui: ui });
+  }).catch(function (e) {
+    cerrarPantalla(); F.toast(e.message, "!"); F.ir("/curso/" + cursoId);
+  });
+};
+
 F.abrirLeccion = function (cursoId, leccionId) {
   var info = F.buscarLeccion(cursoId, leccionId);
   if (!info) { F.toast("Esa lección no existe"); return F.ir("/curso/" + cursoId); }
@@ -41,9 +72,10 @@ F.abrirLeccion = function (cursoId, leccionId) {
   });
 };
 
-function montar(cursoId, info, l) {
+function montar(cursoId, info, l, extra) {
   S = {
     cursoId: cursoId, info: info, l: l,
+    examen: !!(extra && extra.examen), ui: extra && extra.ui,
     cola: l.pasos.map(function (p, i) { return { p: p, i: i, reintento: false }; }),
     hechos: 0, preguntas: 0, aciertosPrimera: 0, falladas: [], inicio: Date.now(), estado: "responder", resp: null
   };
@@ -125,7 +157,7 @@ function siguiente() {
   (PINTA[paso.t] || PINTA.info)(c, paso);
   var b = $("#lec-ppal");
   if (paso.t === "info") { b.textContent = "Continuar"; b.disabled = false; }
-  else { b.textContent = "Comprobar"; b.disabled = true; }
+  else { b.textContent = "Comprobar"; b.disabled = paso.t !== "codigo"; }   // en los ejercicios de código se puede comprobar desde el principio
   b.focus({ preventScroll: true });
 }
 
@@ -285,6 +317,45 @@ var PINTA = {
     });
   },
 
+  codigo: function (c, paso) {
+    cabecera(c, paso, "Escribe el código");
+    if (paso.c) c.appendChild(el("div", "lec-texto", paso.c));
+    var sinServidor = F.E.modo !== "servidor";
+    if (sinServidor) {
+      c.appendChild(el("div", "nota", '<b class="tit">Hace falta el servidor</b>Este ejercicio ejecuta código de verdad. Arranca Catappa con <code>docker compose up -d</code> y vuelve a abrirlo; ahora puedes continuar.'));
+      return;
+    }
+    var ed = F.editorCodigo({
+      lenguaje: paso.lenguaje, valor: paso.plantilla || "", etiqueta: "Editor de código del ejercicio",
+      alEjecutar: function () { probar(); }
+    });
+    S.editor = ed;
+    c.appendChild(ed.el);
+    var acciones = el("div", "cod-acciones", '<button class="btn" id="cod-run">' + F.icono("play") + "Ejecutar</button>");
+    c.appendChild(acciones);
+    var salida = el("div", "play-salida", '<p class="salida-vacia">Pulsa Ejecutar para ver la salida, o Comprobar para corregirlo.</p>');
+    salida.id = "cod-salida";
+    c.appendChild(salida);
+    var visibles = (paso.pruebas || []).filter(function (p) { return !p.oculta; });
+    if (visibles.length) {
+      c.appendChild(el("div", "cod-pruebas", "<b>Casos de prueba</b>" + visibles.map(function (p) {
+        return '<div class="cod-prueba"><span class="ent">' + (p.entrada ? "entrada: " + F.esc(p.entrada.replace(/\n/g, " ⏎ ")) : "sin entrada") + '</span><span class="sal">salida esperada: ' + F.esc(p.salida) + "</span></div>";
+      }).join("") + ((paso.pruebas || []).length > visibles.length ? '<div class="cod-prueba oculta">y ' + ((paso.pruebas || []).length - visibles.length) + " caso(s) oculto(s)</div>" : "")));
+    }
+    if (paso.pista) c.appendChild(el("div", "nota", '<b class="tit">Pista</b>' + paso.pista));
+    function probar() {
+      var sal = $("#cod-salida", PANT);
+      sal.innerHTML = '<p class="salida-vacia">Ejecutando…</p>';
+      F.ejecutarCodigo(paso.lenguaje, ed.valor(), (paso.pruebas && paso.pruebas[0] && paso.pruebas[0].entrada) || "")
+        .then(function (r) { F.pintarSalida(sal, r); })
+        .catch(function (e) { sal.innerHTML = '<pre class="salida-error">' + F.esc(e.message) + "</pre>"; });
+    }
+    acciones.querySelector("#cod-run").addEventListener("click", probar);
+    $("#lec-ppal").disabled = false;
+    $("#lec-saltar").hidden = false;
+    setTimeout(function () { ed.foco(); }, 60);
+  },
+
   term: function (c, paso) {
     cabecera(c, paso, "Escríbelo en la terminal");
     if (paso.c) c.appendChild(el("div", "lec-texto", paso.c));
@@ -343,6 +414,24 @@ var CORRIGE = {
     return ok;
   },
   par: function () { return S.fallosPar === 0; },
+  codigo: function (paso) {
+    if (F.E.modo !== "servidor") return true;    // sin servidor no se puede corregir: se deja pasar
+    var idx = S.cola[0].i, sal = $("#cod-salida", PANT);
+    sal.innerHTML = '<p class="salida-vacia">Ejecutando los casos de prueba…</p>';
+    return F.corregirEjercicio(S.cursoId, S.l.id, idx, S.editor.valor()).then(function (r) {
+      sal.innerHTML = '<div class="cod-resultados">' + r.resultados.map(function (x) {
+        if (x.oculta) return '<div class="cod-res ' + (x.bien ? "bien" : "mal") + '">' + F.icono(x.bien ? "check" : "x") + "<span>Caso oculto</span></div>";
+        return '<div class="cod-res ' + (x.bien ? "bien" : "mal") + '">' + F.icono(x.bien ? "check" : "x") +
+          "<span>" + (x.entrada ? "entrada " + F.esc(x.entrada.replace(/\n/g, " ⏎ ")) + " · " : "") +
+          "esperado <b>" + F.esc(x.esperado) + "</b>" + (x.bien ? "" : " · obtenido <b>" + F.esc(x.obtenido || "(nada)") + "</b>") + "</span></div>" +
+          (x.error && !x.bien ? '<pre class="salida-error">' + F.esc(x.error) + "</pre>" : "");
+      }).join("") + "</div>";
+      return r.todo;
+    }).catch(function (e) {
+      sal.innerHTML = '<pre class="salida-error">' + F.esc(e.message) + "</pre>";
+      return false;
+    });
+  },
   term: function (paso) {
     var ok = aceptaTexto(paso, S.resp), c = $("#campo", PANT), sal = $("#salida", PANT);
     if (c) c.disabled = true;
@@ -407,12 +496,24 @@ function accion() {
     S.cola.shift(); S.hechos++; return siguiente();
   }
   if (S.estado !== "responder") return;
-  var ok = !!(CORRIGE[paso.t] || function () { return true; })(paso);
+  var resultado = (CORRIGE[paso.t] || function () { return true; })(paso);
+  if (resultado && typeof resultado.then === "function") {
+    S.estado = "corrigiendo";
+    var b0 = $("#lec-ppal"); b0.disabled = true; b0.textContent = "Comprobando…";
+    resultado.then(function (ok) { S.estado = "responder"; corregido(!!ok, paso, item); })
+      .catch(function () { S.estado = "responder"; corregido(false, paso, item); });
+    return;
+  }
+  corregido(!!resultado, paso, item);
+}
+
+/* segunda mitad de accion(): ya se sabe si la respuesta es correcta */
+function corregido(ok, paso, item) {
   S.estado = "corregido"; S.corregidoEn = Date.now(); S.preguntas++;
   if (ok && !item.reintento) S.aciertosPrimera++;
   if (!ok) {
     if (S.falladas.indexOf(paso) === -1) S.falladas.push(paso);
-    S.cola.push({ p: paso, i: item.i, reintento: true });
+    if (!S.examen) S.cola.push({ p: paso, i: item.i, reintento: true });   // en el examen no se repite: cuenta el fallo
   }
   // feedback: siempre visible, con icono, título, explicación y, si falla, la respuesta correcta
   var pie = $("#lec-pie");
@@ -447,6 +548,16 @@ function fin() {
   var pct = S.preguntas ? Math.round(S.aciertosPrimera / S.preguntas * 100) : 100;
   var cursoId = S.cursoId, l = S.l, falladas = S.falladas.slice();
   var boton = $("#lec-ppal"); boton.disabled = true; boton.textContent = "Guardando…";
+  if (S.examen) {
+    var ui = S.ui;
+    F.registrarExamen(cursoId, ui, S.aciertosPrimera, S.preguntas).then(function (r) {
+      pintarFin({ xp: r.xp || 0, nuevas: [], examen: r }, pct, seg, cursoId, l, falladas, ui);
+    }).catch(function (e) {
+      F.toast("No se pudo guardar el examen: " + e.message, "!");
+      pintarFin({ xp: 0, nuevas: [], examen: { nota: pct, aprobado: pct >= 80 } }, pct, seg, cursoId, l, falladas, ui);
+    });
+    return;
+  }
   F.registrarLeccion(cursoId, l.id, S.aciertosPrimera, S.preguntas).then(function (r) {
     pintarFin(r, pct, seg, cursoId, l, falladas);
   }).catch(function (e) {
@@ -455,7 +566,8 @@ function fin() {
   });
 }
 
-function pintarFin(r, pct, seg, cursoId, l, falladas) {
+function pintarFin(r, pct, seg, cursoId, l, falladas, uiExamen) {
+  var ex = r.examen;
   F.sonido.tocar("fin");
   if ((r.nuevas && r.nuevas.length) || (r.certificados && r.certificados.length)) F.sonido.tocar("insignia");
   var sig = F.siguiente(cursoId);
@@ -482,7 +594,8 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
   $("#lec-cuenta").textContent = "completada";
   c.innerHTML =
     '<div class="fin">' + medalla +
-      "<div><h2>" + (pct >= 90 ? "¡Lección dominada!" : "Lección completada") + '</h2><p class="sub">' + F.esc(l.titulo) + "</p></div>" +
+      "<div><h2>" + (ex ? (ex.aprobado ? "¡Examen aprobado!" : "Examen no superado") : (pct >= 90 ? "¡Lección dominada!" : "Lección completada")) + '</h2><p class="sub">' + F.esc(l.titulo) +
+        (ex ? " · nota " + (ex.nota != null ? ex.nota : pct) + "/100" + (ex.aprobado ? "" : " · hacen falta 80") : "") + "</p></div>" +
       '<div class="fin-cajas">' +
         '<div class="fin-caja xp"><small>XP</small><b>+' + (r.xp || 0) + "</b></div>" +
         '<div class="fin-caja ac"><small>A la primera</small><b>' + pct + "%</b></div>" +
@@ -493,7 +606,8 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
         (fall ? '<h3>Repasa esto</h3><ul class="falladas">' + fall + "</ul>" : "") +
       "</div>" +
       '<div style="display:grid;gap:10px">' +
-        (sig ? '<button class="tactil" id="fin-sig" style="width:100%">Siguiente: ' + F.esc(sig.leccion.titulo) + "</button>" : '<button class="tactil" id="fin-curso" style="width:100%">¡Curso terminado! Ver el curso</button>') +
+        (ex ? '<button class="tactil" id="fin-examen" style="width:100%">' + (ex.aprobado ? "Volver al curso" : "Repetir el examen") + "</button>"
+          : sig ? '<button class="tactil" id="fin-sig" style="width:100%">Siguiente: ' + F.esc(sig.leccion.titulo) + "</button>" : '<button class="tactil" id="fin-curso" style="width:100%">¡Curso terminado! Ver el curso</button>') +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">' +
           '<button class="btn" id="fin-volver">Volver al curso</button>' +
           '<button class="btn" id="fin-comentar">' + F.icono("comunidad") + " Dudas sobre esta lección</button>" +
@@ -502,6 +616,11 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
     "</div>";
   var sc = $("#lec-scroll"); if (sc) sc.scrollTop = 0;   // el resumen empieza arriba, con Cata a la vista
   var cerrarE = function (ruta) { cerrarPantalla(); F.ir(ruta); };
+  var bex = $("#fin-examen");
+  if (bex) bex.addEventListener("click", function () {
+    if (ex && ex.aprobado) { cerrarE("/curso/" + cursoId); }
+    else { cerrarPantalla(); F.abrirExamen(cursoId, uiExamen); }
+  });
   var bs = $("#fin-sig"); if (bs) bs.addEventListener("click", function () { F.abrirLeccion(cursoId, sig.leccion.id); history.replaceState(null, "", "#/leccion/" + cursoId + "/" + sig.leccion.id); });
   var bc = $("#fin-curso"); if (bc) bc.addEventListener("click", function () { cerrarE("/curso/" + cursoId); });
   $("#fin-volver").addEventListener("click", function () { cerrarE("/curso/" + cursoId); });
@@ -509,7 +628,7 @@ function pintarFin(r, pct, seg, cursoId, l, falladas) {
   var bcert = $("#fin-cert"); if (bcert) bcert.addEventListener("click", function () { cerrarE("/certificado/" + cert.codigo); });
   var breg = $("#fin-cert-registro"); if (breg) breg.addEventListener("click", function () { cerrarPantalla(); });
   S = null;
-  (bs || bc).focus({ preventScroll: true });   // sin desplazar: el resumen se ve desde arriba
+  (bex || bs || bc).focus({ preventScroll: true });   // sin desplazar: el resumen se ve desde arriba
   F.pintarStats();
 }
 

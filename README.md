@@ -67,11 +67,11 @@ comunidad ni ranking.
 | AWS | Cloud | 11 | 36 | 130 |
 | Redes | Sistemas | 11 | 44 | 232 |
 | SQL y PostgreSQL | Datos | 13 | 47 | 237 |
-| Java | Lenguajes | 15 | 57 | 278 |
+| Java | Lenguajes | 15 | 58 | 281 |
 | Spring Boot | Backend | 13 | 50 | 222 |
-| Python | Lenguajes | 11 | 39 | 146 |
+| Python | Lenguajes | 11 | 40 | 151 |
 | HTML y CSS | Frontend | 7 | 20 | 72 |
-| JavaScript | Lenguajes | 12 | 43 | 192 |
+| JavaScript | Lenguajes | 12 | 44 | 196 |
 | TypeScript | Lenguajes | 9 | 30 | 115 |
 | React | Frontend | 10 | 34 | 126 |
 | Node.js | Backend | 8 | 24 | 89 |
@@ -84,7 +84,7 @@ comunidad ni ranking.
 | Redis | Datos | 4 | 10 | 34 |
 | MongoDB | Datos | 4 | 10 | 34 |
 | Go | Lenguajes | 6 | 16 | 52 |
-| **Total** | | **240** | **873** | **4347** |
+| **Total** | | **240** | **876** | **4359** |
 
 Cada curso sube por niveles — **Fundamentos, Intermedio, Avanzado, Experto y
 Maestro** — y termina con casos reales y un simulacro de entrevista. En la
