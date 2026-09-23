@@ -68,6 +68,18 @@ function migrarIdsDocker() {
   if (n) { db.guardar("progreso"); console.log("[migracion] " + n + " lecciones de Docker renombradas a dk*"); }
 }
 
+/* cuenta de prueba para uso local (root / admin123): se crea al arrancar si no existe.
+   En una instalación pública hay que desactivarla con CATAPPA_USUARIO_PRUEBA=0. */
+function crearUsuarioPrueba() {
+  if (process.env.CATAPPA_USUARIO_PRUEBA === "0") return;
+  const us = db.get("usuarios");
+  if (us.some(x => x.usuario === "root")) return;
+  const salt = crypto.randomBytes(16).toString("hex");
+  us.push({ id: db.id(), usuario: "root", nombre: "Root", salt, hash: hashClave("admin123", salt), color: COLORES[0], bio: "Cuenta de prueba local.", creado: new Date().toISOString(), rol: "alumno" });
+  db.guardar("usuarios");
+  console.log("[usuarios] cuenta de prueba creada: root / admin123");
+}
+
 /* ---------------- certificados ----------------
    Al completar todas las lecciones de un curso se emite un certificado con un código
    único que cualquiera puede verificar en /#/certificado/<código>. Se emite una sola vez
@@ -907,4 +919,5 @@ db.cargar();
 cargarCatalogo();
 migrarIdsDocker();
 semilla.aplicar(db, hashClave);
+crearUsuarioPrueba();
 servidor.listen(PUERTO, () => console.log(`[catappa] escuchando en http://localhost:${PUERTO}  datos en ${db.DIR}`));

@@ -23,7 +23,8 @@ El nombre juega con **`cat` + app** (el comando de Linux) y con la
 docker compose up -d --build
 ```
 
-Abre **http://localhost:8090**.
+Abre **http://localhost:8090** y entra con la cuenta de prueba **root / admin123**
+(se crea sola al arrancar; en una instalación pública desactívala con `CATAPPA_USUARIO_PRUEBA=0`).
 
 ```powershell
 docker compose ps          # debe decir (healthy)
